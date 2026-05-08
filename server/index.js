@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const bcrypt = require("bcryptjs");
 const UserModel = require('./models/User');
 const app = express();
 app.use(express.json());
@@ -11,16 +12,39 @@ const mongo_url = process.env.MONGO_URI;
 mongoose.connect(mongo_url);
 app.post("/api/register", async (req, res) => {
     try {
-        const user = new UserModel(req.body); 
-        if(user){
-            user._id = crypto.randomUUID();
+        const {email, password} = req.body;
+        const existingUser = await UserModel.findOne({email});
+        if(existingUser){
+            return res.status(400).json({ message: "User already exists" });
         }
-        await user.save();
-        return res.status(201).json({ message: "User registered successfully", user });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        if(email!== '' && hashedPassword!==''){
+            const user = new UserModel({
+                _id: crypto.randomUUID(),
+                email: email,
+                password: hashedPassword
+            })
+
+            await user.save();
+            return res.status(201).json({ message: "User registered successfully", user });
+        }
+        
     } catch (err) {
         return res.status(400).json({ error: err.message });
     }
 });
+app.get("/api/login", async(req,res)=>{
+    try{
+        const {email,password} = req.query;
+        const user = await UserModel.findOne({email});
+        const isMatch = await bcrypt.compare(password,user.password)
+        if(!user || !isMatch)
+            return res.status(400).json({ message: "User not found" });
+        return res.status(200).json(user);
+    } catch (err){
+        return res.status(400).json({ error: err.message });
+    }
+})
 const secret = process.env.JWT_SECRET;
 const port = process.env.PORT || 3001;
 app.listen(port, "0.0.0.0", () => {

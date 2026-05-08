@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import axios from 'axios'
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_API_URL;
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,28 +16,45 @@ const AuthPage = () => {
     reset,
   } = useForm();
 
+  const navigate = useNavigate();
+
   const password = watch("password");
 
+  useEffect(()=>{
+    if(message !== '' && isError){
+      const interval = setInterval(()=>{
+        setMessage("");
+      },1000)
+      return clearInterval(setInterval);
+    }
+  },[isError,message])
+
   const onSubmit = (data) => {
-    debugger;
     if (isLogin) {
-      console.log("Login Data:", data);
-      alert("Logged in successfully");
+      axios.get(`${API_URL}/api/login`,{
+        params:{email: data.email, password: data.password}
+      })
+      .then((result)=>{
+        setIsError(false);
+        setMessage("User logged in successfully");
+        setInterval(()=>{navigate("/home"),2000});
+      })
+      .catch((error)=>{
+        setIsError(true);
+        setMessage(error.response.data.message);
+      })
     } else {
       axios.post(`${API_URL}/api/register`,data)
       .then((result)=>{
         setIsError(false);
         setMessage("Registration Successful");
-        setTimeout(()=>{setMessage(''); setIsLogin(true)},1000)}
+        setInterval(()=>{setIsLogin(true)},2000)}
       )
       .catch((error) => {
         setIsLogin(false);
-        if(error.response.data.error.includes('E11000')){
-          setIsError(true);
-          setMessage("User already exists")
-          if(window.confirm('User already exists'))
-            reset();
-        }
+        setMessage(error.response.data.message);
+        setIsError(true);
+        reset();
       });  
     }
     reset();
