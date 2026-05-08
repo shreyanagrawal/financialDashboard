@@ -10,13 +10,11 @@ app.use(cors());
 const mongo_url = process.env.MONGO_URI;
 mongoose.connect(mongo_url);
 app.post("/api/register", async (req, res) => {
-    debugger;
     try {
         const user = new UserModel(req.body); 
         if(user){
             user._id = crypto.randomUUID();
         }
-        console.log(user);
         await user.save();
         return res.status(201).json({ message: "User registered successfully", user });
     } catch (err) {
@@ -25,6 +23,6 @@ app.post("/api/register", async (req, res) => {
 });
 const secret = process.env.JWT_SECRET;
 const port = process.env.PORT || 3001;
-app.listen(port,()=>{
-    console.log("Server is running");
-})
+app.listen(port, "0.0.0.0", () => {
+    console.log(`Server is running on port ${port}`);
+});
