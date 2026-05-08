@@ -1,1 +1,13 @@
 @import "tailwindcss";
+@theme {
+  /* Danger */
+  --color-danger-soft: #fee2e2;
+  --color-fg-danger-strong: #b91c1c;
+
+  /* Success */
+  --color-success-soft: #dcfce7;
+  --color-fg-success-strong: #15803d;
+
+  /* Radius */
+  --radius-base: 0.5rem;
+}

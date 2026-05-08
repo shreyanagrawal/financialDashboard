@@ -1,9 +1,12 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-
+import axios from 'axios'
+import { useEffect } from "react";
+const API_URL = import.meta.env.VITE_API_URL;
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
   const {
     register,
     handleSubmit,
@@ -14,13 +17,29 @@ const AuthPage = () => {
 
   const password = watch("password");
 
+  useEffect(()=>{
+    setTimeout(()=>{
+      setMessage('');
+    },1000)
+  },[message]);
+
   const onSubmit = (data) => {
+    console.log(`${API_URL}`);
     if (isLogin) {
       console.log("Login Data:", data);
       alert("Logged in successfully");
     } else {
-      console.log("Register Data:", data);
-      alert("Registered successfully");
+      axios.post(`${API_URL}/api/register`,data)
+      .then((result)=>{setMessage("Registration Successful");setInterval(()=>{setIsLogin(true)},1000)})
+      .catch((error) => {
+        setIsLogin(false);
+        if(error.response.data.error.includes('E11000')){
+          setIsError(true);
+          setMessage("User already exists")
+          if(window.confirm('User already exists'))
+            reset();
+        }
+      });  
     }
     reset();
   };
@@ -75,6 +94,8 @@ const AuthPage = () => {
                 : "Start managing your finances today"}
             </p>
           </div>
+
+          {message && message !== '' && <div className={`p-4 mb-4 text-sm rounded-base ${isError ? "text-fg-danger-strong bg-danger-soft" : "text-fg-success-strong bg-success-soft"}`} role="alert"><p className="font-medium">{message}</p></div>}
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
