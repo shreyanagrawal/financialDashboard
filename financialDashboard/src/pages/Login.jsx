@@ -3,11 +3,14 @@ import { useState } from "react";
 import axios from 'axios'
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../utils/AuthContext";
 const API_URL = import.meta.env.VITE_API_URL;
-const AuthPage = () => {
+const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
+  const {accessToken,setAccessToken} = useContext(AuthContext);
   const {
     register,
     handleSubmit,
@@ -31,13 +34,24 @@ const AuthPage = () => {
 
   const onSubmit = (data) => {
     if (isLogin) {
-      axios.get(`${API_URL}/api/login`,{
-        params:{email: data.email, password: data.password}
+      axios.post(`${API_URL}/api/login`,data,{
+        withCredentials:true
       })
-      .then((result)=>{
+      .then(async(result)=>{
         setIsError(false);
+        const token = result.data.accessToken;
+        setAccessToken(result.data.accessToken);
         setMessage("User logged in successfully");
-        setInterval(()=>{navigate("/home"),2000});
+        const profileData = await axios.get(`${API_URL}/api/profile`,{
+            headers:{
+                Authorization:
+                  `Bearer ${token}`
+            },
+            withCredentials:true
+          })
+          if(profileData.status === 200)
+            setTimeout(()=>{navigate("/home")},2000);
+        
       })
       .catch((error)=>{
         setIsError(true);
@@ -213,4 +227,4 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage;
+export default Login;
