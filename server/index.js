@@ -1,12 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-// const registerRoute = require("./routes/register");
 const authRoutes = require("./routes/auth");
 const refreshRoute = require("./routes/refresh");
 const profileRoute = require("./routes/profile");
 const dbConnect = require('./utils/dbConnect');
 const cookieParser = require("cookie-parser");
+const plaidRoutes = require("./routes/plaid");
 
 const app = express();
 app.use(express.json());
@@ -28,6 +28,7 @@ app.use(cors({
 app.use("/api",authRoutes);
 app.use("/api/refresh",refreshRoute)
 app.use("/api/profile",profileRoute)
+app.use("/api/plaid", plaidRoutes);
 
 dbConnect();
 
