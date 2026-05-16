@@ -1,5 +1,7 @@
+require("dotenv").config();
 const { Configuration, PlaidApi, PlaidEnvironments } = require("plaid");
-
+console.log(process.env.PLAID_CLIENT_ID);
+console.log(process.env.PLAID_SECRET);
 const configuration = new Configuration({
   basePath: PlaidEnvironments.sandbox,
   baseOptions: {

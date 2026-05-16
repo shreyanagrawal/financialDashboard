@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const UserModel = require("../models/User");
 const jwt = require("jsonwebtoken");
 const generateTokens = require("../utils/generateTokens");
-const cookieConfig = require("../utils/cookieConfig")
+const refreshCookieConfig = require("../utils/refreshCookieConfig")
 
 route.post("/register", async (req, res) => {
     try {
@@ -36,7 +36,7 @@ route.post("/login", async(req,res)=>{
         if(!user || !isMatch)
             return res.status(400).json({ message: "User not found" });
         const {accessToken, refreshToken} = await generateTokens(req,res,user);
-        res.cookie("token",refreshToken, cookieConfig);
+        res.cookie("token",refreshToken, refreshCookieConfig);
         return res.status(200).send({accessToken, message:"User Logged in successfully"});
     } catch (err){
         return res.status(400).json({ error: err.message });

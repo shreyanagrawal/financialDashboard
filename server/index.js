@@ -28,7 +28,7 @@ app.use(cors({
 app.use("/api",authRoutes);
 app.use("/api/refresh",refreshRoute)
 app.use("/api/profile",profileRoute)
-app.use("/api/plaid", plaidRoutes);
+app.use("/api", plaidRoutes);
 
 dbConnect();
 
