@@ -1,7 +1,8 @@
 const router = require("express").Router();
 const plaidCookieConfig = require("../utils/plaidCookieConfig");
 const client = require("../utils/plaidClient");
-const encrypt = require("../utils/encrypt")
+const encrypt = require("../utils/encrypt");
+const decrypt = require("../utils/decrypt");
 const PlaidItem = require("../models/Plaid");
 
 router.post("/create-link-token", async (req, res) => {
@@ -65,12 +66,22 @@ router.post('/exchange_public_token', async (req,res,) => {
 
 router.post('/auth', async function (req, res) {
   try {
-    console.log(req.body.access_token);
-    const accessToken = req.body.access_token
-    const accountsResponse = await client.authGet({
+    const userId = req.body.user_id;
+
+    const plaidItem = await PlaidItem.findOne({ userId});
+
+    if(!plaidItem){
+      return res.status(404).json({message: "Plaid item not found"});
+    }
+
+    const accessToken = decrypt(plaidItem.encryptedAccessToken);
+    //Very very importnat  {Use decrypted token in Plaid API}
+    const accountResponse = await client.authGet({
       access_token: accessToken,
-    });
-    res.json(accountsResponse.data);
+    })
+
+    res.json(accountResponse.data);
+
   } catch (error) {
 
   console.log("PLAID ERROR:");
@@ -103,8 +114,5 @@ const institutionInfo = async (accessToken) => {
   });
   return institutionResponse.data.institution.name;
 }
-
-
-
 
 module.exports = router;
