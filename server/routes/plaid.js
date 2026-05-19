@@ -4,6 +4,7 @@ const client = require("../utils/plaidClient");
 const encrypt = require("../utils/encrypt");
 const decrypt = require("../utils/decrypt");
 const PlaidItem = require("../models/Plaid");
+const getAccessToken = require("../utils/getAccessToken");
 
 router.post("/create-link-token", async (req, res) => {
   try {
@@ -68,13 +69,8 @@ router.post('/auth', async function (req, res) {
   try {
     const userId = req.body.user_id;
 
-    const plaidItem = await PlaidItem.findOne({ userId});
-
-    if(!plaidItem){
-      return res.status(404).json({message: "Plaid item not found"});
-    }
-
-    const accessToken = decrypt(plaidItem.encryptedAccessToken);
+    const accessToken = await getAccessToken(userId); 
+    
     //Very very importnat  {Use decrypted token in Plaid API}
     const accountResponse = await client.authGet({
       access_token: accessToken,
@@ -113,6 +109,45 @@ const institutionInfo = async (accessToken) => {
     country_codes: ["US"],
   });
   return institutionResponse.data.institution.name;
-}
+};
+
+router.post("/balances", async(req,res) => {
+  try{
+    const userId = req.body.user_id;
+
+    const accessToken = await getAccessToken(userId);
+
+    const response = await client.accountsBalanceGet({
+      access_token: accessToken,
+    });
+
+    const accounts = response.data.accounts.map(account => ({
+      id: account.account_id,
+      name: account.name,
+      type: account.type,
+       subtype: account.subtype,
+      mask: account.mask,
+      availableBalance: account.balances.available,
+      currentBalance: account.balances.current,
+      currency: account.balances.iso_currency_code
+    }));
+
+    res.json({
+      success: true,
+      accounts
+    });
+
+  }catch(error){
+    console.log("PLAID ERROR:");
+    console.log(error.response?.data || error.message);
+
+    res.status(500).json({
+      error: true,
+      message:
+        error.response?.data?.error_message ||
+        error.message
+    });
+  }
+});
 
 module.exports = router;
