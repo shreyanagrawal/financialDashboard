@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const PlaidSchema = new mongoose.Schema({
-    userTd:{
+    userId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
