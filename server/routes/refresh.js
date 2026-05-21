@@ -1,15 +1,15 @@
 require("dotenv").config();
 const route = require("express").Router();
 const jwt = require("jsonwebtoken");
-const verifyRefreshToken = require("../utils/verifyRefreshToken");
-const refreshCookieConfig = require("../utils/refreshCookieConfig");
+const jwutils = require("../utils/jwebtokensUtils");
+const {refreshCookieConfig} = require("../utils/cookieConfig");
 
 route.post("/", async (req, res) => {
     try {
         const token = req.cookies.token;
         if (!token) 
             return res.status(401).json({message: "Cannot find refresh token"});
-        const { decoded } = await verifyRefreshToken(req, token);
+        const { decoded } = await jwutils.verifyRefreshToken(req, token);
         const payload = {userId: decoded.userId};
         const accessToken = jwt.sign(payload,process.env.JWT_SECRET,{ expiresIn: "10m" });
         return res.status(200).json({accessToken,message: "Access token created successfully"});
@@ -33,7 +33,6 @@ route.delete("/",async(req,res)=>{
         res.clearCookie("token", refreshCookieConfig);
         return res.status(500).json({message:"Internal Server Error"});
     }
-
 })
 
 module.exports = route

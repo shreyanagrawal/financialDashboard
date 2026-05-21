@@ -66,6 +66,14 @@ const Home = ()=>{
         });
         try{
           console.log(resData.data);
+          const balanceData = await axios.post(`${API_URL}/api/balances`,{user_id : userId},{
+            withCredentials: true
+          });
+          try{
+            console.log(balanceData.data);
+          } catch (error){
+            console.log(error)
+          }
         } catch (error){
           console.log(error)
         }

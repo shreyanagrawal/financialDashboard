@@ -3,8 +3,8 @@ const route = require("express").Router();
 const bcrypt = require("bcryptjs");
 const UserModel = require("../models/User");
 const jwt = require("jsonwebtoken");
-const generateTokens = require("../utils/generateTokens");
-const refreshCookieConfig = require("../utils/refreshCookieConfig")
+const jwutils = require("../utils/jwebtokensUtils");
+const {refreshCookieConfig} = require("../utils/cookieConfig")
 
 route.post("/register", async (req, res) => {
     try {
@@ -35,7 +35,7 @@ route.post("/login", async(req,res)=>{
         const isMatch = await bcrypt.compare(password,user.password)
         if(!user || !isMatch)
             return res.status(400).json({ message: "User not found" });
-        const {accessToken, refreshToken} = await generateTokens(req,res,user);
+        const {accessToken, refreshToken} = await jwutils.generateTokens(req,res,user);
         res.cookie("token",refreshToken, refreshCookieConfig);
         return res.status(200).send({accessToken, message:"User Logged in successfully"});
     } catch (err){

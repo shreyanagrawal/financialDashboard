@@ -1,7 +1,7 @@
 const route = require("express").Router();
 const authMiddleware = require("../middleware/authMiddleWare");
 const UserModel = require("../models/User");
-const refreshCookieConfig = require("../utils/refreshCookieConfig");
+const {refreshCookieConfig} = require("../utils/cookieConfig");
 
 route.get("/", authMiddleware, async(req,res)=>{
     try{
