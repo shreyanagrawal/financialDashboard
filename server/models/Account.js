@@ -1,15 +1,8 @@
 const mongoose = require("mongoose");
 
-const accountSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  plaidItemId: {
-    type: String,
-    required: true,
-  },
+const AccountSchema = new mongoose.Schema({
+  userId: {type: mongoose.Schema.Types.ObjectId,ref: "User",required: true},
+  plaidItemId: {type: String,required: true},
   officialName: String,
   accounts:[
     {
@@ -36,18 +29,12 @@ const accountSchema = new mongoose.Schema({
       persistentAccountId: String,
     }
   ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+  createdAt: {type: Date,default: Date.now},
+  updatedAt: {type: Date,default: Date.now},
 });
-accountSchema.index(
+AccountSchema.index(
   { plaidItemId: 1, "accounts.accountId": 1 },
   { unique: true }
 );
-
-module.exports = mongoose.model("Account", accountSchema);
+const AccountModel = mongoose.model("Account",AccountSchema);
+module.exports = AccountModel;

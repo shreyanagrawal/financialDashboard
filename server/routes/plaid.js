@@ -2,8 +2,7 @@ const router = require("express").Router();
 const {plaidCookieConfig} = require("../utils/cookieConfig");
 const plaidUtils = require("../utils/plaidUtils");
 const PlaidItem = require("../models/Plaid");
-const Accounts = require("../models/Account");
-const Account = require("../models/Account");
+const AccountModel = require("../models/Account");
 
 router.post("/create-link-token", async (req, res) => {
   try {
@@ -119,9 +118,7 @@ router.post("/balances", async(req,res) => {
     });
     const itemID = itemResponse.data.item.item_id;
     const accounts = response.data.accounts;
-
-
-    await Account.create({
+    await AccountModel.create({
       userId,
       plaidItemId: itemID,
       officialName: institutionDetails,
