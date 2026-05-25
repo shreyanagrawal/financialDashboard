@@ -3,7 +3,6 @@ const {plaidCookieConfig} = require("../utils/cookieConfig");
 const plaidUtils = require("../utils/plaidUtils");
 const PlaidItem = require("../models/Plaid");
 const AccountModel = require("../models/Account");
-const Transaction = require("../models/Transaction");
 
 router.post("/create-link-token", async (req, res) => {
   try {
@@ -156,91 +155,6 @@ router.post("/balances", async(req,res) => {
       message:
         error.response?.data?.error_message ||
         error.message
-    });
-  }
-});
-
-router.post("/transactions", async (req, res) => {
-  try {
-    const userId = req.body.user_id;
-
-    // GET DECRYPTED ACCESS TOKEN
-    const accessToken = await plaidUtils.getAccessToken(userId);
-
-    // GET ITEM DETAILS
-    const itemResponse = await plaidUtils.client.itemGet({
-      access_token: accessToken,
-    });
-
-    const itemID = itemResponse.data.item.item_id;
-
-    // DATE RANGE
-    const startDate = "2024-01-01";
-
-    const endDate = new Date().toISOString().split("T")[0];
-
-    // FETCH TRANSACTIONS FROM PLAID
-    const response = await plaidUtils.client.transactionsGet({
-      access_token: accessToken,
-
-      start_date: startDate,
-
-      end_date: endDate,
-    });
-
-    const transactions = response.data.transactions;
-
-    // SAVE TO DATABASE
-    for (const txn of transactions) {
-      await Transaction.updateOne(
-        {
-          transactionId: txn.transaction_id,
-        },
-
-        {
-          userId,
-
-          plaidItemId: itemID,
-
-          accountId: txn.account_id,
-
-          transactionId: txn.transaction_id,
-
-          name: txn.name,
-
-          amount: txn.amount,
-
-          category: txn.category || [],
-
-          merchantName: txn.merchant_name,
-
-          date: txn.date,
-
-          pending: txn.pending,
-        },
-
-        {
-          upsert: true,
-        },
-      );
-    }
-
-    // SEND RESPONSE
-    res.json({
-      success: true,
-
-      count: transactions.length,
-
-      transactions,
-    });
-  } catch (error) {
-    console.log("PLAID ERROR:");
-    console.log(error.response?.data || error.message);
-
-    res.status(500).json({
-      error: true,
-
-      message: error.response?.data?.error_message || error.message,
     });
   }
 });
