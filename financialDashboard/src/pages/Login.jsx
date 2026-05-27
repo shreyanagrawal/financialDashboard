@@ -81,9 +81,7 @@ const Login = () => {
         <h1 className="text-5xl font-bold leading-tight mb-6">
           Personal Finance
           <br />
-          <span className="text-5xl text-white-700 leading-8 mb-8">
-            Management Dashboard
-          </span>
+          <span className="text-5xl text-white-700 leading-8 mb-8">Management Dashboard</span>
         </h1>
         <p className="text-lg text-blue-100 leading-8 mb-8">
           Take full control of your financial life with one smart dashboard.
@@ -124,16 +122,10 @@ const Login = () => {
                 : "Start managing your finances today"}
             </p>
           </div>
-
           {message && message !== '' && <div className={`p-4 mb-4 text-sm rounded-base ${isError ? "text-fg-danger-strong bg-danger-soft" : "text-fg-success-strong bg-success-soft"}`} role="alert"><p className="font-medium">{message}</p></div>}
-
-          {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Email */}
             <div>
-              <label className="block mb-2 text-gray-700 font-medium">
-                Email
-              </label>
+              <label className="block mb-2 text-gray-700 font-medium">Email </label>
               <input
                 type="email"
                 placeholder="Enter your email"
@@ -147,17 +139,11 @@ const Login = () => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.email.message}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
               )}
             </div>
-
-            {/* Password */}
             <div>
-              <label className="block mb-2 text-gray-700 font-medium">
-                Password
-              </label>
+              <label className="block mb-2 text-gray-700 font-medium">Password</label>
               <input
                 type="password"
                 placeholder={isLogin ? "Enter your password" : "Create password"}
@@ -171,18 +157,12 @@ const Login = () => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.password.message}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
               )}
             </div>
-
-            {/* Confirm Password (only for Register) */}
             {!isLogin && (
               <div>
-                <label className="block mb-2 text-gray-700 font-medium">
-                  Confirm Password
-                </label>
+                <label className="block mb-2 text-gray-700 font-medium">Confirm Password</label>
                 <input
                   type="password"
                   placeholder="Confirm password"
@@ -194,14 +174,10 @@ const Login = () => {
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.confirmPassword.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
                 )}
               </div>
             )}
-
-            {/* Button */}
             <button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition duration-200"
@@ -209,8 +185,6 @@ const Login = () => {
               {isLogin ? "Login" : "Register"}
             </button>
           </form>
-
-          {/* Footer Toggle */}
           <p className="text-center text-gray-500 mt-6 text-sm">
             {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
             <button
@@ -226,5 +200,4 @@ const Login = () => {
     </div>
   );
 };
-
 export default Login;

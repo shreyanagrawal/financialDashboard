@@ -48,7 +48,9 @@ router.post('/exchange_public_token', async (req,res,) => {
       institutionName: institutionDetails
     });
     // res.clearCookie("plaidToken");
-    res.json({ success: true , message: "Bank Connected Succesfully" });
+    const balancesData = await getBalances(req.body.user_id);
+    res.json({ success: true , message: "Bank Connected Succesfully", balance:balancesData });
+
   } catch (error) {
     console.log("PLAID ERROR:");
     console.log(JSON.stringify(error.response?.data, null, 2));
@@ -105,9 +107,8 @@ const institutionInfo = async (accessToken) => {
   return institutionResponse.data.institution.name;
 };
 
-router.post("/balances", async(req,res) => {
+const getBalances = async(userId)=>{
   try{
-    const userId = req.body.user_id;
     const accessToken = await plaidUtils.getAccessToken(userId);
     const institutionDetails = await institutionInfo(accessToken);
     const response = await plaidUtils.client.accountsBalanceGet({
@@ -141,22 +142,14 @@ router.post("/balances", async(req,res) => {
 
     // const accountsData = await new Account(accounts).save();
 
-    res.json({
-      success: true,
-      accounts
-    });
+    return accounts;
 
   }catch(error){
     console.log("PLAID ERROR:");
     console.log(error.response?.data || error.message);
 
-    res.status(500).json({
-      error: true,
-      message:
-        error.response?.data?.error_message ||
-        error.message
-    });
+    return error.message;
   }
-});
+}
 
 module.exports = router;
