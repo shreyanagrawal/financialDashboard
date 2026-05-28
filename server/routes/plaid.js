@@ -143,7 +143,6 @@ const getTransactions = async(userId)=>{
 
     return error.message;
   }
-
 }
 const getBalances = async(userId)=>{
   try{
@@ -216,7 +215,5 @@ const getBalances = async(userId)=>{
 
     return error.message;
   }
-
 }
-
 module.exports = router;
