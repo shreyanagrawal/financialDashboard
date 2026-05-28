@@ -3,6 +3,7 @@ const {plaidCookieConfig} = require("../utils/cookieConfig");
 const plaidUtils = require("../utils/plaidUtils");
 const PlaidItem = require("../models/Plaid");
 const AccountModel = require("../models/Account");
+const TransactionModel = require("../models/Transaction");
 
 router.post("/create-link-token", async (req, res) => {
   try {
@@ -49,7 +50,8 @@ router.post('/exchange_public_token', async (req,res,) => {
     });
     // res.clearCookie("plaidToken");
     const balancesData = await getBalances(req.body.user_id);
-    res.json({ success: true , message: "Bank Connected Succesfully", balance:balancesData });
+    const transactionsData = await getTransactions(req.body.user_id);
+    res.json({ success: true , message: "Bank Connected Succesfully", balances: balancesData, transactions: transactionsData });
 
   } catch (error) {
     console.log("PLAID ERROR:");
@@ -107,6 +109,42 @@ const institutionInfo = async (accessToken) => {
   return institutionResponse.data.institution.name;
 };
 
+const getTransactions = async(userId)=>{
+  try{
+    const accessToken = await plaidUtils.getAccessToken(userId);
+     const response = await plaidUtils.client.transactionsGet({
+      access_token: accessToken,
+      start_date: "2024-01-01",
+      end_date: new Date().toISOString().split("T")[0],
+    });
+    const itemResponse = await plaidUtils.client.itemGet({
+      access_token: accessToken,
+    });
+    const itemID = itemResponse.data.item.item_id;
+    const transactions = response.data.transactions;
+    await TransactionModel.create({
+      userId,
+      plaidItemId: itemID,
+      transactions: transactions.map((tx) => ({
+        accountId: tx.account_id,
+        transactionId: tx.transaction_id,
+        name: tx.name,
+        amount: tx.amount,
+        category: tx.category?.length > 0 ? tx.category : ["Other"],
+        merchantName: tx.merchant_name || tx.name,
+        date: tx.date,
+        pending: tx.pending,
+      })),
+    });
+    return transactions;
+  }catch(error){
+    console.log("PLAID ERROR:");
+    console.log(error.response?.data || error.message);
+
+    return error.message;
+  }
+
+}
 const getBalances = async(userId)=>{
   try{
     const accessToken = await plaidUtils.getAccessToken(userId);
@@ -119,37 +157,66 @@ const getBalances = async(userId)=>{
     });
     const itemID = itemResponse.data.item.item_id;
     const accounts = response.data.accounts;
-    await AccountModel.create({
-      userId,
-      plaidItemId: itemID,
-      officialName: institutionDetails,
+    // const existingAccountsData = await AccountModel.find({plaidItemId: itemID});
+    // if(!existingAccountsData){
+    //   await AccountModel.create({
+    //     userId,
+    //     plaidItemId: itemID,
+    //     officialName: institutionDetails,
 
-      accounts: accounts.map((account) => ({
-        accountId: account.account_id,
-        name: account.name,
-        type: account.type,
-        subtype: account.subtype,
-        mask: account.mask,
-        balances: {
-          available: account.balances.available,
-          current: account.balances.current,
-          limit: account.balances.limit,
-          currency: account.balances.iso_currency_code,
-        },
-        persistentAccountId: account.persistent_account_id,
-      })),
-    });
-
-    // const accountsData = await new Account(accounts).save();
-
+    //     accounts: accounts.map((account) => ({
+    //       accountId: account.account_id,
+    //       name: account.name,
+    //       type: account.type,
+    //       subtype: account.subtype,
+    //       mask: account.mask,
+    //       balances: {
+    //         available: account.balances.available,
+    //         current: account.balances.current,
+    //         limit: account.balances.limit,
+    //         currency: account.balances.iso_currency_code,
+    //       },
+    //       persistentAccountId: account.persistent_account_id,
+    //     })),
+    //   });
+    // }
+     await AccountModel.findOneAndUpdate(
+      {
+        userId,
+        plaidItemId: itemID,
+      },
+      {
+        userId,
+        plaidItemId: itemID,
+        officialName: institutionDetails,
+        accounts: accounts.map((account) => ({
+          accountId: account.account_id,
+          name: account.name,
+          type: account.type,
+          subtype: account.subtype,
+          mask: account.mask,
+          balances: {
+            available: account.balances.available,
+            current: account.balances.current,
+            limit: account.balances.limit,
+            currency: account.balances.iso_currency_code,
+          },
+          persistentAccountId: account.persistent_account_id,
+        })),
+      },
+      {
+        upsert: true,
+        returnDocument: "after",
+      },
+    );
     return accounts;
-
   }catch(error){
     console.log("PLAID ERROR:");
     console.log(error.response?.data || error.message);
 
     return error.message;
   }
+
 }
 
 module.exports = router;
