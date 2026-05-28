@@ -76,11 +76,21 @@ const Nav = () => {
         });
         try{
           console.log(resData.data);
-          const balanceData = await axios.post(`${API_URL}/api/balances`,{user_id : userId},{
+          const balanceData = await axios.post(`${API_URL}/api/balances`, { user_id: userData._id },{
             withCredentials: true
           });
           try{
             console.log(balanceData.data);
+            const transactionData = await axios.post(`${API_URL}/api/transactions`,
+                {
+                  user_id:userData._id
+                },
+                {
+                  withCredentials: true
+                }
+              );
+            console.log(transactionData.data);
+
           } catch (error){
             console.log(error)
           }
@@ -105,20 +115,20 @@ const Nav = () => {
   },[userData])
   if(loading) return <h1>Loading..</h1>
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-100 overflow-hidden">
       <Navbar
         open={open}
         ready={ready}
         handleLogout={handleLogout}
         username={userData.email.split("@")[0]}
       />
-      <div className="flex">
+      <div className="flex pt-[88px]">
         <button
-          className="lg:hidden fixed top-5 left-5 z-50 bg-blue-600 text-white p-3 rounded-xl shadow-lg"
+          className="lg:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-xl shadow-lg"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >☰</button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex-1 p-8">
+        <div className="flex-1 lg:ml-64 p-4 md:p-6  h-[calc(100vh-88px)] overflow-y-auto">
           <Outlet />
         </div>
       </div>
