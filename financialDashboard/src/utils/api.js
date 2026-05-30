@@ -14,9 +14,7 @@ export const fetchWithAuth = async(accessToken,setAccessToken)=>{
                 withCredentials:true
             }
         );
-        return res.data;
-    } catch(error){
-        if(error.response?.status === 401){
+        if(!res.data.authenticated){
             try{
                 const refreshRes = await axios.post(`${API_URL}/api/refresh`,{},
                     {
@@ -39,6 +37,10 @@ export const fetchWithAuth = async(accessToken,setAccessToken)=>{
                 throw refreshError;
             }
         }
-        throw error;
+        return res.data;
+    } catch(error){
+        if(error.response?.status === 401){
+            throw error;
+        }
     }
 };

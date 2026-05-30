@@ -5,7 +5,7 @@ import Nav from "./components/Nav";
 import { AuthContext } from './utils/AuthContext';
 import { useState } from 'react';
 function App() {
-  const [accessToken, setAccessToken] = useState("");
+  const [accessToken, setAccessToken] = useState();
   const [userData, setUserData] = useState({});
   return (
     <AuthContext.Provider value={{ accessToken, setAccessToken, userData, setUserData }}>

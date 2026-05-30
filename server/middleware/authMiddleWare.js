@@ -12,7 +12,7 @@ const authMiddleWare = (req,res,next)=>{
         next();
     }
     catch(err){ 
-        return err; 
+        return res.status(200).json({ authenticated: false, message:"Invalid token"}); 
     }
 }
 module.exports = authMiddleWare;
