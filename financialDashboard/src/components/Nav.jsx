@@ -76,7 +76,7 @@ const Nav = () => {
         });
         try{
           console.log(resData.data);
-          const balanceData = await axios.post(`${API_URL}/api/balances`,{user_id : userId},{
+          const balanceData = await axios.post(`${API_URL}/api/balances`,{user_id : userData._id},{
             withCredentials: true
           });
           try{
