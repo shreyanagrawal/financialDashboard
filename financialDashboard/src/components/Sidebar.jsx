@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   return (
     <>
@@ -15,7 +16,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <h2 className="text-2xl font-bold text-blue-700 mb-10">FinDash</h2>
         <div className="flex flex-col gap-4">
           <button className="text-left px-4 py-3 rounded-xl hover:bg-blue-100 font-medium">Dashboard</button>
-          <button className="text-left px-4 py-3 rounded-xl hover:bg-blue-100 font-medium">Accounts</button>
+          <Link to="/accounts"><button className="text-left px-4 py-3 rounded-xl hover:bg-blue-100 font-medium">Accounts</button></Link>
           <button className="text-left px-4 py-3 rounded-xl hover:bg-blue-100 font-medium">Transactions</button>
           <button className="text-left px-4 py-3 rounded-xl hover:bg-blue-100 font-medium">Analytics</button>
           <button className="text-left px-4 py-3 rounded-xl hover:bg-blue-100 font-medium">Budgets</button>

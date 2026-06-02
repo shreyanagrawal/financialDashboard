@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Nav from "./components/Nav";
 import { AuthContext } from './utils/AuthContext';
 import { useState } from 'react';
+import Accounts from './pages/Accounts';
 function App() {
   const [accessToken, setAccessToken] = useState();
   const [userData, setUserData] = useState({});
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route element={<Nav />}>
             <Route path="/home" element={<Home />} />
+            <Route path="/accounts" element={<Accounts userId={userData._id}/>}/>
           </Route>
         </Routes>
       </BrowserRouter>
