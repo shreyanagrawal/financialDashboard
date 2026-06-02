@@ -76,25 +76,9 @@ const Nav = () => {
         });
         try{
           console.log(resData.data);
-          const balanceData = await axios.post(`${API_URL}/api/balances`,{user_id : userData._id},{
-            withCredentials: true
-          });
-          try{
-            console.log(balanceData.data);
-          } catch (error){
-            console.log(error)
-          }
         } catch (error){
           console.log(error)
         }
-        // try{
-        //    console.log(resData);
-        //   //  console.log("AccessToken",resData.data);
-        //   const auth = await axios.post(`${API_URL}/api/auth`,{access_token: resData.data.accessToken});
-        //   console.log("Authenticated data",auth.data)
-        // } catch (error) {
-        //   console.log(error)
-        // }
       }
     }
     fetchData(publicToken)

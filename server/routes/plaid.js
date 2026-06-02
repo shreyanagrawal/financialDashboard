@@ -122,20 +122,35 @@ const getTransactions = async(userId)=>{
     });
     const itemID = itemResponse.data.item.item_id;
     const transactions = response.data.transactions;
-    await TransactionModel.create({
-      userId,
-      plaidItemId: itemID,
-      transactions: transactions.map((tx) => ({
-        accountId: tx.account_id,
-        transactionId: tx.transaction_id,
-        name: tx.name,
-        amount: tx.amount,
-        category: tx.category?.length > 0 ? tx.category : ["Other"],
-        merchantName: tx.merchant_name || tx.name,
-        date: tx.date,
-        pending: tx.pending,
-      })),
-    });
+    await TransactionModel.updateOne(
+      {
+        userId,
+        plaidItemId: itemID,
+      },
+      {
+        $set: {
+          transactions: transactions.map((tx) => ({
+            accountId: tx.account_id,
+            transactionId: tx.transaction_id,
+            name: tx.name,
+            amount: tx.amount,
+            category: tx.category?.length
+              ? tx.category
+              : ["Other"],
+            merchantName: tx.merchant_name || tx.name,
+            date: tx.date,
+            pending: tx.pending,
+          })),
+        },
+        $setOnInsert: {
+          userId,
+          plaidItemId: itemID,
+        },
+      },
+      {
+        upsert: true,
+      }
+    );
     return transactions;
   }catch(error){
     console.log("PLAID ERROR:");
