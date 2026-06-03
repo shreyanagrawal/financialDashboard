@@ -1,73 +1,129 @@
 import axios from "axios";
-import { useEffect } from "react";
-import { useState } from "react"
+import { useEffect, useState } from "react";
+import AccountCard from "../components/AccountCard";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Accounts = (userId) => {
-    //console.log(userId);
-    const [loading,setLoading] = useState(true);
-    const [accounts,setAccounts] = useState(null);
-    useEffect(()=>{
-        const accountsData = getAccountsData();
-    },[])
-    const getAccountsData = async () => {
-        const accountsData = await axios.post(`${API_URL}/api/getAccounts`,{userid:userId.userId});
-        try{
-            if(accountsData.status === 200){
-                setAccounts(accountsData.data.accounts[0].accounts)
-            }
-                //console.log(accountsData.data.accounts[0].accounts);
-        } catch (err){
-            console.log(err);
-        }
-    }
-     useEffect(()=>{
-       if(accounts){
-         setLoading(false);
-        // console.log(accounts);
-        }
-     },[accounts]);
-    if(loading) return <h1>Loading..</h1>
-    return (
-      <div className="p-6">
-        <h1 className="text-3xl font-bold mb-6">
-           Accounts
-        </h1>
+const [loading, setLoading] = useState(true);
+const [accounts, setAccounts] = useState(null);
 
-        {accounts?.map((account,index)=>(
-          <div
-            key={account.accountId}
-            className="bg-white rounded-xl shadow-md p-6 mb-4"
-          >
-            <h2 className="text-xl font-bold">
-              {account.name}
-            </h2>
-            <div className="mt-3 space-y-1">
-              <p>Type: {account.type}</p>
-              <p>Subtype: {account.subtype}</p>
-              <p>Mask: {account.mask}</p>
+const totalBalance =
+accounts?.reduce(
+(sum, account) => sum + (account.balances?.current || 0),
+0
+) || 0;
 
-              <p>
-               <strong>Current Balance:</strong>
-               {" "}
-               {account.balances?.current}
-               {" "}
-               {account.balances?.currency}
-             </p>
-            
+useEffect(() => {
+getAccountsData();
+}, []);
 
-            <p>
-              <strong>Available Balance:</strong>
-              {" "}
-              {account.balances?.available}
-              {" "}
-              {account.balances?.currency}
-            </p>
-        </div>
-    </div>    
-    ))}
-  </div>
-)
+const getAccountsData = async () => {
+try {
+const accountsData = await axios.post(
+`${API_URL}/api/getAccounts`,
+{ userid: userId.userId }
+);
+
+
+  if (accountsData.status === 200) {
+    setAccounts(accountsData.data.accounts[0].accounts);
+  }
+} catch (err) {
+  console.log(err);
 }
 
-export default Accounts
+
+};
+
+useEffect(() => {
+if (accounts) {
+setLoading(false);
+}
+}, [accounts]);
+
+if (loading) return <h1>Loading..</h1>;
+
+return ( <div className="p-5 bg-[#081327]">
+
+
+  <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">
+    Accounts
+  </h1>
+
+  <div className="grid md:grid-cols-3 gap-4 mb-6">
+
+    <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-xl p-5">
+      <p className="text-slate-400">Total Balance</p>
+
+      <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">
+         ${totalBalance}
+      </h2>
+
+      <p className="text-green-400 mt-2">
+        Across {accounts.length} accounts
+      </p>
+    </div>
+
+    <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-xl p-5">
+      <p className="text-slate-400">
+        Connected Banks
+      </p>
+
+      <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">
+         {accounts.length}
+      </h2>
+
+      <p className="text-slate-400 mt-2">
+        via Plaid
+      </p>
+    </div>
+
+    <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-xl p-5">
+      <p className="text-slate-400">
+        Credit Used
+      </p>
+
+      <h2 className="text-3xl md:text-4xl font-bold text-yellow-400 mt-2">
+         $0
+      </h2>
+
+      <p className="text-slate-400 mt-2">
+        No credit accounts
+      </p>
+    </div>
+
+  </div>
+
+  <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-2xl p-6">
+
+    <div className="flex flex-col md:flex-row gap-3 md:gap-0 md:justify-between md:items-center mb-6">
+
+      <h2 className="text-3xl font-bold text-white">
+        Bank Accounts
+      </h2>
+
+      <button className="w-full md:w-auto bg-green-900 text-green-300 px-4 py-2 rounded-lg">
+        Connect Bank via Plaid
+      </button>
+
+    </div>
+
+    <div className="space-y-4">
+      {accounts?.map((account) => (
+        <AccountCard
+          key={account.accountId}
+          account={account}
+        />
+      ))}
+    </div>
+
+  </div>
+
+</div>
+
+
+);
+};
+
+export default Accounts;
