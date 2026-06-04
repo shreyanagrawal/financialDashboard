@@ -44,3 +44,47 @@ export const fetchWithAuth = async(accessToken,setAccessToken)=>{
         }
     }
 };
+export const getAccountsData = async(userId)=>{
+    try {
+        const accountsData = await axios.post(`${API_URL}/api/getAccounts`,{ userid: userId});
+        if (accountsData.status === 200) {
+            return accountsData.data.accounts;
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+export const getTransactionsData = async(userId)=>{
+    try {
+        const transactionsData = await axios.post(`${API_URL}/api/getTransactions`,{ userid: userId});
+        if (transactionsData.status === 200) {
+            return transactionsData.data.transactions;
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
+export const createLinkToken = async()=>{
+    const response = await axios.post(`${API_URL}/api/create-link-token`,{},
+        {
+          withCredentials: true
+        }
+    );
+    return response;
+}
+export const logoutUser = async()=>{
+    const deleted = await axios.delete(`${API_URL}/api/refresh`,
+        {
+            withCredentials: true
+        }
+    );
+    return deleted
+}
+export const fetchPlaidData = async(publicToken, userId)=>{
+    if(publicToken !== ''){
+        const resData = await axios.post(`${API_URL}/api/exchange_public_token`,{public_token:publicToken, user_id : userId},{
+            withCredentials:true
+        });
+        return resData
+    }
+}

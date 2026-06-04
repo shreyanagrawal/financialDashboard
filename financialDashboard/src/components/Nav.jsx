@@ -3,7 +3,11 @@ import { useState, useEffect, useContext } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import { AuthContext } from "../utils/AuthContext";
+import { PlaidContext } from "../utils/PlaidContext";
 import { fetchWithAuth } from "../utils/api";
+import { createLinkToken } from "../utils/api";
+import { fetchPlaidData } from "../utils/api";
+import { logoutUser } from "../utils/api";
 import axios from "axios";
 import { usePlaidLink } from "react-plaid-link";
 const API_URL = import.meta.env.VITE_API_URL;
@@ -14,37 +18,31 @@ const Nav = () => {
   const [publicToken,setPublicToken] = useState("");
   const {userData,setUserData} = useContext(AuthContext);
   const [loading,setLoading] = useState(true);
+  const [accounts,setAccounts] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
     loadProfile();
-    createLinkToken();
+    generateLinkToken();
   }, []);
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken);
-      if (data.user._id !== null) {
+      if (data.user._id !== null) 
         setUserData(data.user);
-      }
-      else {
+      else 
         navigate("/");
-      }
     } catch (err) {
       console.log(err);
     }
   };
-  const createLinkToken = async () => {
+  const generateLinkToken = async () => {
     try {
-      const response = await axios.post(
-        `${API_URL}/api/create-link-token`,
-        {},
-        {
-          withCredentials: true
-        }
-      );
-      setLinkToken(response.data.link_token);
-    } catch (error) {
-      console.log(error);
-    }
+      const response = await createLinkToken();
+      if(response.status)
+        setLinkToken(response.data.link_token);
+      } catch (error) {
+        console.log(error);
+      }
   };
   const { open, ready } = usePlaidLink({
       token: linkToken,
@@ -55,12 +53,7 @@ const Nav = () => {
   });
   const handleLogout = async () => {
     try {
-      const deleted = await axios.delete(
-        `${API_URL}/api/refresh`,
-        {
-          withCredentials: true
-        }
-      );
+      const deleted = await logoutUser();
       if (deleted.status === 200) {
         navigate("/");
       }
@@ -69,20 +62,17 @@ const Nav = () => {
     }
   };
   useEffect(()=>{
-    async function fetchData(publicToken) {
-      if(publicToken !== ''){
-        const resData = await axios.post(`${API_URL}/api/exchange_public_token`,{public_token:publicToken, user_id : userData._id},{
-          withCredentials:true
-        });
-        try{
-          console.log(resData.data);
-        } catch (error){
-          console.log(error)
-        }
-      }
-    }
-    fetchData(publicToken)
+    fetchData(publicToken, userData.userId);
   },[publicToken])
+  const fetchData = async(publicToken, userId)=>{
+    try{
+      const fetchedData = await fetchPlaidData(publicToken,userId);
+      if(fetchedData.status)
+        console.log(fetchedData.data);
+    } catch (error){
+      console.log(error)
+    }
+  }
   useEffect(()=>{
     if(Object.keys(userData).length > 0)
       setLoading(false);
@@ -90,20 +80,14 @@ const Nav = () => {
   if(loading) return <h1>Loading..</h1>
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar
-        open={open}
-        ready={ready}
-        handleLogout={handleLogout}
-        username={userData.email.split("@")[0]}
-      />
+      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData.email.split("@")[0]}/>
       <div className="flex">
-        <button
-          className="lg:hidden fixed top-5 left-5 z-50 bg-blue-600 text-white p-3 rounded-xl shadow-lg"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >☰</button>
+        <button className="lg:hidden fixed top-5 left-5 z-50 bg-blue-600 text-white p-3 rounded-xl shadow-lg" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="flex-1 p-8">
-          <Outlet />
+          <PlaidContext.Provider value={{accounts, setAccounts}}>
+            <Outlet />
+          </PlaidContext.Provider>
         </div>
       </div>
     </div>
