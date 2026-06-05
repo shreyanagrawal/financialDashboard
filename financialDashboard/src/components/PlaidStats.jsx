@@ -19,9 +19,10 @@ const PlaidStats = ({transactions}) => {
             )
         );
     }, 0) || 0;
-    const connectedAccounts = accounts.map((account)=>
-        account.accounts.length
-    )
+    const connectedAccounts = accounts.reduce(
+        (total, item) => total + item.accounts.length,
+        0
+    );
     const path = useLocation();
     let totalExpenses = 0
     if(path.pathname === "/home"){

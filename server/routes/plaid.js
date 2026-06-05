@@ -122,6 +122,12 @@ const getTransactions = async(userId)=>{
     });
     const itemID = itemResponse.data.item.item_id;
     const transactions = response.data.transactions;
+    console.log(
+     transactions.map(tx => ({
+       name: tx.name,
+       transactionId: tx.transaction_id
+     }))
+    );
     await TransactionModel.updateOne(
       {
         userId,
@@ -129,18 +135,20 @@ const getTransactions = async(userId)=>{
       },
       {
         $set: {
-          transactions: transactions.map((tx) => ({
-            accountId: tx.account_id,
-            transactionId: tx.transaction_id,
-            name: tx.name,
-            amount: tx.amount,
-            category: tx.category?.length
-              ? tx.category
-              : ["Other"],
-            merchantName: tx.merchant_name || tx.name,
-            date: tx.date,
-            pending: tx.pending,
-          })),
+          transactions: transactions
+           .filter(tx => tx.transaction_id)
+           .map((tx) => ({
+             accountId: tx.account_id,
+             transactionId: tx.transaction_id,
+             name: tx.name,
+             amount: tx.amount,
+             category: tx.category?.length
+               ? tx.category
+               : ["Other"],
+             merchantName: tx.merchant_name || tx.name,
+             date: tx.date,
+             pending: tx.pending,
+           })),
         },
         $setOnInsert: {
           userId,

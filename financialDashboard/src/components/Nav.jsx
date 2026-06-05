@@ -84,7 +84,7 @@ const Nav = () => {
       <div className="flex">
         <button className="lg:hidden fixed top-5 left-5 z-50 bg-blue-600 text-white p-3 rounded-xl shadow-lg" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-8 pt-8 ml-56 sm:ml-64">
           <PlaidContext.Provider value={{accounts, setAccounts}}>
             <Outlet />
           </PlaidContext.Provider>
