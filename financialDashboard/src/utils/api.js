@@ -88,3 +88,10 @@ export const fetchPlaidData = async(publicToken, userId)=>{
         return resData
     }
 }
+export const updateLinking = async(accountId, userId, isLinked)=>{
+    if(accountId !== '' && userId !== ''){
+        const AccountData = await axios.post(`${API_URL}/api/updateAccountsLink`,{accountId:accountId, userId:userId, isLinked: isLinked});
+        if(AccountData.status === 200)
+            return AccountData.status
+    }
+}

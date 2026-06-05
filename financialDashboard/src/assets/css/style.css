@@ -1,3 +1,11 @@
 .sidebar{
     height: -webkit-fill-available;
 }
+.linked{
+    background: #0d542b;
+    color: #7bf1a8;
+}
+.unlinked{
+    color: #81281a;
+    background: #ff6467;
+}

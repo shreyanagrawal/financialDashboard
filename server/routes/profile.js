@@ -43,4 +43,33 @@ route.post("/getTransactions",async(req,res)=>{
     }
 })
 
+route.post("/updateAccountsLink", async(req,res)=>{
+    const accountId = req.body.accountId;
+    const userId = req.body.userId;
+    const linked = req.body.isLinked
+    if(accountId !== '' && userId !== ''){
+        try{
+            const resData = await AccountModel.updateOne(
+                {
+                    userId:userId,
+                    "accounts.accountId": accountId 
+                }, 
+                {
+                     $set: {
+                        "accounts.$.isActive": linked ? false: true,
+                        "accounts.$.disconnectedAt": linked ? new Date : null,
+                    }
+                }
+            );
+            if(resData){                    
+                return res.status(200).json({success: true, message: linked ? "Account unlinked successfully" : "Account linked successfully"})
+            } else 
+                return res.status(404).json({success: false, message: "Requested account id not found"})
+        } catch (error){
+            console.log(error);
+            return res.status(500).json({success:false, message:error})
+        }
+    }
+})
+
 module.exports = route;

@@ -26,19 +26,19 @@ const Accounts = (userId) => {
 
   return ( 
     <div className="p-5">
-      <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">Accounts</h1>
       <PlaidStats />
-      <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-2xl p-6">
+      <div className="rounded-2xl">
         <div className="flex flex-col md:flex-row gap-3 md:gap-0 md:justify-between md:items-center mb-6">
-          <h2 className="text-3xl font-bold text-white">Bank Accounts</h2>
-          <button className="w-full md:w-auto bg-green-900 text-green-300 px-4 py-2 rounded-lg">Connect Bank via Plaid</button>
+          <h2 className="text-3xl font-bold ">Bank Accounts</h2>
+          {/* <button className="w-full md:w-auto bg-green-900 text-green-300 px-4 py-2 rounded-lg">Connect Bank via Plaid</button> */}
         </div>
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             {accounts?.flatMap(item =>
               item.accounts.map(account => (
                 <AccountCard
                   key={account.accountId}
                   account={account}
+                  userId={userId.userId}
                 />
               ))
             )}

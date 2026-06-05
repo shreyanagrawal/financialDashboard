@@ -27,6 +27,14 @@ const AccountSchema = new mongoose.Schema({
         currency: String,
       },
       persistentAccountId: String,
+      isActive:{
+        type: Boolean,
+        default: true
+      },
+      disconnectedAt:{
+        type: Date,
+        default: null
+      }
     }
   ],
   createdAt: {type: Date,default: Date.now},
