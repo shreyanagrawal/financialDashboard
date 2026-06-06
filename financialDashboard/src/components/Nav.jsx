@@ -82,9 +82,9 @@ const Nav = () => {
     <div className="min-h-screen bg-gray-100">
       <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData.email.split("@")[0]}/>
       <div className="flex">
-        <button className="lg:hidden fixed top-5 left-5 z-50 bg-blue-600 text-white p-3 rounded-xl shadow-lg" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
+        <button className="lg:hidden fixed top-4 left-2 z-[60] bg-blue-600 text-white p-2 rounded-lg shadow-lg" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex-1 p-8 pt-8 ml-56 sm:ml-64">
+        <div className="flex-1 p-4 md:p-8 pt-24 lg:ml-56 xl:ml-64">
           <PlaidContext.Provider value={{accounts, setAccounts}}>
             <Outlet />
           </PlaidContext.Provider>
