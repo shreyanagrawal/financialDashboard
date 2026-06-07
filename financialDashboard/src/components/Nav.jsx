@@ -25,12 +25,8 @@ const Nav = () => {
     generateLinkToken();
   }, []);
   const loadProfile = async () => {
-    if (!accessToken) {
-      navigate("/");
-      return;
-    }
     try {
-      const data = await fetchWithAuth(accessToken, setAccessToken);
+      const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
       if (data.user._id !== null) 
         setUserData(data.user);
       else 

@@ -3,7 +3,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const api = axios.create({
     baseURL: API_URL,
 });
-export const fetchWithAuth = async(accessToken,setAccessToken)=>{
+export const fetchWithAuth = async(accessToken,setAccessToken,navigate)=>{
     try{
         const res = await axios.get(`${API_URL}/api/profile`,
             {
@@ -40,7 +40,8 @@ export const fetchWithAuth = async(accessToken,setAccessToken)=>{
         return res.data;
     } catch(error){
         if(error.response?.status === 401){
-            throw error;
+            navigate("/");
+            return false;
         }
     }
 };
