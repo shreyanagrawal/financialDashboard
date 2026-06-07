@@ -66,7 +66,7 @@ const Nav = () => {
     }
   };
   useEffect(()=>{
-    fetchData(publicToken, userData.userId);
+    fetchData(publicToken, userData._id);
   },[publicToken])
   const fetchData = async(publicToken, userId)=>{
     debugger;
