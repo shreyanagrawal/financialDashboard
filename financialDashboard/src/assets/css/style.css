@@ -9,3 +9,6 @@
     color: #81281a;
     background: #ff6467;
 }
+.dashboard h3, .dashboard p, .dashboard span{
+    font-size: small;
+}

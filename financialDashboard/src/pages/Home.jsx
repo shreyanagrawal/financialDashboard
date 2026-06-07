@@ -41,16 +41,17 @@ const Home = () => {
           <p className="text-gray-500">Transactions and analytics will appear here once a bank account is connected.</p>
         </div>
       </div>
-      <div className="space-y-4">
-            {accounts?.flatMap(item =>
-              item.accounts.map(account => (
-                <AccountCard
-                  key={account.accountId}
-                  account={account}
-                />
-              ))
-            )}
-        </div>
+      <h2 class="p-4 md:p-8 text-2xl font-semibold" style={{paddingBottom: 0}}>Connected Bank Accounts</h2>
+      <div className="dashboard p-4 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {accounts?.flatMap(item =>
+          item.accounts.map(account => (
+            <AccountCard
+              key={account.accountId}
+              account={account}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };

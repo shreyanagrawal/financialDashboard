@@ -4,28 +4,28 @@ import { Link } from "lucide-react";
 import { PlaidContext } from "../utils/PlaidContext";
 import { useContext } from "react";
 import { getAccountsData } from "../utils/api";
+import { useLocation } from "react-router-dom";
 
-const AccountCard = ({account,userId}) => {
+const AccountCard = ({account,userId, loadAccounts}) => {
   const {accounts, setAccounts} = useContext(PlaidContext);
   const updateAccountsLink = async(id, userId, isLinked)=>{
     const updatedStatus = await updateLinking(id, userId, isLinked);
-    loadAccounts()
-  }
-  const loadAccounts = async()=>{
-    const accounstData = await getAccountsData(userId);
-    setAccounts(accounstData);
+    loadAccounts(userId)
   }
   const id= account.accountId;
+  const path = useLocation();
   return (
     <div className="bg-white rounded-2xl shadow-md pb-5">
-      {
-        account.isActive ? 
-          <span className="text-red-500 text-sm font-bold text-right block px-3 pt-2 cursor-pointer" onClick={()=>updateAccountsLink(id, userId, true)}>x</span> : 
-          <span className="text-green-500 text-sm font-bold text-right block px-3 pt-2 cursor-pointer" onClick={()=>updateAccountsLink(id, userId, false)}><Link className="w-5 h-5 ml-auto"/></span>
-      }
-      <div className="p-6 pt-1 pb-0 flex flex-col md:flex-row gap-4 md:gap-0 md:justify-between md:items-center hover:border-blue-500 transition-all duration-200">
+      {path.pathname === "/accounts" && <>
+        {
+          account.isActive ? 
+            <span className="text-red-500 text-sm font-bold text-right block px-3 pt-2 cursor-pointer" onClick={()=>updateAccountsLink(id, userId, true)}>x</span> : 
+            <span className="text-green-500 text-sm font-bold text-right block px-3 pt-2 cursor-pointer" onClick={()=>updateAccountsLink(id, userId, false)}><Link className="w-5 h-5 ml-auto"/></span>
+        }
+      </>}
+      <div className={`p-6 ${path.pathname==="/accounts" ? "pt-1" : ""} pb-0 flex flex-col md:flex-row gap-4 md:gap-0 md:justify-between md:items-center hover:border-blue-500 transition-all duration-200`}>
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#314463] flex items-center justify-center text-xl">🏦</div>
+          <div className={`${path.pathname==="/accounts" ? "w-12 h-12" : "w-8 h-8"} rounded-xl bg-[#314463] flex items-center justify-center ${path.pathname==="/accounts" ? "text-xl" : "text-md"}`}>🏦</div>
           <div>
             <h3 className="font-semibold">{account.name}</h3>
             <p className="text-slate-400">{account.subtype}</p>
@@ -38,12 +38,18 @@ const AccountCard = ({account,userId}) => {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
             })}</p>
-            <p className="text-slate-400 text-sm">Available balance</p>
+            {path.pathname === "/accounts" &&
+              <p className="text-slate-400 text-sm">Available balance</p>
+            }
           </div>
-          <span className={`px-3 py-1 rounded-lg text-sm font-medium ${account.isActive ? "linked": "unlinked"}`}>{account?.isActive ? "Linked" : "Not Linked"}</span>
+          {path.pathname === "/accounts" &&
+            <span className={`px-3 py-1 rounded-lg text-sm font-medium ${account.isActive ? "linked": "unlinked"}`}>{account?.isActive ? "Linked" : "Not Linked"}</span>
+          }
         </div>
       </div>
-      <small className="text-xs text-slate-400 block text-right px-6">Synced via Plaid</small>
+      {path.pathname === "/accounts" &&
+        <small className="text-xs text-slate-400 block text-right px-6">Synced via Plaid</small>
+      }
     </div>
     
   );

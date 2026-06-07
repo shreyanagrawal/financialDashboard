@@ -11,15 +11,15 @@ const Accounts = (userId) => {
   const {accounts, setAccounts} = useContext(PlaidContext);
   useEffect(() => {
     if(accounts.length === 0)
-      loadAccounts();
+      loadAccounts(userId.userId);
   }, []);
   useEffect(() => {
     if (accounts) {
       setLoading(false);
     }
   }, [accounts]);
-  const loadAccounts = async()=>{
-    const accounstData = await getAccountsData(userId.userId);
+  const loadAccounts = async(userId)=>{
+    const accounstData = await getAccountsData(userId);
     setAccounts(accounstData);
   }
   if (loading) return <h1>Loading..</h1>;
@@ -39,6 +39,7 @@ const Accounts = (userId) => {
                   key={account.accountId}
                   account={account}
                   userId={userId.userId}
+                  loadAccounts={loadAccounts}
                 />
               ))
             )}
