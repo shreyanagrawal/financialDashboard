@@ -31,7 +31,7 @@ const Home = () => {
     const transactions = transactionsData.flatMap(item => item.transactions);
     setTransactions(transactions);
   }
-  if(loading) return <h1>Loading...</h1>
+  
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="flex-1 p-4 md:p-8">
