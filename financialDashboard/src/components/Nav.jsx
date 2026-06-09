@@ -4,26 +4,27 @@ import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import { AuthContext } from "../utils/AuthContext";
 import { PlaidContext } from "../utils/PlaidContext";
-import { fetchWithAuth } from "../utils/api";
-import { createLinkToken } from "../utils/api";
-import { fetchPlaidData } from "../utils/api";
-import { logoutUser } from "../utils/api";
+import { getAccountsData, getTransactionsData ,fetchWithAuth, createLinkToken, fetchPlaidData, logoutUser} from "../utils/api";
 import axios from "axios";
 import { usePlaidLink } from "react-plaid-link";
 const API_URL = import.meta.env.VITE_API_URL;
 const Nav = () => {
-  const { accessToken, setAccessToken } = useContext(AuthContext);
+  const { accessToken, setAccessToken, userData, setUserData } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [linkToken, setLinkToken] = useState("");
   const [publicToken,setPublicToken] = useState("");
-  const {userData,setUserData} = useContext(AuthContext);
   const [loading,setLoading] = useState(true);
-  const [accounts,setAccounts] = useState([]);
+  const {accounts, setAccounts, transactions, setTransactions, isDataAvailable, setisDataAvailable} = useContext(PlaidContext);
+
   const navigate = useNavigate();
   useEffect(() => {
     loadProfile();
     generateLinkToken();
   }, []);
+  useEffect(()=>{
+    loadAccounts();
+    loadTransactions();
+  },[userData])
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
@@ -35,6 +36,21 @@ const Nav = () => {
       console.log(err);
     }
   };
+  const loadAccounts = async()=>{
+    const accounstData = await getAccountsData(userData._id);
+    if(accounstData.length > 0){
+      setisDataAvailable(true);
+      setAccounts(accounstData);
+    }
+  }
+  const loadTransactions = async()=>{
+    const transactionsData = await getTransactionsData(userData._id);
+    const transactions = transactionsData.flatMap(item => item.transactions);
+    if(transactions.length > 0){
+      setisDataAvailable(true);
+      setTransactions(transactions);   
+    }
+  }
   const generateLinkToken = async () => {
     try {
       const response = await createLinkToken();
@@ -65,11 +81,15 @@ const Nav = () => {
     fetchData(publicToken, userData._id);
   },[publicToken])
   const fetchData = async(publicToken, userId)=>{
-    debugger;
+    setLoading(true);
     try{
       const fetchedData = await fetchPlaidData(publicToken,userId);
-      if(fetchedData.status)
+      if(fetchedData.status){
+        loadAccounts();
+        loadTransactions();
+        setLoading(false);
         console.log(fetchedData.data);
+      }
     } catch (error){
       console.log(error)
     }
@@ -93,9 +113,7 @@ const Nav = () => {
         </button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="flex-1 p-8">
-          <PlaidContext.Provider value={{accounts, setAccounts}}>
             <Outlet context={{ open, ready }} />
-          </PlaidContext.Provider>
         </div>
       </div>
     </div>

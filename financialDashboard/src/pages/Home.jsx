@@ -2,8 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import AccountCard from "../components/AccountCard";
 import { PlaidContext } from "../utils/PlaidContext";
 import { AuthContext } from "../utils/AuthContext";
-import { getAccountsData } from "../utils/api";
-import { getTransactionsData } from "../utils/api";
 import PlaidStats from "../components/PlaidStats";
 import NoPlaidData from "../components/NoPlaidData";
 import { useOutletContext } from "react-router-dom";
@@ -11,40 +9,23 @@ import TransactionsList from "../components/TransactionsList";
 import BankCard from "../components/BankCard";
 import TransactionChart from "../components/TransactionChart";
 const Home = () => {
-  const {accounts,setAccounts} = useContext(PlaidContext);
+  const {accounts,setAccounts, isDataAvailable, setisDataAvailable, transactions, setTransactions} = useContext(PlaidContext);
   const {userData,setUserData} = useContext(AuthContext);
-  const { open, ready } = useOutletContext();
-  const [transactions,setTransactions] = useState([]);
   const [loading,setLoading] = useState(true);
-  useEffect(() => {
-    loadAccounts();
-    loadTransactions();
-  }, []);
   useEffect(()=>{
     if(transactions.length > 0)
-      setLoading(false);
-    else {
-      console.log("No data available");
-      setLoading(false);
-    }
-  },[transactions])
-  const loadAccounts = async()=>{
-    const accounstData = await getAccountsData(userData._id);
-    setAccounts(accounstData);
-  }
-  const loadTransactions = async()=>{
-    const transactionsData = await getTransactionsData(userData._id);
-    const transactions = transactionsData.flatMap(item => item.transactions);
-    setTransactions(transactions);
-  }
+      setisDataAvailable(true)
+    else
+      setisDataAvailable(false)
+    setLoading(false);
+  },[isDataAvailable])
+  
   if(loading) return <h1>Loading...</h1>
-  if (!accounts || accounts.length === 0) {
-   return (
-     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-       <NoPlaidData open={open} ready={ready} />
-     </div>
-    );
-  }
+  if(!isDataAvailable) return (
+    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
+      <NoPlaidData />
+    </div>
+  )
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="flex-1 px-4 pt-4 md:px-8 md:pt-8 pb-0">

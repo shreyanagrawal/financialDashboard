@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom"
 import "../assets/css/style.css"
+import { PlaidContext } from "../utils/PlaidContext";
+import { useState, useContext } from "react";
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+  const {isDataAvailable, setisDataAvailable} = useContext(PlaidContext);
   return (
     <>
       {sidebarOpen && (
@@ -11,7 +14,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <h2 className="text-2xl font-bold text-blue-700 mb-10">FinDash</h2>
         <div className="flex flex-col gap-4">
           <Link to="/home"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Dashboard</span></Link>
-          <Link to="/accounts"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Accounts</span></Link>
+          <Link to="/accounts" onClick={(e) => {
+              if (!isDataAvailable)
+                e.preventDefault();
+            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Accounts</span>
+          </Link>
           <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Transactions</span>
           <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Analytics</span>
           <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Budgets</span>
