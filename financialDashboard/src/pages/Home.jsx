@@ -5,9 +5,12 @@ import { AuthContext } from "../utils/AuthContext";
 import { getAccountsData } from "../utils/api";
 import { getTransactionsData } from "../utils/api";
 import PlaidStats from "../components/PlaidStats";
+import NoPlaidData from "../components/NoPlaidData";
+import { useOutletContext } from "react-router-dom";
 const Home = () => {
   const {accounts,setAccounts} = useContext(PlaidContext);
   const {userData,setUserData} = useContext(AuthContext);
+  const { open, ready } = useOutletContext();
   const [transactions,setTransactions] = useState([]);
   const [loading,setLoading] = useState(true);
   useEffect(() => {
@@ -32,6 +35,13 @@ const Home = () => {
     setTransactions(transactions);
   }
   if(loading) return <h1>Loading...</h1>
+  if (!accounts || accounts.length === 0) {
+   return (
+     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
+       <NoPlaidData open={open} ready={ready} />
+     </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="flex-1 p-4 md:p-8">

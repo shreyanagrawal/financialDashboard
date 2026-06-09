@@ -1,7 +1,7 @@
 const Navbar = ({ open, ready, handleLogout, username }) => {
   return (
     <div className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4 rounded-b-2xl">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 pl-12 lg:pl-0">
         <div className="w-12 h-12 rounded-full bg-white text-blue-700 flex items-center justify-center text-xl font-bold shadow-md">
           {username ? username.charAt(0).toUpperCase() : "U"}
         </div>

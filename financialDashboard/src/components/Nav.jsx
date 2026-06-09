@@ -83,11 +83,18 @@ const Nav = () => {
     <div className="min-h-screen bg-gray-100">
       <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData.email.split("@")[0]}/>
       <div className="flex">
-        <button className="lg:hidden fixed top-5 left-5 z-50 bg-blue-600 text-white p-3 rounded-xl shadow-lg" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
+        <button
+           className={`lg:hidden absolute top-4 left-4 z-30 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
+             sidebarOpen ? "hidden" : "block"
+           }`} 
+           onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          ☰
+        </button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="flex-1 p-8">
           <PlaidContext.Provider value={{accounts, setAccounts}}>
-            <Outlet />
+            <Outlet context={{ open, ready }} />
           </PlaidContext.Provider>
         </div>
       </div>
