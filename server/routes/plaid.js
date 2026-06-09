@@ -33,6 +33,7 @@ router.post("/create-link-token", async (req, res) => {
 
 router.post('/exchange_public_token', async (req,res,) => {
   const publicToken = req.body.public_token;
+  const userId = req.body.user_id;
   try {
     const tokenResponse = await plaidUtils.client.itemPublicTokenExchange({
       public_token: publicToken,
@@ -42,12 +43,22 @@ router.post('/exchange_public_token', async (req,res,) => {
     const itemID = tokenResponse.data.item_id;
     const institutionDetails = await institutionInfo(accessToken);
     const encryptedAcessToken = plaidUtils.encrypt(accessToken);
-    await PlaidItem.create({
-      userId: req.body.user_id,
-      plaidItemId: itemID,
-      encryptedAccessToken: encryptedAcessToken,
-      institutionName: institutionDetails
-    });
+    await PlaidItem.findOneAndUpdate(
+      {
+        userId
+      },
+      {
+        userId,
+        plaidItemId: itemID,
+        encryptedAccessToken: encryptedAcessToken,
+        institutionName: institutionDetails
+
+      },
+      {
+        upsert: true,
+        returnDocument: "after",
+      },
+    );
     // res.clearCookie("plaidToken");
     const balancesData = await getBalances(req.body.user_id);
     const transactionsData = await getTransactions(req.body.user_id);
@@ -194,7 +205,26 @@ const getBalances = async(userId)=>{
     //     })),
     //   });
     // }
-     await AccountModel.findOneAndUpdate(
+    for (const account of accounts) {
+      const duplicate = await AccountModel.findOne({
+        userId,
+        officialName: institutionDetails,
+        accounts: {
+          $elemMatch: {
+            mask: account.mask,
+            subtype: account.subtype,
+            type: account.type,
+            name: account.name,
+            isActive: true
+          }
+        }
+      });
+
+      if (duplicate) {
+        return `${account.name} already connected`
+      }
+    }
+    await AccountModel.findOneAndUpdate(
       {
         userId,
         plaidItemId: itemID,
