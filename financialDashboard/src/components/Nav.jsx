@@ -2,6 +2,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
+import LoadingScreen from "./LoadingScreen";
 import { AuthContext } from "../utils/AuthContext";
 import { PlaidContext } from "../utils/PlaidContext";
 import { getAccountsData, getTransactionsData ,fetchWithAuth, createLinkToken, fetchPlaidData, logoutUser} from "../utils/api";
@@ -98,7 +99,7 @@ const Nav = () => {
     if(Object.keys(userData).length > 0)
       setLoading(false);
   },[userData])
-  if(loading) return <h1>Loading..</h1>
+  if(loading) return <LoadingScreen />;
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData.email.split("@")[0]}/>

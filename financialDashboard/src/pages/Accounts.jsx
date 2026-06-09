@@ -5,6 +5,7 @@ import { getAccountsData } from "../utils/api";
 import { useContext } from "react";
 import { PlaidContext } from "../utils/PlaidContext";
 import PlaidStats from "../components/PlaidStats";
+import LoadingScreen from "../components/LoadingScreen";
 const API_URL = import.meta.env.VITE_API_URL;
 const Accounts = (userId) => {
   const [loading, setLoading] = useState(true);
@@ -22,7 +23,7 @@ const Accounts = (userId) => {
     const accounstData = await getAccountsData(userId);
     setAccounts(accounstData);
   }
-  if (loading) return <h1>Loading..</h1>;
+  if (loading) return <LoadingScreen />;
 
   return ( 
     <div className="p-5">
