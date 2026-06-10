@@ -20,8 +20,10 @@ route.post("/getAccounts",async(req,res)=>{
     if(userId){
         try{
             const accountsData = await AccountModel.find({userId:userId});
-            if(accountsData)
+            if(accountsData.length > 0)
                 return res.status(200).json({success: true, message: "Records found" , accounts: accountsData})
+            else 
+                return res.status(200).json({success: false, message: "No Records found"})
         } catch (err){
             return res.status(404).json({success: false, message: "No records found"})
 
@@ -34,11 +36,12 @@ route.post("/getTransactions",async(req,res)=>{
     if(userId){
         try{
             const transactionsData = await TransactionModel.find({userId:userId});
-            if(transactionsData)
+            if(transactionsData.length > 0)
                 return res.status(200).json({success: true, message: "Records found" , transactions: transactionsData})
+            else 
+                return res.status(200).json({success: false, message: "No Records found"})
         } catch (err){
             return res.status(404).json({success: false, message: "No records found"})
-
         }
     }
 })

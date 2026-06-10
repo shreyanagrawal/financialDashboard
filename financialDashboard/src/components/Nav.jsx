@@ -22,9 +22,11 @@ const Nav = () => {
     generateLinkToken();
   }, []);
   useEffect(()=>{
-    loadAccounts();
-    loadTransactions();
-  },[userData])
+    if(userData){
+      loadAccounts();
+      loadTransactions();
+    }
+  },[userData],[])
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
@@ -37,18 +39,24 @@ const Nav = () => {
     }
   };
   const loadAccounts = async()=>{
+    if(!userData)
+      return;
     const accounstData = await getAccountsData(userData._id);
-    if(accounstData.length > 0){
-      setisDataAvailable(true);
-      setAccounts(accounstData);
+    if(accounstData){
+      if(accounstData.length > 0){
+        setisDataAvailable(true);
+        setAccounts(accounstData);
+      }
     }
   }
   const loadTransactions = async()=>{
+    if(!userData)
+      return;
     const transactionsData = await getTransactionsData(userData._id);
-    const transactions = transactionsData.flatMap(item => item.transactions);
-    if(transactions.length > 0){
-      setisDataAvailable(true);
-      setTransactions(transactions);   
+    if(transactionsData){
+      if(transactionsData.length > 0){
+        setTransactions(transactionsData.flatMap(item => item.transactions));   
+      }
     }
   }
   const generateLinkToken = async () => {

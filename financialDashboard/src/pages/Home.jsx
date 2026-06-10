@@ -13,7 +13,7 @@ const Home = () => {
   const {userData,setUserData} = useContext(AuthContext);
   const [loading,setLoading] = useState(true);
   useEffect(()=>{
-    if(transactions.length > 0)
+    if(accounts.length > 0 && transactions.length > 0)
       setisDataAvailable(true)
     else
       setisDataAvailable(false)
@@ -34,10 +34,12 @@ const Home = () => {
           <p className="text-blue-100 text-sm md:text-lg">Track your spending, manage budgets, and monitor your financial health.</p>
         </div>
         <PlaidStats transactions={transactions}/>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 mt-10">
-          <TransactionsList transactions={transactions}/>
-          <TransactionChart transactions={transactions}/>
-        </div>
+        {transactions.length > 0 && 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 mt-10">
+            <TransactionsList transactions={transactions}/>
+            <TransactionChart transactions={transactions}/>
+          </div>
+        }
       </div>
       <h2 className="px-4 pb-4 md:px-8 md:pb-8 pt-0 text-2xl font-semibold" style={{paddingBottom: 0}}>Connected Banks</h2>
       <div className="dashboard p-4 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">

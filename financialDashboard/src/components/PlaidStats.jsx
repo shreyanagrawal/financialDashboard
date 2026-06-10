@@ -11,24 +11,16 @@ const PlaidStats = ({transactions}) => {
         )
         );
     }, 0) || 0;
-    const availableBalance = accounts?.reduce((sum, item) => {
-        return (
-            sum + item.accounts.reduce(
-                (acc, account) => acc + (account.balances?.available || 0),
-                0
-            )
-        );
-    }, 0) || 0;
-    const connectedAccounts = accounts.map((account)=>
-        account.accounts.length
-    )
+   
+    const connectedAccounts = accounts.reduce((total,item)=> total + item.accounts.length,0)
+    const creditsUsed = (accounts.length * 10) +
+        (connectedAccounts * 2) +
+        Math.floor(transactions.length / 100);
+    const totalExpenses = transactions
+        .filter(tx => tx.amount > 0 && !tx.pending)
+        .reduce((sum, tx) => sum + tx.amount, 0);
+
     const path = useLocation();
-    let totalExpenses = 0
-    if(path.pathname === "/home"){
-        totalExpenses = transactions
-            .filter(tx => tx.amount > 0 && !tx.pending)
-            .reduce((sum, tx) => sum + tx.amount, 0);
-    }
    
     return (
         <div>
@@ -50,11 +42,8 @@ const PlaidStats = ({transactions}) => {
                         })}</p>
                     </div> : 
                      <div className="bg-white rounded-2xl shadow-md p-6">
-                        <h2 className="text-gray-500 text-sm mb-2"> Available Balance</h2>
-                        <p className="text-2xl md:text-3xl font-bold text-red-500">${Number(availableBalance).toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                        })}</p>
+                        <h2 className="text-gray-500 text-sm mb-2"> Credits Used</h2>
+                        <p className="text-2xl md:text-3xl font-bold text-red-500">{creditsUsed}</p>
                     </div>
                 }
                 {path.pathname === "/accounts" ?
