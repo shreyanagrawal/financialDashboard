@@ -99,10 +99,10 @@ const Nav = () => {
     if(Object.keys(userData).length > 0)
       setLoading(false);
   },[userData])
-  if(loading) return <LoadingScreen />;
+   
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData.email.split("@")[0]}/>
+      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.email ? userData.email.split("@")[0] : "User"}/>
       <div className="flex">
         <button
            className={`lg:hidden absolute top-4 left-4 z-30 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
