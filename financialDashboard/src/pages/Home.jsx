@@ -18,7 +18,7 @@ const Home = () => {
     else
       setisDataAvailable(false)
     setLoading(false);
-  },[isDataAvailable])
+  }, [accounts, transactions])
   
   if(loading) return <h1>Loading...</h1>
   if(!isDataAvailable) return (

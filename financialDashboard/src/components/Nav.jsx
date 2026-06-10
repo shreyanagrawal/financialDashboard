@@ -26,7 +26,7 @@ const Nav = () => {
       loadAccounts();
       loadTransactions();
     }
-  },[userData],[])
+  },[userData])
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
