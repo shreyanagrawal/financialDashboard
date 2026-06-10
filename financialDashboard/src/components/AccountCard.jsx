@@ -6,7 +6,7 @@ import { useContext } from "react";
 import { getAccountsData } from "../utils/api";
 import { useLocation } from "react-router-dom";
 
-const AccountCard = ({account,userId, loadAccounts}) => {
+const AccountCard = ({ account,bankName,userId, loadAccounts}) => {
   const {accounts, setAccounts} = useContext(PlaidContext);
   const updateAccountsLink = async(id, userId, isLinked)=>{
     const updatedStatus = await updateLinking(id, userId, isLinked);
