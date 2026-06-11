@@ -6,6 +6,7 @@ import { AuthContext } from './utils/AuthContext';
 import { useState } from 'react';
 import Accounts from './pages/Accounts';
 import PlaidRoute from './components/PlaidRoute';
+import Transactions from './pages/Transactions';
 function App() {
   const [accessToken, setAccessToken] = useState();
   const [userData, setUserData] = useState({});
@@ -17,6 +18,7 @@ function App() {
           <Route element={<PlaidRoute />}>
             <Route path="/home" element={<Home />} />
             <Route path="/accounts" element={<Accounts userId={userData._id}/>}/>
+            <Route path="/transactions" element={<Transactions />}/>
           </Route>
         </Routes>
       </BrowserRouter>

@@ -19,7 +19,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 e.preventDefault();
             }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Accounts</span>
           </Link>
-          <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Transactions</span>
+          <Link to="/transactions" onClick={(e) => {
+              if (!isDataAvailable)
+                e.preventDefault();
+            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Transactions</span></Link>
           <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Analytics</span>
           <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Budgets</span>
           <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Settings</span>
