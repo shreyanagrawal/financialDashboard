@@ -7,6 +7,7 @@ const profileRoute = require("./routes/profile");
 const dbConnect = require('./utils/dbConnect');
 const cookieParser = require("cookie-parser");
 const plaidRoutes = require("./routes/plaid");
+const manualTransactionRoutes = require("./routes/manualTransac");
 
 const app = express();
 app.use(express.json());
@@ -30,6 +31,7 @@ app.use("/api/refresh",refreshRoute)
 app.use("/api/profile",profileRoute)
 app.use("/api",profileRoute);
 app.use("/api", plaidRoutes);
+app.use("/api/manualTransac", manualTransactionRoutes);
 
 dbConnect();
 
