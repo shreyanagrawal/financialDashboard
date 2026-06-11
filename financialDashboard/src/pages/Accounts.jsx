@@ -9,7 +9,7 @@ import LoadingScreen from "../components/LoadingScreen";
 const API_URL = import.meta.env.VITE_API_URL;
 const Accounts = (userId) => {
   const [loading, setLoading] = useState(true);
-  const {accounts, setAccounts} = useContext(PlaidContext);
+  const {accounts, setAccounts, transactions, setTransactions} = useContext(PlaidContext);
   useEffect(() => {
     if(accounts.length === 0)
       loadAccounts(userId.userId);
@@ -27,7 +27,7 @@ const Accounts = (userId) => {
 
   return ( 
     <div className="p-5">
-      <PlaidStats />
+      <PlaidStats transactions={transactions}/>
       <div className="rounded-2xl">
         <div className="flex flex-col md:flex-row gap-3 md:gap-0 md:justify-between md:items-center mb-6">
           <h2 className="text-3xl font-bold ">Bank Accounts</h2>
