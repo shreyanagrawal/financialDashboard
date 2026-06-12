@@ -93,7 +93,7 @@ const Nav = () => {
     setLoading(true);
     try{
       const fetchedData = await fetchPlaidData(publicToken,userId);
-      if(fetchedData.status){
+      if(fetchedData?.status){
         loadAccounts();
         loadTransactions();
         setLoading(false);
