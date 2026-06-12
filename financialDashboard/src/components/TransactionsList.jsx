@@ -6,10 +6,10 @@ import { Link, useLocation } from 'react-router-dom';
 const TransactionsList = ({transactions}) => {
     const path = useLocation();  
     const [filter, setFilter] = useState("all");  
-    const filters = ['All',...new Set(transactions.map(tx=>tx.merchantName.split(" *//")))];
+    const filters = ['All',...new Set(transactions.map(tx=>tx.merchantName.split(" *//")[0]))];
     const filteredTransactions = useMemo(()=>{
         const filtered = transactions.filter(tx => {
-            const matchesFilter = filter.toLowerCase() === 'all' || tx.merchantName.toLowerCase() === filter.toLowerCase();
+            const matchesFilter = filter.toLowerCase() === 'all' || tx.merchantName.split("*//")[0].toLowerCase().trim() === filter.toLowerCase();
             return matchesFilter;
         })
         return filtered;
@@ -22,9 +22,9 @@ const TransactionsList = ({transactions}) => {
                     <Link to="/transactions"><h2 className="text-white text-sm text-right flex items-center justify-end gap-1 cursor-pointer">View All <ArrowRight className="w-4 h-4"/></h2></Link>
                 }
                 {path.pathname === "/transactions" && 
-                    <select className="text-white text-sm text-right flex items-center justify-end gap-1 cursor-pointer" onChange={(e)=>setFilter(e.target.value)} value={filter}>
+                    <select className="text-white text-sm text-right flex items-center justify-end gap-1 cursor-pointer" onChange={(e)=>setFilter(e.target.value.split(" *//")[0])} value={filter}>
                         {filters.map((filter)=>
-                            <option key={crypto.randomUUID()} value={filter}>{filter}</option>
+                            <option key={crypto.randomUUID()} value={filter.split("*//")[0].toLowerCase()}>{filter}</option>
                         )}
                     </select>
                 }
