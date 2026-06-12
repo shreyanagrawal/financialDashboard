@@ -8,6 +8,7 @@ import { useOutletContext } from "react-router-dom";
 import TransactionsList from "../components/TransactionsList";
 import BankCard from "../components/BankCard";
 import TransactionChart from "../components/TransactionChart";
+import LoadingScreen from "../components/LoadingScreen";
 const Home = () => {
   const {accounts,setAccounts, isDataAvailable, setisDataAvailable, transactions, setTransactions} = useContext(PlaidContext);
   const {userData,setUserData} = useContext(AuthContext);
@@ -20,7 +21,7 @@ const Home = () => {
     setLoading(false);
   },[isDataAvailable])
   
-  if(loading) return <h1>Loading...</h1>
+  if(loading) return <LoadingScreen />;
   if(!isDataAvailable) return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
       <NoPlaidData />

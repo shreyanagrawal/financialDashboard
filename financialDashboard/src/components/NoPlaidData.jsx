@@ -8,18 +8,19 @@ import {
 const NoPlaidData = ({ open, ready }) => {
   return (
     <div className="bg-white rounded-2xl shadow-md p-8 md:p-10">
-      <div className="flex justify-center mb-4">
+      <div className="flex flex-col items-center text-centre">
         <Landmark className="w-14 h-14 text-blue-600" />
+      
+
+       <h2 className="text-2xl font-bold mb-3 text-center md:text-left">
+          No Bank Account Connected
+       </h2>
+
+       <p className="text-gray-500 text-centre max-w-4xl mx-auto mb-8 text-center md:text-left">
+          Connect a bank account through Plaid to view balances,
+            transactions, analytics and financial insights.
+       </p>
       </div>
-
-      <h2 className="text-2xl teext-centre font-bold mb-3">
-        No Bank Account Connected
-      </h2>
-
-      <p className="text-gray-500 text-centre max-w-2xl mx-auto mb-8">
-        Connect a bank account through Plaid to view balances,
-        transactions, analytics and financial insights.
-      </p>
       <h3 className="text-lg font-semibold text-center mb-6">
          Why Connect Your Bank Account?
      </h3>

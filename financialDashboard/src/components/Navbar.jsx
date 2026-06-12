@@ -10,9 +10,9 @@ const Navbar = ({ open, ready, handleLogout, username }) => {
           <p className="text-blue-100 text-sm">Welcome back to your dashboard</p>
         </div>
       </div>
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full md:w-auto">
-        <button onClick={() => open()} disabled={!ready} className="bg-white text-blue-700 px-5 py-2 rounded-xl font-semibold hover:scale-105 transition duration-200 shadow-md">Connect Bank</button>
-        <button onClick={handleLogout} className="bg-red-500 text-white px-5 py-2 rounded-xl font-semibold hover:bg-red-600 hover:scale-105 transition duration-200 shadow-md">Logout</button>
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full md:w-auto md:items-center">
+        <button onClick={() => open()} disabled={!ready} className="w-full sm:w-auto bg-white text-blue-700 px-5 py-2 rounded-xl font-semibold hover:scale-105 transition duration-200 shadow-md">Connect Bank</button>
+        <button onClick={handleLogout} className="w-full sm:w-auto bg-red-500 text-white px-5 py-2 rounded-xl font-semibold hover:bg-red-600 hover:scale-105 transition duration-200 shadow-md">Logout</button>
       </div>
     </div>
   );
