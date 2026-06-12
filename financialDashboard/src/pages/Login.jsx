@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import axios from 'axios'
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../utils/AuthContext";
 const API_URL = import.meta.env.VITE_API_URL;
@@ -158,6 +158,13 @@ const Login = () => {
               />
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+              )}
+              {isLogin && (
+                <div className="flex justify-end mt-2">
+                  <Link to="/forgot-password" className="text-blue-600 hover:underline text-sm font-medium">
+                    Forgot Password?
+                  </Link>
+                </div>
               )}
             </div>
             {!isLogin && (

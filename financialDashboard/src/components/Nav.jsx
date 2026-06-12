@@ -26,7 +26,7 @@ const Nav = () => {
       loadAccounts();
       loadTransactions();
     }
-  },[userData],[])
+  },[userData])
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
@@ -86,13 +86,15 @@ const Nav = () => {
     }
   };
   useEffect(()=>{
-    fetchData(publicToken, userData._id);
-  },[publicToken])
+    if(userData && userData._id){
+      fetchData(publicToken, userData._id);
+    }
+  },[publicToken, userData])
   const fetchData = async(publicToken, userId)=>{
     setLoading(true);
     try{
       const fetchedData = await fetchPlaidData(publicToken,userId);
-      if(fetchedData.status){
+      if(fetchedData && fetchedData.status){
         loadAccounts();
         loadTransactions();
         setLoading(false);
@@ -109,7 +111,7 @@ const Nav = () => {
   if(loading) return <h1>Loading..</h1>
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData.email.split("@")[0]}/>
+      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.email?.split("@")[0] || "User"}/>
       <div className="flex">
         <button
            className={`lg:hidden absolute top-4 left-4 z-30 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
