@@ -1,117 +1,203 @@
-import React, { useContext } from 'react'
-import { PlaidContext } from '../utils/PlaidContext'
-import { useLocation } from 'react-router-dom';
+import React, { useContext } from "react";
+import { PlaidContext } from "../utils/PlaidContext";
+import { useLocation } from "react-router-dom";
 
-const PlaidStats = ({transactions}) => {
-    const {accounts, setAccounts} = useContext(PlaidContext);
-    const totalBalance = accounts?.reduce((sum, item) => {
-        return (
-        sum + item.accounts.reduce(
-            (acc, account) => acc + (account.balances?.current || 0),0
-        )
-        );
-    }, 0) || 0;
-    const connectedAccounts = accounts.reduce((total,item)=> total + item.accounts.length,0)
-    const creditsUsed = (accounts.length * 10) + (connectedAccounts * 2) + Math.floor(transactions.length / 100);
-    const totalExpenses = transactions.filter(tx => tx.amount > 0 && !tx.pending).reduce((sum, tx) => sum + tx.amount, 0);
-    const totalIncome = transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    const expenseCount = transactions.filter(t => t.amount > 0).length;
-    const incomeCount = transactions.filter(t => t.amount < 0).length;
+const PlaidStats = ({ transactions = [], manualTransactions = [] }) => {
+    const { accounts } = useContext(PlaidContext);
     const path = useLocation();
-   
+
+    // =============================
+    // 1. NORMALIZE ALL TRANSACTIONS
+    // =============================
+    const allTransactions = [
+        ...transactions,
+        ...manualTransactions,
+    ];
+
+    const normalizedTransactions = allTransactions.map((tx) => {
+        // BANK TRANSACTIONS (no type field)
+        if (!tx.type) {
+            return {
+                ...tx,
+                amount: Number(tx.amount),
+            };
+        }
+
+        // MANUAL TRANSACTIONS
+        return {
+            ...tx,
+            amount:
+                tx.type === "expense"
+                    ? -Math.abs(Number(tx.amount))
+                    : Math.abs(Number(tx.amount)),
+        };
+    });
+
+    // =============================
+    // 2. TOTAL BALANCE (BANK ONLY)
+    // =============================
+    const totalBalance =
+        accounts?.reduce((sum, item) => {
+            return (
+                sum +
+                item.accounts.reduce(
+                    (acc, account) =>
+                        acc + (account.balances?.current || 0),
+                    0
+                )
+            );
+        }, 0) || 0;
+
+    const connectedAccounts =
+        accounts?.reduce(
+            (total, item) => total + item.accounts.length,
+            0
+        ) || 0;
+
+    // =============================
+    // 3. CORE STATS
+    // =============================
+    const totalIncome = normalizedTransactions
+        .filter((t) => t.amount > 0)
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    const totalExpenses = normalizedTransactions
+        .filter((t) => t.amount < 0)
+        .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    const incomeCount = normalizedTransactions.filter(
+        (t) => t.amount > 0
+    ).length;
+
+    const expenseCount = normalizedTransactions.filter(
+        (t) => t.amount < 0
+    ).length;
+
+    const totalTransactions = normalizedTransactions.length;
+
+    const creditsUsed =
+        (accounts.length * 10) +
+        (connectedAccounts * 2) +
+        Math.floor(totalTransactions / 100);
+
+    // =============================
+    // UI
+    // =============================
     return (
         <div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div className="bg-white rounded-2xl shadow-md p-6">
-                    {path.pathname !== "/transactions" && 
-                        <>
-                            <h2 className="text-gray-500 text-sm mb-2">Total Balance</h2>
-                            <p className="text-2xl md:text-3xl font-bold text-green-600">${Number(totalBalance).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                            })}</p>
-                            {path.pathname === "/accounts" && <p className="text-green-400 mt-2"> Across {connectedAccounts} accounts </p>}
-                        </>
-                    }
-                    {path.pathname === "/transactions" && 
-                        <>
-                            <h2 className="text-gray-500 text-sm mb-2">Total Transactions</h2>
-                            <p className="text-2xl md:text-3xl font-bold text-blue-600">{transactions.length}</p>
-                        </>
-                    }
-                </div>
-                <div className="bg-white rounded-2xl shadow-md p-6">
-                    {path.pathname === "/home" && 
-                        <>
-                            <h2 className="text-gray-500 text-sm mb-2"> Total Expenses</h2>
-                            <p className="text-2xl md:text-3xl font-bold text-red-500">${Number(totalExpenses).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                            })}</p>
-                        </>
-                    }
-                    {path.pathname === "/accounts" && 
-                        <>
-                            <h2 className="text-gray-500 text-sm mb-2"> Credits Used</h2>
-                            <p className="text-2xl md:text-3xl font-bold text-red-500">{creditsUsed}</p>
-                        </>
-                    }
-                    {path.pathname === "/transactions" && 
-                        <>
-                            <h2 className="text-gray-500 text-sm mb-2">Total Income</h2>
-                            <p className="text-2xl md:text-3xl font-bold text-green-600">${Number(totalIncome).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                            })}</p>
-                            <p className="text-green-400 mt-2"> {incomeCount} transactions </p>
-                        </>
-                    }
-                </div>                 
-                <div className="bg-white rounded-2xl shadow-md p-6">
-                    {path.pathname === "/accounts" && 
-                        <>
-                            <h2 className="text-gray-500 text-sm mb-2">Connected Accounts</h2>
-                            <p className="text-2xl md:text-3xl font-bold text-blue-600">{connectedAccounts}</p>
-                        </>
-                    }
-                    {path.pathname === "/home" && 
-                        <>
-                            <h2 className="text-gray-500 text-sm mb-2">Connected Banks</h2>
-                            <p className="text-2xl md:text-3xl font-bold text-blue-600">{accounts.length}</p>
-                        </>
-                    }
-                    {path.pathname === "/transactions" && 
-                        <>
-                            <h2 className="text-gray-500 text-sm mb-2">Total Expenses</h2>
-                            <p className="text-2xl md:text-3xl font-bold text-red-600">${Number(totalExpenses).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                            })}</p>
-                            <p className="text-red-400 mt-2"> {expenseCount} transactions </p>
 
+                {/* CARD 1 */}
+                <div className="bg-white rounded-2xl shadow-md p-6">
+                    {path.pathname !== "/transactions" ? (
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">
+                                Total Balance
+                            </h2>
+                            <p className="text-2xl md:text-3xl font-bold text-green-600">
+                                ${Number(totalBalance).toLocaleString(
+                                    "en-US",
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    }
+                                )}
+                            </p>
                         </>
-                    }
-                </div> 
+                    ) : (
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">
+                                Total Transactions
+                            </h2>
+                            <p className="text-2xl md:text-3xl font-bold text-blue-600">
+                                {totalTransactions}
+                            </p>
+                        </>
+                    )}
+                </div>
+
+                {/* CARD 2 */}
+                <div className="bg-white rounded-2xl shadow-md p-6">
+                    {path.pathname === "/transactions" ? (
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">
+                                Total Income
+                            </h2>
+                            <p className="text-2xl md:text-3xl font-bold text-green-600">
+                                ${totalIncome.toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                })}
+                            </p>
+                            <p className="text-green-400 mt-2">
+                                {incomeCount} transactions
+                            </p>
+                        </>
+                    ) : path.pathname === "/accounts" ? (
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">
+                                Credits Used
+                            </h2>
+                            <p className="text-2xl md:text-3xl font-bold text-red-500">
+                                {creditsUsed}
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">
+                                Total Expenses
+                            </h2>
+                            <p className="text-2xl md:text-3xl font-bold text-red-500">
+                                ${totalExpenses.toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                })}
+                            </p>
+                        </>
+                    )}
+                </div>
+
+                {/* CARD 3 */}
+                <div className="bg-white rounded-2xl shadow-md p-6">
+                    {path.pathname === "/transactions" ? (
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">
+                                Total Expenses
+                            </h2>
+                            <p className="text-2xl md:text-3xl font-bold text-red-600">
+                                ${totalExpenses.toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                })}
+                            </p>
+                            <p className="text-red-400 mt-2">
+                                {expenseCount} transactions
+                            </p>
+                        </>
+                    ) : path.pathname === "/home" ? (
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">
+                                Connected Banks
+                            </h2>
+                            <p className="text-2xl md:text-3xl font-bold text-blue-600">
+                                {accounts.length}
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">
+                                Connected Accounts
+                            </h2>
+                            <p className="text-2xl md:text-3xl font-bold text-blue-600">
+                                {connectedAccounts}
+                            </p>
+                        </>
+                    )}
+                </div>
+
             </div>
-            {/* <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-xl p-5">
-                <p className="text-slate-400">Total Balance</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">${Number(totalBalance).toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                })}</h2>
-                <p className="text-green-400 mt-2"> Across {accounts.length} accounts      </p>
-            </div> */}
-            {/* <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-xl p-5">
-                <p className="text-slate-400">Connected Banks</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">{accounts.length}</h2>
-                <p className="text-slate-400 mt-2">via Plaid</p>
-            </div> */}
-            {/* <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-xl p-5">
-                <p className="text-slate-400">Credit Used</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-yellow-400 mt-2">$0</h2>
-                <p className="text-slate-400 mt-2">No credit accounts</p>
-            </div> */}
         </div>
-    )
-}
-export default PlaidStats
+    );
+};
+
+export default PlaidStats;

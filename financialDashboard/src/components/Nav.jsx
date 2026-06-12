@@ -5,7 +5,7 @@ import Sidebar from "./Sidebar";
 import AddTransactionModal from "./AddTransactionModal";
 import { AuthContext } from "../utils/AuthContext";
 import { PlaidContext } from "../utils/PlaidContext";
-import { getAccountsData, getTransactionsData, fetchWithAuth, createLinkToken, fetchPlaidData, logoutUser, getManualTransactions, createManualTransaction} from "../utils/api";
+import { getAccountsData, getTransactionsData, fetchWithAuth, createLinkToken, fetchPlaidData, logoutUser, createManualTransaction} from "../utils/api";
 import axios from "axios";
 import { usePlaidLink } from "react-plaid-link";
 const API_URL = import.meta.env.VITE_API_URL;
@@ -16,7 +16,7 @@ const Nav = () => {
   const [linkToken, setLinkToken] = useState("");
   const [publicToken,setPublicToken] = useState("");
   const [loading,setLoading] = useState(true);
-  const {accounts, setAccounts, transactions, setTransactions, isDataAvailable, setisDataAvailable} = useContext(PlaidContext);
+  const { accounts, setAccounts, transactions, setTransactions, isDataAvailable, setisDataAvailable, manualTransactions, setManualTransactions} = useContext(PlaidContext);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -56,29 +56,9 @@ const Nav = () => {
       return;
     try{
     const transactionsData = await getTransactionsData(userData._id);
-    const manualTransactions = await getManualTransactions(userData._id);
     const plaidTransactions =
-      transactionsData?.flatMap((item) =>
-        item.transactions.map((tx) => ({
-          ...tx,
-          source: "bank",
-        }))
-      ) || [];
-
-    const formattedManualTransactions =
-      manualTransactions?.map((tx) => ({
-        ...tx,
-        name: tx.merchant, // so Transactions page can use transaction.
-        merchantName: tx.merchant,
-        category: [tx.category],
-        source: "manual",
-      })) || [];
-
-    const allTransactions = [
-      ...plaidTransactions,
-      ...formattedManualTransactions,
-    ];
-    setTransactions(allTransactions);
+      transactionsData?.flatMap((item) => item.transactions) || [];
+    setTransactions(plaidTransactions);
   }
   catch(error){
       console.log(error);
@@ -112,11 +92,16 @@ const Nav = () => {
   };
   const handleSaveTransaction = async (transactionData) => {
     try {
-      await createManualTransaction({
+      const response = await createManualTransaction({
         userId: userData._id,
         ...transactionData,
       });
-      await loadTransactions();
+
+      // setManualTransactions((prev) => [
+      //   response.transaction,
+      //   ...prev,
+      // ]);
+
       alert("Transaction Added Successfully");
       setIsModalOpen(false);
     } catch (error) {
