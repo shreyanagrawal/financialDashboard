@@ -17,7 +17,6 @@ const BankCard = ({bank}) => {
                 </div>
                 <div className="flex items-center justify-between w-full md:w-auto gap-5">
                     <div className="text-right">
-                        
                         <span className="px-3 py-1 rounded-lg text-sm font-medium">{bank.accounts.length}</span>
                     </div>
                 </div>

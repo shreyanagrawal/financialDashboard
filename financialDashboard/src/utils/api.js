@@ -1,98 +1,186 @@
-import axios from "axios"
+import axios from "axios";
 const API_URL = import.meta.env.VITE_API_URL;
 const api = axios.create({
-    baseURL: API_URL,
+  baseURL: API_URL,
 });
-export const fetchWithAuth = async(accessToken,setAccessToken,navigate)=>{
-    try{
-        const res = await axios.get(`${API_URL}/api/profile`,
-            {
-                headers:{
-                Authorization:
-                    `Bearer ${accessToken}`
-                },
-                withCredentials:true
-            }
+export const fetchWithAuth = async (accessToken, setAccessToken, navigate) => {
+  try {
+    const res = await axios.get(`${API_URL}/api/profile`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+    });
+    if (!res.data.authenticated) {
+      try {
+        const refreshRes = await axios.post(
+          `${API_URL}/api/refresh`,
+          {},
+          {
+            withCredentials: true,
+          },
         );
-        if(!res.data.authenticated){
-            try{
-                const refreshRes = await axios.post(`${API_URL}/api/refresh`,{},
-                    {
-                        withCredentials:true
-                    }
-                );
-                const newAccessToken = refreshRes.data.accessToken;
-                setAccessToken(newAccessToken);
-                const retryRes = await axios.get(`${API_URL}/api/profile`,
-                    {
-                        headers:{
-                            Authorization:
-                            `Bearer ${newAccessToken}`
-                        },
-                        withCredentials:true
-                    }
-                );
-                return retryRes.data;
-            } catch(refreshError){
-                throw refreshError;
-            }
-        }
-        return res.data;
-    } catch(error){
-        if(error.response?.status === 401){
-            navigate("/");
-            return false;
-        }
-    }
-};
-export const getAccountsData = async(userId)=>{
-    try {
-        const accountsData = await axios.post(`${API_URL}/api/getAccounts`,{ userid: userId});
-        if (accountsData.status === 200) {
-            return accountsData.data.accounts;
-        }
-    } catch (err) {
-        console.log(err);
-    }
-}
-export const getTransactionsData = async(userId)=>{
-    try {
-        const transactionsData = await axios.post(`${API_URL}/api/getTransactions`,{ userid: userId});
-        if (transactionsData.status === 200) {
-            return transactionsData.data.transactions;
-        }
-    } catch (err) {
-        console.log(err);
-    }
-}
-export const createLinkToken = async()=>{
-    const response = await axios.post(`${API_URL}/api/create-link-token`,{},
-        {
-          withCredentials: true
-        }
-    );
-    return response;
-}
-export const logoutUser = async()=>{
-    const deleted = await axios.delete(`${API_URL}/api/refresh`,
-        {
-            withCredentials: true
-        }
-    );
-    return deleted
-}
-export const fetchPlaidData = async(publicToken, userId)=>{
-    if(publicToken !== ''){
-        const resData = await axios.post(`${API_URL}/api/exchange_public_token`,{public_token:publicToken, user_id : userId},{
-            withCredentials:true
+        const newAccessToken = refreshRes.data.accessToken;
+        setAccessToken(newAccessToken);
+        const retryRes = await axios.get(`${API_URL}/api/profile`, {
+          headers: {
+            Authorization: `Bearer ${newAccessToken}`,
+          },
+          withCredentials: true,
         });
-        return resData
+        return retryRes.data;
+      } catch (refreshError) {
+        throw refreshError;
+      }
     }
-}
-export const updateLinking = async(accountId, userId, isLinked)=>{
-    if(accountId !== '' && userId !== ''){
-        const AccountData = await axios.post(`${API_URL}/api/updateAccountsLink`,{accountId:accountId, userId:userId, isLinked: isLinked});
-        if(AccountData.status === 200)
-            return AccountData.status
+    return res.data;
+  } catch (error) {
+    if (error.response?.status === 401) {
+      navigate("/");
+      return false;
     }
-}
+  }
+};
+export const getAccountsData = async (userId) => {
+  try {
+    const accountsData = await axios.post(`${API_URL}/api/getAccounts`, {
+      userid: userId,
+    });
+    if (accountsData.status === 200) {
+      return accountsData.data.accounts;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const getTransactionsData = async (userId) => {
+  try {
+    const transactionsData = await axios.post(
+      `${API_URL}/api/getTransactions`,
+      { userid: userId },
+    );
+    if (transactionsData.status === 200) {
+      return transactionsData.data.transactions;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+export const createLinkToken = async () => {
+  const response = await axios.post(
+    `${API_URL}/api/create-link-token`,
+    {},
+    {
+      withCredentials: true,
+    },
+  );
+  return response;
+};
+export const logoutUser = async () => {
+  const deleted = await axios.delete(`${API_URL}/api/refresh`, {
+    withCredentials: true,
+  });
+  return deleted;
+};
+export const fetchPlaidData = async (publicToken, userId) => {
+  if (publicToken !== "") {
+    const resData = await axios.post(
+      `${API_URL}/api/exchange_public_token`,
+      { public_token: publicToken, user_id: userId },
+      {
+        withCredentials: true,
+      },
+    );
+    return resData;
+  }
+};
+export const updateLinking = async (accountId, userId, isLinked) => {
+  if (accountId !== "" && userId !== "") {
+    const AccountData = await axios.post(`${API_URL}/api/updateAccountsLink`, {
+      accountId: accountId,
+      userId: userId,
+      isLinked: isLinked,
+    });
+    if (AccountData.status === 200) return AccountData.status;
+  }
+};
+export const createUpdateModeLinkToken = async (plaidItemId, userId) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/link-token/update`,
+      {
+        plaidItemId,
+        userId,
+      },
+      {
+        withCredentials: true,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating update mode link token:", error);
+    throw error;
+  }
+};
+export const syncAccountsAfterUpdate = async (userId, plaidItemId) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/sync-accounts`,
+      {
+        userId,
+        plaidItemId,
+      },
+      {
+        withCredentials: true,
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error syncing accounts:", error);
+    throw error;
+  }
+};
+export const createManualTransaction = async (transactionData) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/api/manualTransac`,
+      transactionData,
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+export const getManualTransactions = async (userId) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/manualTransac/${userId}`);
+    return response.data.transactions;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+export const updateManualTransaction = async (transactionId, updatedData) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/api/manualTransac/${transactionId}`,
+      updatedData,
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+export const deleteManualTransaction = async (transactionId) => {
+  try {
+    const response = await axios.delete(
+      `${API_URL}/api/manualTransac/${transactionId}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};

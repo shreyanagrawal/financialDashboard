@@ -8,8 +8,10 @@ const PlaidRoute = () => {
     const [isDataAvailable, setisDataAvailable] = useState(false);
     const [accounts,setAccounts] = useState([]);
     const [transactions,setTransactions] = useState([]);
+    const [manualTransactions, setManualTransactions] = useState([]);
   return (
-    <PlaidContext.Provider value={{isDataAvailable, setisDataAvailable, accounts, setAccounts, transactions, setTransactions}}>
+    <PlaidContext.Provider value={{
+      isDataAvailable, setisDataAvailable, accounts, setAccounts, transactions, setTransactions, manualTransactions, setManualTransactions,}}>
         <Nav />
     </PlaidContext.Provider>
   )
