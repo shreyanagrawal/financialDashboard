@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Accounts from './pages/Accounts';
 import PlaidRoute from './components/PlaidRoute';
 import Transactions from './pages/Transactions';
+import ForgotPassword from './pages/ForgotPassword';
 function App() {
   const [accessToken, setAccessToken] = useState();
   const [userData, setUserData] = useState({});
@@ -15,6 +16,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route element={<PlaidRoute />}>
             <Route path="/home" element={<Home />} />
             <Route path="/accounts" element={<Accounts userId={userData._id}/>}/>

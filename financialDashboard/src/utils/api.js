@@ -120,8 +120,9 @@ export const fetchPlaidData = async(publicToken, userId)=>{
         const resData = await axios.post(`${API_URL}/api/exchange_public_token`,{public_token:publicToken, user_id : userId},{
             withCredentials:true
         });
-        return resData
+        return resData;
     }
+    return null;
 }
 export const updateLinking = async(accountId, userId, isLinked)=>{
     if(accountId !== '' && userId !== ''){
