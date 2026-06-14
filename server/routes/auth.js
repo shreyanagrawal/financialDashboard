@@ -138,4 +138,72 @@ route.post("/changepassword", async(req,res)=>{
     }
 })
 
+//for the register part
+// 1. Modified sendOTP to allow sending OTP to NEW emails for registration
+route.post("/sendRegistrationOTP", async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        // Check if user already exists
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "Email is already registered" });
+        }
+
+        let otp = generateOTP();
+        const otpExpiry = Date.now() + 5 * 60 * 1000; // 5 mins
+
+        // For simplicity, we send the OTP. (In production, cache this OTP mapping safely)
+        global.registrationOTPs = global.registrationOTPs || {};
+        global.registrationOTPs[email] = { otp, expiry: otpExpiry };
+
+        const mailoption = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: "Verify your email for registration",
+            text: `Your OTP for verification is: ${otp}`
+        };
+
+        await transporter.sendMail(mailoption);
+        res.status(200).json({ message: "Verification OTP has been sent to your email." });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+route.post("/registerWithOTP", async (req, res) => {
+    try {
+        const { email, password, otp } = req.body;
+
+        // Verify OTP from memory/cache storage
+        const cachedData = global.registrationOTPs ? global.registrationOTPs[email] : null;
+
+        if (!cachedData || cachedData.otp !== otp) {
+            return res.status(400).json({ message: "Invalid OTP" });
+        }
+
+        if (cachedData.expiry < Date.now()) {
+            return res.status(400).json({ message: "OTP Expired" });
+        }
+
+        // OTP is valid! Proceed to create user securely
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new UserModel({
+            email,
+            password: hashedPassword
+        });
+
+        await newUser.save();
+        
+        // Clean up cache
+        delete global.registrationOTPs[email];
+
+        return res.status(201).json({ message: "Registration Successful" });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = route;
