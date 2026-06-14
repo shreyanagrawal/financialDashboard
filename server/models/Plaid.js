@@ -10,7 +10,6 @@ const PlaidSchema = new mongoose.Schema({
         type: String,
         select: false,
     },
-    institutionName: String,
     createdAt:{type: Date, default: Date.now}
 })
 
