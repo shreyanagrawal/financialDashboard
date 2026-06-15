@@ -4,8 +4,29 @@ const AccountSchema = new mongoose.Schema({
   userId: {type: mongoose.Schema.Types.ObjectId,ref: "User",required: true},
   plaidItemId: {type: String,required: true},
   officialName: String,
+  items:[
+    {
+      plaidItemId: {
+        type: String,
+        required: true
+      },
+      encryptedAccessToken: {
+        type: String,
+        required: true,
+        select: false
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ],
   accounts:[
     {
+      plaidItemId:{
+        type: String,
+        required: true
+      },
       accountId: {
         type: String,
         required: true,
@@ -41,7 +62,7 @@ const AccountSchema = new mongoose.Schema({
   updatedAt: {type: Date,default: Date.now},
 });
 AccountSchema.index(
-  { plaidItemId: 1, "accounts.accountId": 1 },
+  { userId: 1, institutionId: 1 },
   { unique: true }
 );
 const AccountModel = mongoose.model("Account",AccountSchema);

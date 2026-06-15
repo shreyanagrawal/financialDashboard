@@ -6,7 +6,7 @@ import { useContext } from "react";
 import { getAccountsData } from "../utils/api";
 import { useLocation } from "react-router-dom";
 
-const AccountCard = ({account,userId, loadAccounts}) => {
+const AccountCard = ({account,bankName, userId, loadAccounts}) => {
   const {accounts, setAccounts} = useContext(PlaidContext);
   const updateAccountsLink = async(id, userId, isLinked)=>{
     const updatedStatus = await updateLinking(id, userId, isLinked);
@@ -28,7 +28,7 @@ const AccountCard = ({account,userId, loadAccounts}) => {
           <div className={`${path.pathname==="/accounts" ? "w-12 h-12" : "w-8 h-8"} rounded-xl bg-[#314463] flex items-center justify-center ${path.pathname==="/accounts" ? "text-xl" : "text-md"}`}>🏦</div>
           <div>
             <h3 className="font-semibold">{account.name}</h3>
-            <p className="text-slate-400">{account.subtype}</p>
+            <p className="text-slate-400">{bankName}</p>
             <p className="text-slate-500 text-sm">**** {account.mask}</p>
           </div>
         </div>
