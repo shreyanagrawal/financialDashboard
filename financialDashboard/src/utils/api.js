@@ -73,6 +73,40 @@ export const createLinkToken = async()=>{
     );
     return response;
 }
+export const createUpdateModeLinkToken = async(userId, plaidItemId) => {
+    try {
+        const response = await axios.post(`${API_URL}/api/link-token/update`,
+            {
+                userId,
+                plaidItemId
+            },
+            {
+                withCredentials: true
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error creating update mode link token:', error);
+        throw error;
+    }
+}
+export const syncAccountsAfterUpdate = async(userId, plaidItemId) => {
+    try {
+        const response = await axios.post(`${API_URL}/api/sync-accounts`,
+            {
+                userId,
+                plaidItemId
+            },
+            {
+                withCredentials: true
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error syncing accounts:', error);
+        throw error;
+    }
+}
 export const logoutUser = async()=>{
     const deleted = await axios.delete(`${API_URL}/api/refresh`,
         {
@@ -86,9 +120,8 @@ export const fetchPlaidData = async(publicToken, userId)=>{
         const resData = await axios.post(`${API_URL}/api/exchange_public_token`,{public_token:publicToken, user_id : userId},{
             withCredentials:true
         });
-        return resData;
+        return resData
     }
-    return null;
 }
 export const updateLinking = async(accountId, userId, isLinked)=>{
     if(accountId !== '' && userId !== ''){
