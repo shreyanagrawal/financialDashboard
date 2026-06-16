@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const AccountSchema = new mongoose.Schema({
   userId: {type: mongoose.Schema.Types.ObjectId,ref: "User",required: true},
+  institutionId: {type: String, required: true},
   plaidItemId: {type: String,required: true},
   officialName: String,
   items:[

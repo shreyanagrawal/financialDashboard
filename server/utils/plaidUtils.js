@@ -84,7 +84,6 @@ const createUpdateModeLinkToken = async(userId, accessToken) => {
                 account_selection_enabled: true
             }
         });
-        console.log(response.data.link_token);
         return response.data.link_token;
     } catch (error) {
         throw new Error(`Failed to create update mode link token: ${error.message}`);

@@ -190,6 +190,7 @@ const syncAccountsAfterUpdate = async (userId, plaidItemId, plaidAccounts, insti
     }));
     await AccountModel.create({
       userId,
+      plaidItemId,
       institutionId,
       officialName: institutionName,
       items:[
@@ -209,7 +210,6 @@ const syncAccountsAfterUpdate = async (userId, plaidItemId, plaidAccounts, insti
   }
 
   const itemExists = storedAccount.accounts.some((a)=>a.plaidItemId === plaidItemId);
-  console.log("exist" + itemExists);
   if(!itemExists){
     storedAccount.items.push({
       plaidItemId,
@@ -220,7 +220,6 @@ const syncAccountsAfterUpdate = async (userId, plaidItemId, plaidAccounts, insti
   const newAccountsData = plaidAccounts.filter(
     account => !existingAccountIds.includes(account.account_id)
   );
-  console.log("new"+ newAccountsData);
   const formattedNewAccounts = newAccountsData.map((account)=>({
     plaidItemId,
     accountId: account.account_id,
@@ -267,7 +266,7 @@ const institutionInfo = async (accessToken) => {
 
 const getTransactions = async(userId, itemID)=>{
   try{
-    const accessToken = await plaidUtils.getAccessToken(userId, plaidItemID);
+    const accessToken = await plaidUtils.getAccessToken(userId, itemID);
      const response = await plaidUtils.client.transactionsGet({
       access_token: accessToken,
       start_date: "2024-01-01",
@@ -372,6 +371,7 @@ const getBalances = async(userId, plaidItemID)=>{
     if (!existingBank) {
       await AccountModel.create({
         userId,
+        plaidItemId: plaidItemID, 
         institutionId, 
         officialName:institutionDetails,
         items: [ 
