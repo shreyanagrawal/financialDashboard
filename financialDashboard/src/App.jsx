@@ -7,6 +7,7 @@ import { useState } from 'react';
 import Accounts from './pages/Accounts';
 import PlaidRoute from './components/PlaidRoute';
 import Transactions from './pages/Transactions';
+
 function App() {
   const [accessToken, setAccessToken] = useState();
   const [userData, setUserData] = useState({});

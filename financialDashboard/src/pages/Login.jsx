@@ -5,12 +5,14 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../utils/AuthContext";
+import ForgotPasswordModal from "../components/ForgotPassword"; 
 const API_URL = import.meta.env.VITE_API_URL;
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const {accessToken,setAccessToken} = useContext(AuthContext);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -51,7 +53,7 @@ const Login = () => {
           })
           if(profileData.status === 200)
             setTimeout(()=>{navigate("/home")},2000);
-        
+         
       })
       .catch((error)=>{
         setIsError(true);
@@ -69,7 +71,7 @@ const Login = () => {
         setMessage(error.response.data.message);
         setIsError(true);
         reset();
-      });  
+      });   
     }
     reset();
   };
@@ -159,6 +161,19 @@ const Login = () => {
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
               )}
+
+              {/* 3. ADDED THE "FORGOT PASSWORD" TRIGGER UNDER THE PASSWORD FIELD */}
+              {isLogin && (
+                <div className="flex justify-end mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPasswordOpen(true)}
+                    className="text-sm text-blue-600 hover:underline font-medium"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+              )}
             </div>
             {!isLogin && (
               <div>
@@ -197,6 +212,12 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      {/* 4. MODAL ELEMENT MOUNTED HERE AT THE BASE LEVEL OF RETURN BLOCK */}
+      <ForgotPasswordModal 
+        isOpen={isForgotPasswordOpen} 
+        onClose={() => setIsForgotPasswordOpen(false)} 
+      />
     </div>
   );
 };
