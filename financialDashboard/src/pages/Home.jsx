@@ -13,13 +13,9 @@ const Home = () => {
   const {userData,setUserData} = useContext(AuthContext);
   const [loading,setLoading] = useState(true);
   useEffect(()=>{
-    if(accounts.length > 0 && transactions.length > 0)
-      setisDataAvailable(true)
-    else
-      setisDataAvailable(false)
+    setisDataAvailable(accounts.length > 0 && transactions.length > 0);
     setLoading(false);
-  },[isDataAvailable])
-  
+  },[accounts,transactions])
   if(loading) return <h1>Loading...</h1>
   if(!isDataAvailable) return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">

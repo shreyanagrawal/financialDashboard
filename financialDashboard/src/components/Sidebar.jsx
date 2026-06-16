@@ -22,9 +22,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           <Link to="/transactions" onClick={(e) => {
               if (!isDataAvailable)
                 e.preventDefault();
-            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Transactions</span></Link>
+            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Transactions</span>
+          </Link>
           <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Analytics</span>
-          <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Budgets</span>
+          <Link to="/budget" onClick={(e) => {
+              if (!isDataAvailable)
+                e.preventDefault();
+            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Budgets</span>
+          </Link>
           <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Settings</span>
         </div>
       </div>

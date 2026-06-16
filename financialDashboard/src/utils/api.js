@@ -130,3 +130,10 @@ export const updateLinking = async(accountId, userId, isLinked)=>{
             return AccountData.status
     }
 }
+export const submitBuget = async(formData)=>{
+    if(formData !== ''){
+        const handleBudget = await axios.post(`${API_URL}/api/addBudget`,{formData: formData});
+        if(handleBudget.status === 200)
+            return handleBudget.data;
+    }
+}

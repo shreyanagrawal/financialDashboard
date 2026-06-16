@@ -1,28 +1,28 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import {PieChart, Pie, Cell, ResponsiveContainer} from "recharts";
 const TransactionChart = ({transactions}) => {
-  const generateColor = () => {
-    return `hsl(${Math.random() * 360}, 70%, 60%)`;
-  };
-  const categoryTotals = transactions.reduce((spend, tx) => {
-    const category = tx.name.split("*//")[0] || "Other";
-    const amount = Math.abs(Number(tx.amount));
-    spend[category] = (spend[category] || 0) + amount;
-  return spend;
-  }, {});
-
-  const totalAmount = Object.values(categoryTotals).reduce((sum, val) => sum + val,  0 );
-  const chartData = Object.entries(categoryTotals).map(
-    ([name, value]) => ({
-        name,
-        value,
-        percentage: Number(
-          ((value / totalAmount) * 100).toFixed(1)
-        ),
-        color: generateColor(),
-      })
-  );
-
+  const chartData = useMemo(()=>{
+    const generateColor = () => {
+      return `hsl(${Math.random() * 360}, 70%, 60%)`;
+    };
+    const categoryTotals = transactions.reduce((spend, tx) => {
+      const category = tx.name.split("*//")[0] || "Other";
+      const amount = Math.abs(Number(tx.amount));
+      spend[category] = (spend[category] || 0) + amount;
+      return spend;
+    }, {});
+    const totalAmount = Object.values(categoryTotals).reduce((sum, val) => sum + val,  0 );
+    return Object.entries(categoryTotals).map(
+      ([name, value]) => ({
+          name,
+          value,
+          percentage: Number(
+            ((value / totalAmount) * 100).toFixed(1)
+          ),
+          color: generateColor(),
+        })
+    );
+  },[transactions]);
   return (
     <div className="bg-white rounded-2xl shadow-md pb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 justify-between px-8 py-4 border-b border-slate-600 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-tr-2xl rounded-tl-2xl">
@@ -38,6 +38,7 @@ const TransactionChart = ({transactions}) => {
                 innerRadius={70}
                 outerRadius={100}
                 paddingAngle={2}
+                isAnimationActive={false}
               >
                 {chartData.map((entry, index) => (
                   <Cell

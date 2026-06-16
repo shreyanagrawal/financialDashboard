@@ -1,19 +1,23 @@
 import { ArrowRight } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useContext } from 'react';
 import { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { PlaidContext } from '../utils/PlaidContext';
 
 const TransactionsList = ({transactions}) => {
     const path = useLocation();  
     const [filter, setFilter] = useState("all");  
-    const filters = ['All',...new Set(transactions.map(tx=>tx.merchantName.split(" *//")[0]))];
+    const filters = useMemo(()=>{
+        return ['All',...new Set(transactions.map(tx => tx?.merchantName?.split(" *//")[0]))];
+    },[transactions])
     const filteredTransactions = useMemo(()=>{
         const filtered = transactions.filter(tx => {
             const matchesFilter = filter.toLowerCase() === 'all' || tx.merchantName.split("*//")[0].toLowerCase().trim() === filter.toLowerCase();
             return matchesFilter;
         })
         return filtered;
-    },[filter])
+    },[filter, transactions])
     return (
         <div className="bg-white rounded-2xl shadow-md">
             <div className="grid grid-cols-1 md:grid-cols-2 justify-between px-8 py-4 border-b border-slate-600 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-tr-2xl rounded-tl-2xl">

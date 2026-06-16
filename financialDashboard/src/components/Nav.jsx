@@ -55,7 +55,13 @@ const Nav = () => {
     const transactionsData = await getTransactionsData(userData._id);
     if(transactionsData){
       if(transactionsData.length > 0){
-        setTransactions(transactionsData.flatMap(item => item.transactions));   
+        const flattenedTransactions = transactionsData.flatMap(item => {
+          return item.transactions.map(tx => ({
+            ...tx,
+            plaidItemId: item.plaidItemId
+          }));
+        });
+        setTransactions(flattenedTransactions);
       }
     }
   }

@@ -14,5 +14,4 @@ const PlaidRoute = () => {
     </PlaidContext.Provider>
   )
 }
-
 export default PlaidRoute
