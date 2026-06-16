@@ -3,12 +3,16 @@ import { useContext } from 'react'
 import { PlaidContext } from '../utils/PlaidContext'
 import AddBudgetModal from '../components/AddBudgetModal';
 import { AuthContext } from '../utils/AuthContext';
+import { getBudgets } from '../utils/api';
+import BudgetChart from '../components/BudgetChart';
 
 const Budget = () => {
     const [loading, setLoading] = useState(true);
     const [timeFilter,setTimeFilter] = useState();
     const {transactions, setTransactions} = useContext(PlaidContext);
     const {userData} = useContext(AuthContext);
+    const [budget, setBudget] = useState([]);
+    let budgetData;
     let categories = [];
     const [isOpen,setIsOpen] = useState(false);
     const time = ['All', ...new Set(transactions.map((tx) => {
@@ -46,9 +50,38 @@ const Budget = () => {
     });
     categories = Object.keys(actualBudget);
     useEffect(()=>{
-        if(time.length >0)
-        setLoading(false);
+        getBudgetData();
+    },[])
+    const getBudgetData = async()=>{
+        if(userData){
+            budgetData = await getBudgets(userData._id);
+            if(budgetData)
+                setBudget(budgetData);
+        }
+    }
+    useEffect(()=>{
+        if(time.length >0 ) 
+            setLoading(false);
     },[time]);
+    const getActualVsExpected = (actualBudget, budgets) => {
+        return budgets.filter((budget) => {
+            if (selectedMonth.toLowerCase() === "all" || selectedYear === "all") 
+                return true;
+            const monthName = new Date(budget.year,budget.month - 1).toLocaleString("en-US", {
+                month: "short",
+            }).toLowerCase();
+            return (monthName === selectedMonth.toLowerCase() && Number(selectedYear) === Number(budget.year));
+        }).map((budget) => {
+            const actual = Object.entries(actualBudget).filter(([name]) =>
+                name.toLowerCase().includes(budget.category.toLowerCase())
+            ).reduce((sum, [, amount]) => sum + amount, 0);
+            return {
+                category: budget.category,
+                expected: budget.limit,
+                actual: Number(actual.toFixed(2)),
+            };
+        });
+    };
     if(loading) return <h1>Loading...</h1>
     return (
         <>
@@ -87,7 +120,8 @@ const Budget = () => {
                 <h2 className="pt-0 text-2xl font-semibold" style={{paddingBottom: 0}}>Expected v/s Actual Budget Analysis</h2>
                 <button className="text-end bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-2 rounded-xl font-semibold text-white cursor-pointer" onClick={()=>setIsOpen(true)}>Add Budget</button>
             </div>
-            {isOpen && <AddBudgetModal isOpen={isOpen} setIsOpen={setIsOpen} categories={categories} userId={userData.userId}/>}
+            {isOpen && <AddBudgetModal isOpen={isOpen} setIsOpen={setIsOpen} categories={categories} userId={userData._id} budgets={budget}/>}
+            {budget && <BudgetChart chart={getActualVsExpected(actualBudget, budget)}/>}
         </>
     )
 }

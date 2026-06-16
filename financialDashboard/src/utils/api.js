@@ -130,10 +130,18 @@ export const updateLinking = async(accountId, userId, isLinked)=>{
             return AccountData.status
     }
 }
-export const submitBuget = async(formData)=>{
-    if(formData !== ''){
-        const handleBudget = await axios.post(`${API_URL}/api/addBudget`,{formData: formData});
+export const submitBuget = async(formData, userId)=>{
+    if(formData !== '' && userId !== ''){
+        const handleBudget = await axios.post(`${API_URL}/api/addBudget`,{formData: formData, userId: userId});
         if(handleBudget.status === 200)
             return handleBudget.data;
     }
+}
+
+export const getBudgets = async(userId)=>{
+    if(userId){
+        const budgets = await axios.post(`${API_URL}/api/getBudget`, {userId: userId});
+        if(budgets.status === 200)
+            return budgets.data.data.flatMap(item => item.budgets);
+    } 
 }

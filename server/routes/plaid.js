@@ -4,6 +4,7 @@ const plaidUtils = require("../utils/plaidUtils");
 const PlaidItem = require("../models/Plaid");
 const AccountModel = require("../models/Account");
 const TransactionModel = require("../models/Transaction");
+const BudgetModel = require("../models/Budget");
 
 router.post("/create-link-token", async (req, res) => {
   try {
@@ -407,9 +408,56 @@ const getBalances = async(userId, plaidItemID)=>{
     return error.message;
   }
 }
-// router.post("/addBudget", async (req,res)=>{
-//   try{
+router.post("/addBudget", async (req,res)=>{
+  const { category, amount, month } = req.body.formData;
+  const userId  = req.body.userId;
+  let enteredMonth = '';
+  let enteredYear = ''
+  try{
+    if(!userId)
+      return res.status(400).json({"success": false, "message": "Bad Netwrok Request"})
+    if(month){
+      enteredMonth = month.split("-")[1];
+      enteredYear = month.split("-")[0]
+    }
+    if(!category || !amount)
+      return res.status(400).json({"success": false, "message": "Bad Network Call"})
+    const AddedBudget = await BudgetModel.findOneAndUpdate(
+      {
+        userId
+      },
+      {
+        userId,
+        $push:{
+          budgets:{
+            category: category,
+            limit: amount,
+            month: enteredMonth,
+            year: enteredYear,
+          }
+        }
+      },
+      {
+        upsert: true,
+        returnDocument: "after",
+      }
+    )
+    return res.status(200).json({ success: true , message: "Balance Data Added successfully", budegts: AddedBudget});
 
-//   }
-// })
+  } catch (error) {
+    return res.status(500).json({"succes": false, "message": error.response?.data || error.message})
+  }
+});
+router.post("/getBudget", async(req,res) => {
+  const userId = req.body.userId;
+  try{
+    if(!userId) 
+      return res.status(400).json({"success": false, "message": "Bad Network Call"})
+      const budgetData = await BudgetModel.find({userId: userId});
+      if(budgetData)
+        return res.status(200).json({"success": true, "message": "Records found", data: budgetData});
+  } catch (error){
+    return res.status(500).json({"success": false, "message": error.response?.data || error.message})
+  }
+})
 module.exports = router;

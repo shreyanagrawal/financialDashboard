@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react'
 import { PlaidContext } from '../utils/PlaidContext';
 import { submitBuget } from '../utils/api';
+import { Link } from "react-router-dom"
 
-const AddBudgetModal = ({isOpen,setIsOpen,categories,userId}) => {
+const AddBudgetModal = ({isOpen,setIsOpen,categories,userId,budgets}) => {
     const [formData, setFormData] = useState({
         category: '',
         amount: '',
@@ -17,7 +18,7 @@ const AddBudgetModal = ({isOpen,setIsOpen,categories,userId}) => {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const handleBudget = await submitBuget(formData);
+        const handleBudget = await submitBuget(formData, userId);
         setIsOpen(false);
         setFormData({
             category: '',
@@ -52,6 +53,7 @@ const AddBudgetModal = ({isOpen,setIsOpen,categories,userId}) => {
                         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg">Save Budget</button>
                     </div>
                 </form>
+                <Link to="/editbudget" state={{userId: userId,budgets: budgets}}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Edit Budget</span></Link>
             </div>
         </div>
     );
