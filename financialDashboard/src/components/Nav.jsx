@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
@@ -27,6 +27,14 @@ const Nav = () => {
       loadTransactions();
     }
   },[userData],[])
+
+  const location = useLocation();
+  const [isNavigating, setIsNavigating] = useState(false);
+  useEffect(() => {
+    setIsNavigating(true);
+    const timer = setTimeout(() => setIsNavigating(false), 500);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
@@ -112,10 +120,17 @@ const Nav = () => {
     if(Object.keys(userData).length > 0)
       setLoading(false);
   },[userData])
-  if(loading) return <h1>Loading..</h1>
+  if(loading) return(
+    <div className="absolute inset-0 bg-gray-100 z-40 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-4 text-blue-600 font-semibold text-lg">Loading Data...</p>
+              </div>
+              </div>
+  );
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData.email.split("@")[0]}/>
+      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0] || "User"}/>
       <div className="flex">
         <button
            className={`lg:hidden absolute top-4 left-4 z-30 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
@@ -126,8 +141,17 @@ const Nav = () => {
           ☰
         </button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-8 relative">
+          {isNavigating ? (
+              <div className="absolute inset-0 bg-gray-100 z-40 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-4 text-blue-600 font-semibold text-lg">Loading Data...</p>
+              </div>
+              </div>
+            ) : (
             <Outlet context={{ open, ready }} />
+            )}
         </div>
       </div>
     </div>
