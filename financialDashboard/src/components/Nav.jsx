@@ -7,6 +7,7 @@ import { PlaidContext } from "../utils/PlaidContext";
 import { getAccountsData, getTransactionsData ,fetchWithAuth, createLinkToken, fetchPlaidData, logoutUser} from "../utils/api";
 import axios from "axios";
 import { usePlaidLink } from "react-plaid-link";
+import LoadingScreen from "./LoadingScreen";
 const API_URL = import.meta.env.VITE_API_URL;
 const Nav = () => {
   const { accessToken, setAccessToken, userData, setUserData, loading,setLoading } = useContext(AuthContext);
@@ -94,17 +95,20 @@ const Nav = () => {
     fetchData(publicToken, userData._id);
   },[publicToken])
   const fetchData = async(publicToken, userId)=>{
+    await new Promise(resolve => setTimeout(resolve, 1000));
     setLoading(true);
     try{
       const fetchedData = await fetchPlaidData(publicToken,userId);
       if(fetchedData.status){
         loadAccounts();
         loadTransactions();
-        setLoading(false);
+        await new Promise(resolve => setTimeout(resolve, 1000));
         console.log(fetchedData.data);
       }
     } catch (error){
       console.log(error)
+    }finally{
+      setLoading(false);
     }
   }
   useEffect(()=>{
@@ -125,7 +129,7 @@ const Nav = () => {
         </button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="flex-1 p-8">
-            {loading ? <h1>Loading....</h1> : <Outlet context={{ open, ready }} />}
+            {loading ? <LoadingScreen text="Loading Dashboard..."/> : <Outlet context={{ open, ready }} />}
         </div>
       </div>
     </div>
