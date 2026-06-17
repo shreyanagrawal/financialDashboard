@@ -4,9 +4,10 @@ import { PlaidContext } from '../utils/PlaidContext';
 import { getTransactionsData } from '../utils/api';
 import PlaidStats from '../components/PlaidStats';
 import TransactionsList from '../components/TransactionsList';
+import { AuthContext } from '../utils/AuthContext';
 
 const Transactions = () => {
-    const [loading, setLoading] = useState(false);
+    const {loading, setLoading} = useContext(AuthContext);
     const {accounts, setAccouunts, transactions, setTransactions} = useContext(PlaidContext);
     useEffect(() => {
         if (transactions) {

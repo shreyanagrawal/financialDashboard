@@ -4,5 +4,7 @@ export const AuthContext = createContext({
     accessToken:"",
     setAccessToken:()=>{},
     userData:{},
-    setUserData:()=>{}
+    setUserData:()=>{},
+    loading:true,
+    setLoading:()=>{}
 })

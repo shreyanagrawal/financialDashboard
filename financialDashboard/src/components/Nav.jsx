@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
@@ -7,14 +7,12 @@ import { PlaidContext } from "../utils/PlaidContext";
 import { getAccountsData, getTransactionsData ,fetchWithAuth, createLinkToken, fetchPlaidData, logoutUser} from "../utils/api";
 import axios from "axios";
 import { usePlaidLink } from "react-plaid-link";
-import LoadingScreen from "./LoadingScreen";
 const API_URL = import.meta.env.VITE_API_URL;
 const Nav = () => {
-  const { accessToken, setAccessToken, userData, setUserData } = useContext(AuthContext);
+  const { accessToken, setAccessToken, userData, setUserData, loading,setLoading } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [linkToken, setLinkToken] = useState("");
   const [publicToken,setPublicToken] = useState("");
-  const [loading,setLoading] = useState(true);
   const {accounts, setAccounts, transactions, setTransactions, isDataAvailable, setisDataAvailable} = useContext(PlaidContext);
 
   const navigate = useNavigate();
@@ -28,14 +26,6 @@ const Nav = () => {
       loadTransactions();
     }
   },[userData],[])
-
-  const location = useLocation();
-  const [isNavigating, setIsNavigating] = useState(false);
-  useEffect(() => {
-    setIsNavigating(true);
-    const timer = setTimeout(() => setIsNavigating(false), 500);
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
@@ -121,26 +111,21 @@ const Nav = () => {
     if(Object.keys(userData).length > 0)
       setLoading(false);
   },[userData])
-  if(loading) return <LoadingScreen text="Loadind Dashboard"/>
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0] || "User"}/>
+      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.email?.split("@")[0] || "User"}/>
       <div className="flex">
         <button
-           className={`lg:hidden absolute top-4 left-4 z-30 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
-             sidebarOpen ? "hidden" : "block"
-           }`} 
-           onClick={() => setSidebarOpen(!sidebarOpen)}
+          className={`lg:hidden absolute top-4 left-4 z-30 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
+            sidebarOpen ? "hidden" : "block"
+          }`} 
+          onClick={() => setSidebarOpen(!sidebarOpen)}
         >
           ☰
         </button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex-1 p-8 relative">
-          {isNavigating ? (
-              <LoadingScreen text="Loading Data..."/>
-            ) : (
-            <Outlet context={{ open, ready }} />
-            )}
+        <div className="flex-1 p-8">
+            {loading ? <h1>Loading....</h1> : <Outlet context={{ open, ready }} />}
         </div>
       </div>
     </div>

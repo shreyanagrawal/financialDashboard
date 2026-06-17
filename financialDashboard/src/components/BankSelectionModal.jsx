@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import { createUpdateModeLinkToken, syncAccountsAfterUpdate } from '../utils/api';
 import { X } from 'lucide-react';
+import { AuthContext } from '../utils/AuthContext';
 
 const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
     const [selectedBank, setSelectedBank] = useState(null);
     const [updateLinkToken, setUpdateLinkToken] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const {loading,setLoading} = useContext(AuthContext);
     
     const { open: openUpdateLink, ready: updateLinkReady } = usePlaidLink({
         token: updateLinkToken,
@@ -14,18 +15,18 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
             console.log("Update Mode Success:", metadata);
             try {
                 await syncAccountsAfterUpdate(userId.userId, selectedBank.items[0].plaidItemId);
-                setIsLoading(false);
+                setLoading(false);
                 onSuccess();
                 onClose();
             } catch (error) {
                 console.error("Error syncing accounts:", error);
                 alert("Failed to sync accounts. Please try again.");
-                setIsLoading(false);
+                setLoading(false);
             }
         },
         onExit: () => {
             setUpdateLinkToken("");
-            setIsLoading(false);
+            setLoading(false);
         }
     });
     useEffect(() => {
@@ -34,7 +35,7 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
     }, [updateLinkToken, updateLinkReady]);
     const handleSelectBank = async (bank) => {
         setSelectedBank(bank);
-        setIsLoading(true);
+        setLoading(true);
         try {
             const response = await createUpdateModeLinkToken(userId.userId,bank.items[0].plaidItemId);
             setUpdateLinkToken(response.link_token);
@@ -47,7 +48,7 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
         } catch (error) {
             console.error("Error creating update mode link token:", error);
             alert("Failed to initiate account addition. Please try again.");
-            setIsLoading(false);
+            setLoading(false);
             setSelectedBank(null);
         }
     };
@@ -61,7 +62,7 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
                     <h2 className="text-2xl font-bold">Select Bank to Add Accounts</h2>
                     <button
                         onClick={onClose}
-                        disabled={isLoading}
+                        disabled={loading}
                         className="text-gray-500 hover:text-gray-700 disabled:text-gray-300"
                     >
                         <X size={24} />
@@ -74,7 +75,7 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
                             <button
                                 key={bank._id}
                                 onClick={() => handleSelectBank(bank)}
-                                disabled={isLoading}
+                                disabled={loading}
                                 className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <div className="flex items-center justify-between">
@@ -98,7 +99,7 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
 
                 <button
                     onClick={onClose}
-                    disabled={isLoading}
+                    disabled={loading}
                     className="w-full mt-6 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                     Cancel

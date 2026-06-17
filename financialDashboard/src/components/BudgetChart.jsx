@@ -11,7 +11,6 @@ import {
 } from "recharts";
 const BudgetChart = ({chart}) => {
     const chartData = chart
-    console.log(chartData);
     return (
         <>
             {chartData.length > 0  && 

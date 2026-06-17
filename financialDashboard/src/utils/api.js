@@ -116,6 +116,7 @@ export const logoutUser = async()=>{
     return deleted
 }
 export const fetchPlaidData = async(publicToken, userId)=>{
+    
     if(publicToken !== ''){
         const resData = await axios.post(`${API_URL}/api/exchange_public_token`,{public_token:publicToken, user_id : userId},{
             withCredentials:true
