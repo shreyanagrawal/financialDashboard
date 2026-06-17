@@ -7,6 +7,7 @@ import { PlaidContext } from "../utils/PlaidContext";
 import { getAccountsData, getTransactionsData ,fetchWithAuth, createLinkToken, fetchPlaidData, logoutUser} from "../utils/api";
 import axios from "axios";
 import { usePlaidLink } from "react-plaid-link";
+import LoadingScreen from "./LoadingScreen";
 const API_URL = import.meta.env.VITE_API_URL;
 const Nav = () => {
   const { accessToken, setAccessToken, userData, setUserData } = useContext(AuthContext);
@@ -120,14 +121,7 @@ const Nav = () => {
     if(Object.keys(userData).length > 0)
       setLoading(false);
   },[userData])
-  if(loading) return(
-    <div className="absolute inset-0 bg-gray-100 z-40 flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 text-blue-600 font-semibold text-lg">Loading Data...</p>
-              </div>
-              </div>
-  );
+  if(loading) return <LoadingScreen text="Loadind Dashboard"/>
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0] || "User"}/>
@@ -143,12 +137,7 @@ const Nav = () => {
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="flex-1 p-8 relative">
           {isNavigating ? (
-              <div className="absolute inset-0 bg-gray-100 z-40 flex items-center justify-center">
-                <div className="flex flex-col items-center">
-                <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 text-blue-600 font-semibold text-lg">Loading Data...</p>
-              </div>
-              </div>
+              <LoadingScreen text="Loading Data..."/>
             ) : (
             <Outlet context={{ open, ready }} />
             )}
