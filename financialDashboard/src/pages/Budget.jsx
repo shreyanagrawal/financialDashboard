@@ -11,7 +11,6 @@ const Budget = () => {
     const {transactions, setTransactions} = useContext(PlaidContext);
     const {userData, loading, setLoading} = useContext(AuthContext);
     const [budget, setBudget] = useState([]);
-    let budgetData;
     let categories = [];
     const [isOpen,setIsOpen] = useState(false);
     const time = ['All', ...new Set(transactions.map((tx) => {
@@ -21,23 +20,30 @@ const Budget = () => {
             year: "numeric"
         });
     }))];
-    const selectedMonth = timeFilter? timeFilter.split(" ")[0] : new Date().toLocaleString("en-US", {month: "short"}).toLowerCase(); 
-    const selectedYear = timeFilter? timeFilter.split(" ")[1] : new Date().getFullYear();
+    const selectedMonth = timeFilter?.split(" ")[0] ; 
+    const selectedYear = timeFilter?.split(" ")[1] ;
     let month = '';
     const currentMonthExpenses = useMemo(()=>{
         return transactions.filter(tx => {const txDate = new Date(tx.date);
             month = txDate.toLocaleString("en-US", {
                 month: "short"
             }).toLowerCase();
-            const matchesMonth = selectedMonth.toLowerCase() === "all" || month === selectedMonth.toLowerCase();
-            const matchesYear = selectedYear === "all" || txDate.getFullYear() === Number(selectedYear);
-            return (
-                matchesMonth &&
-                matchesYear &&
-                Number(tx.amount) > 0
-            );
+            if(selectedMonth){
+                const matchesMonth = month === selectedMonth.toLowerCase();
+                const matchesYear = txDate.getFullYear() === Number(selectedYear);
+                return (
+                    matchesMonth &&
+                    matchesYear &&
+                    Number(tx.amount) > 0
+                );
+            } else {
+                return (
+                    txDate <= new Date() &&
+                    Number(tx.amount) > 0
+                );
+            } 
         });
-    },[timeFilter,[]])
+    },[timeFilter,selectedMonth,selectedYear,[]])
     const totalExpenses = currentMonthExpenses.filter(tx => tx.amount > 0 && !tx.pending).reduce((sum, tx) => sum + tx.amount, 0);
     const actualBudget = {};
     currentMonthExpenses.forEach(tx => {
@@ -50,12 +56,12 @@ const Budget = () => {
     categories = Object.keys(actualBudget);
     useEffect(()=>{
         getBudgetData();
-    },[])
+    },[userData]);
     const getBudgetData = async()=>{
         if(userData){
-            budgetData = await getBudgets(userData._id);
+            const budgetData = await getBudgets(userData._id);
             if(budgetData)
-                setBudget(budgetData);
+                setBudget(budgetData)
         }
     }
     useEffect(()=>{
@@ -64,12 +70,14 @@ const Budget = () => {
     },[time]);
     const getActualVsExpected = (actualBudget, budgets) => {
         return budgets.filter((budget) => {
-            if (selectedMonth.toLowerCase() === "all" || selectedYear === "all") 
-                return true;
-            const monthName = new Date(budget.year,budget.month - 1).toLocaleString("en-US", {
-                month: "short",
-            }).toLowerCase();
-            return (monthName === selectedMonth.toLowerCase() && Number(selectedYear) === Number(budget.year));
+            if (selectedMonth){
+                const monthName = new Date(budget.year,budget.month - 1).toLocaleString("en-US", {
+                    month: "short",
+                }).toLowerCase();
+                return (monthName === selectedMonth?.toLowerCase() && Number(selectedYear) === Number(budget.year));
+            } else {
+                return new Date(budget.year,budget.month - 1) <= new Date()
+            }
         }).map((budget) => {
             const actual = Object.entries(actualBudget).filter(([name]) =>
                 name.toLowerCase().includes(budget.category.toLowerCase())
