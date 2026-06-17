@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import axios from "axios";
+import { AuthContext } from "../utils/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,7 +12,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const {loading,setLoading} = useContext(AuthContext);
 
   const {
     register,

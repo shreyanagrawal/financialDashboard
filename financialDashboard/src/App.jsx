@@ -12,8 +12,9 @@ import EditBudget from './pages/EditBudget';
 function App() {
   const [accessToken, setAccessToken] = useState();
   const [userData, setUserData] = useState({});
+  const [loading,setLoading] = useState(true); 
   return (
-    <AuthContext.Provider value={{ accessToken, setAccessToken, userData, setUserData }}>
+    <AuthContext.Provider value={{ accessToken, setAccessToken, userData, setUserData, loading, setLoading }}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />

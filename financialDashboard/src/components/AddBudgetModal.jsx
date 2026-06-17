@@ -9,7 +9,6 @@ const AddBudgetModal = ({isOpen,setIsOpen,categories,userId,budgets}) => {
         amount: '',
         month: '',
     });
-    console.log(formData)
     const handleChange = (e) => {
         setFormData({
             ...formData,
