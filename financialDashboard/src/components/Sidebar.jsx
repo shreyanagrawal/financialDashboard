@@ -14,6 +14,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <h2 className="text-2xl font-bold text-blue-700 mb-10">FinDash</h2>
         <div className="flex flex-col gap-4">
           <Link to="/home"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Dashboard</span></Link>
+          <Link to="/profile"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">My Profile</span></Link>
           <Link to="/accounts" onClick={(e) => {
               if (!isDataAvailable)
                 e.preventDefault();
