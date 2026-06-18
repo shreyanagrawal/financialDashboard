@@ -14,22 +14,18 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
         onSuccess: async (public_token, metadata) => {
             console.log("Update Mode Success:", metadata);
             try {
-                await syncAccountsAfterUpdate(userId.userId, selectedBank.items[0].plaidItemId);
-                setTimeout(()=>{setLoading(false)
-                },1000);                
+                await syncAccountsAfterUpdate(userId.userId, selectedBank.items[0].plaidItemId);           
                 onSuccess();
                 onClose();
             } catch (error) {
                 console.error("Error syncing accounts:", error);
                 alert("Failed to sync accounts. Please try again.");
-                setTimeout(()=>{setLoading(false)
-                },1000);
+                
             }
         },
         onExit: () => {
             setUpdateLinkToken("");
-            setTimeout(()=>{setLoading(false)
-            },1000);
+            
         }
     });
     useEffect(() => {
@@ -38,7 +34,7 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
     }, [updateLinkToken, updateLinkReady]);
     const handleSelectBank = async (bank) => {
         setSelectedBank(bank);
-        setLoading(true);
+       
         try {
             const response = await createUpdateModeLinkToken(userId.userId,bank.items[0].plaidItemId);
             setUpdateLinkToken(response.link_token);
@@ -51,8 +47,7 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
         } catch (error) {
             console.error("Error creating update mode link token:", error);
             alert("Failed to initiate account addition. Please try again.");
-            setTimeout(()=>{setLoading(false)
-            },1000);
+            
             setSelectedBank(null);
         }
     };
