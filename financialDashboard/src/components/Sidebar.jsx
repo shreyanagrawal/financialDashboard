@@ -28,14 +28,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               setLoading(true);
             }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Transactions</span>
           </Link>
-          <span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Analytics</span>
+          <Link to="/analytics" onClick={(e) => {
+              if (!isDataAvailable)
+                e.preventDefault();
+              setLoading(true);
+            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Analytics</span>
+          </Link>
           <Link to="/budget" onClick={(e) => {
               if (!isDataAvailable)
                 e.preventDefault();
               setLoading(true);
             }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Budgets</span>
           </Link>
-          <Link to="/profile"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">My Profile</span></Link>
+          <Link to="/profile" onClick={() => {setLoading(true)}}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">My Profile</span></Link>
         </div>
       </div>
     </>

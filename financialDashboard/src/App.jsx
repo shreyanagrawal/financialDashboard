@@ -9,6 +9,7 @@ import PlaidRoute from './components/PlaidRoute';
 import Transactions from './pages/Transactions';
 import Budget from './pages/Budget';
 import EditBudget from './pages/EditBudget';
+import Analytics from './pages/Analytics';
 import Profile from './pages/Profile';
 function App() {
   const [accessToken, setAccessToken] = useState();
@@ -25,6 +26,7 @@ function App() {
             <Route path="/transactions" element={<Transactions />}/>
             <Route path="/editbudget" element={<EditBudget />}/>
             <Route path="/budget" element={<Budget />}/>
+            <Route path="/analytics" element={<Analytics userId={userData._id}/>}/>
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Routes>

@@ -12,12 +12,9 @@ const Accounts = (userId) => {
   const [modalOpen, setModalOpen] = useState(false);
   const {accounts, setAccounts, transactions, setTransactions} = useContext(PlaidContext);
   useEffect(() => {
-    if(accounts.length === 0)
-      loadAccounts(userId.userId);
-  }, []);
-  useEffect(() => {
     if (accounts) {
-      setLoading(false);
+      setTimeout(()=>{setLoading(false)
+      },1000);
     }
   }, [accounts]);
   const loadAccounts = async(userId)=>{

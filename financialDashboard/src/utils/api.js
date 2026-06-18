@@ -58,6 +58,7 @@ export const getAccountsData = async(userId)=>{
 export const getTransactionsData = async(userId)=>{
     try {
         const transactionsData = await axios.post(`${API_URL}/api/getTransactions`,{ userid: userId});
+        
         if (transactionsData.status === 200) {
             return transactionsData.data.transactions;
         }
@@ -116,7 +117,6 @@ export const logoutUser = async()=>{
     return deleted
 }
 export const fetchPlaidData = async(publicToken, userId)=>{
-    
     if(publicToken !== ''){
         const resData = await axios.post(`${API_URL}/api/exchange_public_token`,{public_token:publicToken, user_id : userId},{
             withCredentials:true
@@ -145,4 +145,30 @@ export const getBudgets = async(userId)=>{
         if(budgets.status === 200)
             return budgets.data.data.flatMap(item => item.budgets);
     } 
+}
+export const getAggregatedData = async(userId)=>{
+    if(userId){
+        const analytics = await axios.post(`${API_URL}/api/income-expense-chart`,{userId: userId.userId});
+        if(analytics.status === 200)
+            return analytics.data;
+    }     
+}
+export const getAmountbyCategory = (transaction, expense=true)=>{
+    let result = {};
+    transaction.forEach(tx => {
+        const isExpense = tx.amount > 0;
+        const isIncome = tx.amount < 0;
+        if (
+            (expense && !isExpense) ||
+            (!expense && !isIncome)
+        ) {
+            return;
+        }
+        const category = tx.merchantName.split("*//")[0] || "Other";
+        if (!result[category]) {
+            result[category] = 0;
+        }
+        result[category] += tx.amount;
+    });
+    return result;
 }

@@ -5,7 +5,7 @@ const PlaidItem = require("../models/Plaid");
 const AccountModel = require("../models/Account");
 const TransactionModel = require("../models/Transaction");
 const BudgetModel = require("../models/Budget");
-
+const mongoose = require("mongoose");
 router.post("/create-link-token", async (req, res) => {
   try {
     const response = await plaidUtils.client.linkTokenCreate({
@@ -120,12 +120,14 @@ router.post('/link-token/update', async (req, res) => {
     }
 
     const accessToken = await plaidUtils.getAccessToken(userId,plaidItemId);
+    console.log("accessToken:", accessToken);
     const linkToken = await plaidUtils.createUpdateModeLinkToken(userId, accessToken);
     const institutionDetails = await institutionInfo(accessToken);
     res.status(200).json({link_token: linkToken,institutionName: institutionDetails});
 
   } catch (error) {
     console.log("PLAID ERROR:");
+    console.log("In update");
     console.log(error.message);
     res.status(500).json({
       error: true,
@@ -133,7 +135,6 @@ router.post('/link-token/update', async (req, res) => {
     });
   }
 });
-
 
 router.post('/sync-accounts', async (req, res) => {
   try {
@@ -159,6 +160,7 @@ router.post('/sync-accounts', async (req, res) => {
     });
 
   } catch (error) {
+    console.log("Sync accounts")
     console.log("PLAID ERROR:");
     console.log(error.message);
     res.status(500).json({error: true, message: error.message});
@@ -314,6 +316,7 @@ const getTransactions = async(userId, itemID)=>{
     return error.message;
   }
 }
+
 const getBalances = async(userId, plaidItemID)=>{
   try{
     const accessToken = await plaidUtils.getAccessToken(userId, plaidItemID);
@@ -408,6 +411,7 @@ const getBalances = async(userId, plaidItemID)=>{
     return error.message;
   }
 }
+
 router.post("/addBudget", async (req,res)=>{
   const { category, amount, month } = req.body.formData;
   const userId  = req.body.userId;
@@ -448,6 +452,7 @@ router.post("/addBudget", async (req,res)=>{
     return res.status(500).json({"succes": false, "message": error.response?.data || error.message})
   }
 });
+
 router.post("/getBudget", async(req,res) => {
   const userId = req.body.userId;
   try{
@@ -459,5 +464,77 @@ router.post("/getBudget", async(req,res) => {
   } catch (error){
     return res.status(500).json({"success": false, "message": error.response?.data || error.message})
   }
-})
+});
+
+router.post("/income-expense-chart", async(req,res)=>{
+  const userId = req.body.userId
+  try{
+    const data = await TransactionModel.aggregate([
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId)
+      }
+    },
+    {
+      $unwind: "$transactions"
+    },
+    {
+      $group: {
+        _id: {
+          month: {
+            $dateToString: {
+              format: "%Y-%m",
+              date: "$transactions.date"
+            }
+          },
+          category: {
+            $ifNull: [
+              "$transactions.merchantName",
+              "$transactions.name"
+            ]
+          }
+        },
+
+        income: {
+          $sum: {
+            $cond: [
+              { $lt: ["$transactions.amount", 0] },
+              { $abs: "$transactions.amount" },
+              0
+            ]
+          }
+        },
+
+        expense: {
+          $sum: {
+            $cond: [
+              { $gt: ["$transactions.amount", 0] },
+              "$transactions.amount",
+              0
+            ]
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        month: "$_id.month",
+        category: "$_id.category",
+        income: 1,
+        expense: 1
+      }
+    },
+    {
+      $sort: {
+        month: 1,
+        category: 1
+      }
+    }
+  ]);
+    return res.status(200).json({"success":true,"data":data});
+  }catch(err){
+    return res.status(500).json({"success":false, "message":err.message})
+  }
+});
 module.exports = router;

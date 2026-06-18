@@ -37,8 +37,8 @@ const TransactionsList = ({transactions}) => {
                 {filteredTransactions.map((tx)=>(
                     <div className="flex justify-between px-2 pt-3 pb-1 border-b border-slate-200 last:border-b-0" key={tx.transactionId}>
                         <div className="transaction-category">
-                            <p className="text-gray-500 text-sm">{tx?.merchantName.split(" *//")[0]}</p>
-                            <p className="text-gray-500 text-xs">{tx?.name.split(" *//")[0]}</p>
+                            <p className="text-gray-500 text-sm">{tx?.merchantName?.split(" *//")[0]}</p>
+                            <p className="text-gray-500 text-xs">{tx?.name?.split(" *//")[0]}</p>
                         </div>
                         <div className="transaction-details">
                             <p className={`text-sm ${Number(tx.amount) > 0 ? "text-red-500" : "text-green-500"} font-semibold`}>{Number(tx.amount) < 0 ? "" : "-"}$
