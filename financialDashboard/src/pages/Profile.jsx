@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../utils/AuthContext';
 import { PlaidContext } from '../utils/PlaidContext';
-import ChangePasswordModal from '../components/ChangePassword';
+import ForgotPasswordModel from '../components/ForgotPassword';
 
 const Profile = () => {
   const { userData, setUserData } = useContext(AuthContext);
@@ -183,9 +183,10 @@ const Profile = () => {
         </div>
 
       </div>
-      <ChangePasswordModal 
+      <ForgotPasswordModel 
         isOpen={isPasswordModalOpen} 
-        onClose={() => setIsPasswordModalOpen(false)} 
+        onClose={() => setIsPasswordModalOpen(false)}
+        isProfileMode={true} 
         userId={userData?._id}
       />
     </div>

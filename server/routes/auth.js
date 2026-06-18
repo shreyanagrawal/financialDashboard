@@ -113,22 +113,38 @@ route.post("/verifyotp", async(req,res)=>{
 
 route.post("/changepassword", async(req,res)=>{
     try{
-    const {email, otp, newPassword} = req.body;
+    const {email, otp, newPassword, currentPassword, userId} = req.body;
+    let user;
 
-    const user = await UserModel.findOne({email});
+    if (currentPassword && userId) {
+            user = await UserModel.findById(userId);
+            if (!user) return res.status(404).json({ msg: "User not found" });
 
-    if(!user || user.resetOtp !== otp) {
-        return res.status(400).json({msg: "Invalid OTP"});
-    }
+            // Verify they know their current password
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!isMatch) return res.status(400).json({ msg: "Incorrect current password." });
+        }
+    else if (otp && email) {
+            user = await UserModel.findOne({ email });
+            
+            if (!user || user.resetOtp !== otp) {
+                return res.status(400).json({ msg: "Invalid OTP" });
+            }
+            if (user.otpExpiry < Date.now()) {
+                return res.status(400).json({ msg: "OTP Expired" });
+            }
+            
+            // Clear OTP fields so they can't be reused
+            user.resetOtp = null;
+            user.otpExpiry = null;
+        }
 
-    if(user.otpExpiry < Date.now()){
-        return res.status(400).json({msg: "OTP Expired"});
-    }
+    else {
+            return res.status(400).json({ msg: "Invalid request. Missing required fields." });
+        }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
-    user.resetOtp = null;
-    user.otpExpiry = null;
 
     await user.save();  
     return res.status(200).json({msg: "Password reset successfully."});
@@ -231,27 +247,5 @@ route.post("/update", async(req,res)=>{
         return res.status(500).json({"success": false, "message": "Some internal server error occurred"})
     }
 })
-
-route.post("/update-password", async (req, res) => {
-    try {
-        const { userId, currentPassword, newPassword } = req.body;
-        const user = await UserModel.findById(userId);
-        if (!user) {
-            return res.status(404).json({ msg: "User not found" });
-        }
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ msg: "Incorrect current password." });
-        }
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        user.password = hashedPassword;
-        
-        await user.save();  
-        return res.status(200).json({ msg: "Password updated successfully." });
-
-    } catch (error) {
-        return res.status(500).json({ error: "Server error updating password." });
-    }
-});
 
 module.exports = route;

@@ -1,18 +1,18 @@
 import { useForm } from "react-hook-form";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { AuthContext } from "../utils/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const ForgotPasswordModal = ({ isOpen, onClose }) => {
+const ForgotPasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [otpVerified, setOtpVerified] = useState(false);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
-  const {loading,setLoading} = useContext(AuthContext);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -24,8 +24,18 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
   const newPassword = watch("newPassword");
 
+  useEffect(() => {
+    if (isOpen) {
+      if (isProfileMode) {
+        setStep(3);
+      } else {
+        setStep(1);
+      }
+    }
+  }, [isOpen, isProfileMode]);
+
   const handleModalClose = () => {
-    setStep(1);
+    setStep(isProfileMode ? 3 : 1);
     setEmail("");
     setOtp("");
     setOtpVerified(false);
@@ -37,7 +47,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
   // Step 1: Send OTP
   const handleSendOTP = async (data) => {
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       await axios.post(`${API_URL}/api/sendOTP`, { email: data.email });
       setEmail(data.email);
@@ -48,7 +58,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       setIsError(true);
       setMessage(error.response?.data?.message || "Failed to send OTP");
     } finally {
-      setTimeout(()=>{setLoading(false)
+      setTimeout(()=>{setIsSubmitting(false)
       },1000);
     }
   };
@@ -62,7 +72,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       await axios.post(`${API_URL}/api/verifyotp`, { email, otp });
       setIsError(false);
@@ -77,22 +87,29 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       setIsError(true);
       setMessage(error.response?.data?.msg || "Invalid OTP");
     } finally {
-      setTimeout(()=>{setLoading(false)
+      setTimeout(()=>{setIsSubmitting(false)
       },1000);
     }
   };
 
   // Step 3: Final Password Reset Submit
   const handleResetPassword = async (data) => {
-    setLoading(true);
+    setIsSubmitting(true);
     try {
-      await axios.post(`${API_URL}/api/changepassword`, {
-        email: email,
-        otp: otp,
-        newPassword: data.newPassword,
-      });
+      const payload = isProfileMode
+        ? {
+            userId: userId, 
+            currentPassword: data.currentPassword, // From the Profile page
+            newPassword: data.newPassword,
+          }
+        : {
+            email: email, 
+            otp: otp,                              // From the Login page
+            newPassword: data.newPassword,
+          };
+      await axios.post(`${API_URL}/api/changepassword`, payload);
       setIsError(false);
-      setMessage("Password reset successfully!");
+      setMessage(isProfileMode ? "Password updated successfully!" : "Password reset successfully!");
       setTimeout(() => {
         handleModalClose();
       }, 2000);
@@ -100,7 +117,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       setIsError(true);
       setMessage(error.response?.data?.msg || "Failed to reset password");
     } finally {
-      setTimeout(()=>{setLoading(false)
+      setTimeout(()=>{setIsSubmitting(false)
       },1000);    
     }
   };
@@ -109,8 +126,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-    >
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div 
         className="w-full max-w-md bg-white shadow-2xl rounded-2xl p-8 relative"
         onClick={(e) => e.stopPropagation()}
@@ -125,9 +141,13 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
         {/* Header */}
         <div className="mb-6 text-center">
-          <h2 className="text-3xl font-bold text-gray-800">Forgot Password</h2>
+          <h2 className="text-3xl font-bold text-gray-800">
+            {isProfileMode ? "Change Password" : "Forgot Password"}
+          </h2>
           <p className="text-gray-500 mt-2 text-sm">
-            Enter your email address and we'll send you an OTP to reset your password.
+           {isProfileMode 
+              ? "Enter your current password to create a new one."
+              : "Enter your email address and we'll send you an OTP to reset your password."}
           </p>
         </div>
 
@@ -147,6 +167,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
         
         {/* 1. Email Field Section (Stays visible throughout all steps) */}
         <form onSubmit={handleSubmit(step === 1 ? handleSendOTP : handleResetPassword)} className="space-y-4">
+          {step === 1 && !isProfileMode && (
           <div>
             <label className="block mb-1 text-gray-700 text-sm font-medium">Email</label>
             <div className="relative">
@@ -168,9 +189,10 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
             </div>
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
+          )}
 
           {/* 2. OTP Field Section (Appears sequentially during Step 2 & 3) */}
-          {step >= 2 && (
+          {step >= 2 && !isProfileMode &&(
             <div className="animate-in fade-in duration-300">
               <label className="block mb-1 text-gray-700 text-sm font-medium">OTP</label>
               <div className="relative">
@@ -195,6 +217,20 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
           {/* 3. Password Creation Section (Appears during Step 3) */}
           {step === 3 && (
             <div className="space-y-4 animate-in fade-in duration-300">
+              {isProfileMode && (
+                <div>
+                  <label className="block mb-1 text-gray-700 text-sm font-medium">Current Password</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    {...register("currentPassword", {
+                      required: "Current password is required",
+                    })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {errors.currentPassword && <p className="text-red-500 text-xs mt-1">{errors.currentPassword.message}</p>}
+                </div>
+              )}
               <div>
                 <label className="block mb-1 text-gray-700 text-sm font-medium">New Password</label>
                 <input
@@ -208,9 +244,8 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 />
                 {errors.newPassword && <p className="text-red-500 text-xs mt-1">{errors.newPassword.message}</p>}
               </div>
-
               <div>
-                <label className="block mb-1 text-gray-700 text-sm font-medium">Confirm Password</label>
+                <label className="block mb-1 text-gray-700 text-sm font-medium">Confrm Password</label>
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -222,30 +257,30 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 />
                 {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>}
               </div>
-            </div>
+              </div>
           )}
 
           {/* --- Context-Aware Action Button --- */}
-          {step === 1 && (
+          {step === 1 && !isProfileMode &&(
             <button 
               type="submit" 
-              disabled={loading} 
+              disabled={isSubmitting} 
               className="w-full bg-blue-600 text-white hover:bg-blue-700 font-semibold py-2.5 rounded-lg transition duration-200"
             >
-              {loading ? "Sending..." : "Send OTP"}
+              {isSubmitting ? "Sending..." : "Send OTP"}
             </button>
           )}
         </form>
 
         {/* Separated handler execution form for Step 2 to bypass React Hook Form rules cleanly */}
-        {step === 2 && (
+        {step === 2 && !isProfileMode &&(
           <button 
             type="button"
             onClick={handleVerifyOTP}
-            disabled={loading || otp.length !== 6} 
+            disabled={isSubmitting || otp.length !== 6} 
             className="w-full mt-4 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 font-semibold py-2.5 rounded-lg transition duration-200"
           >
-            {loading ? "Verifying..." : "Verify OTP"}
+            {isSubmitting ? "Verifying..." : "Verify OTP"}
           </button>
         )}
 
@@ -253,10 +288,10 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
           <button 
             type="button"
             onClick={handleSubmit(handleResetPassword)}
-            disabled={loading} 
+            disabled={isSubmitting} 
             className="w-full mt-4 bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-400 font-semibold py-2.5 rounded-lg transition duration-200"
           >
-            {loading ? "Resetting..." : "Reset Password"}
+            {isSubmitting ? "Saving..." : (isProfileMode ? "Update Password" : "Reset Password")}
           </button>
         )}
       </div>
