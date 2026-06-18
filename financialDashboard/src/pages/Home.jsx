@@ -13,7 +13,8 @@ const Home = () => {
   const {userData,setUserData, loading, setLoading} = useContext(AuthContext);
   useEffect(()=>{
     setisDataAvailable(accounts.length > 0 && transactions.length > 0);
-    setLoading(false);
+    setTimeout(()=>{setLoading(false)
+    },1000);
   },[accounts,transactions])
   if(!isDataAvailable) return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">

@@ -11,7 +11,8 @@ const Transactions = () => {
     const {accounts, setAccouunts, transactions, setTransactions} = useContext(PlaidContext);
     useEffect(() => {
         if (transactions) {
-          setLoading(false);
+            setTimeout(()=>{setLoading(false)
+            },1000);        
         }
     }, [transactions]);
 

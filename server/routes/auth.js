@@ -206,4 +206,30 @@ route.post("/registerWithOTP", async (req, res) => {
     }
 });
 
+route.post("/update", async(req,res)=>{
+    console.log(req.body);
+    const {name,_id, password} = req.body.userData; 
+    try{
+        const updatedData = await UserModel.findOneAndUpdate(
+            {
+                _id
+            },
+            {
+                _id,
+                name: name,
+                password: password
+            },
+            {
+                upsert: true,
+                returnDocument: "after",
+            },
+        );
+        if(updatedData)
+            return res.status(200).json({"success": true, "message": "Data updated successfully", data:updatedData})
+
+    } catch (error){
+        return res.status(500).json({"success": false, "message": "Some internal server error occurred"})
+    }
+})
+
 module.exports = route;

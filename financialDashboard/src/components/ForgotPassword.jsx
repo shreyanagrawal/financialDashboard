@@ -48,7 +48,8 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       setIsError(true);
       setMessage(error.response?.data?.message || "Failed to send OTP");
     } finally {
-      setLoading(false);
+      setTimeout(()=>{setLoading(false)
+      },1000);
     }
   };
 
@@ -76,7 +77,8 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       setIsError(true);
       setMessage(error.response?.data?.msg || "Invalid OTP");
     } finally {
-      setLoading(false);
+      setTimeout(()=>{setLoading(false)
+      },1000);
     }
   };
 
@@ -98,7 +100,8 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       setIsError(true);
       setMessage(error.response?.data?.msg || "Failed to reset password");
     } finally {
-      setLoading(false);
+      setTimeout(()=>{setLoading(false)
+      },1000);    
     }
   };
 

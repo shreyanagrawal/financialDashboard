@@ -95,29 +95,29 @@ const Nav = () => {
     fetchData(publicToken, userData._id);
   },[publicToken])
   const fetchData = async(publicToken, userId)=>{
-    await new Promise(resolve => setTimeout(resolve, 1000));
     setLoading(true);
     try{
       const fetchedData = await fetchPlaidData(publicToken,userId);
       if(fetchedData.status){
         loadAccounts();
         loadTransactions();
-        await new Promise(resolve => setTimeout(resolve, 1000));
         console.log(fetchedData.data);
       }
     } catch (error){
       console.log(error)
     }finally{
-      setLoading(false);
+      setTimeout(()=>{setLoading(false)
+      },1000);
     }
   }
   useEffect(()=>{
     if(Object.keys(userData).length > 0)
-      setLoading(false);
+      setTimeout(()=>{setLoading(false)
+      },1000);
   },[userData])
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.email?.split("@")[0] || "User"}/>
+      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"}/>
       <div className="flex">
         <button
           className={`lg:hidden absolute top-4 left-4 z-30 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
@@ -128,8 +128,11 @@ const Nav = () => {
           ☰
         </button>
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex-1 p-8">
-            {loading ? <LoadingScreen text="Loading Dashboard..."/> : <Outlet context={{ open, ready }} />}
+        <div className="flex-1 p-8 relative">
+            <Outlet context={{ open, ready }} />
+            {loading && (
+              <LoadingScreen text="Loading Data..." />
+            )}
         </div>
       </div>
     </div>

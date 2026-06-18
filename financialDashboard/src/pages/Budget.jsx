@@ -66,7 +66,8 @@ const Budget = () => {
     }
     useEffect(()=>{
         if(time.length >0 ) 
-            setLoading(false);
+            setTimeout(()=>{setLoading(false)
+            },1000);
     },[time]);
     const getActualVsExpected = (actualBudget, budgets) => {
         return budgets.filter((budget) => {
