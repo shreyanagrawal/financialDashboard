@@ -16,14 +16,17 @@ const BudgetChart = ({chart}) => {
             {chartData.length > 0  && 
                 <div className="w-full h-96 bg-white rounded-lg p-4">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="category" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            <Bar dataKey="expected" name="Budget Limit" fill="#3b82f6"/>
-                            <Bar dataKey="actual" name="Actual Spending" fill="#ef4444" />
+                        <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0}}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB"/>
+                            <XAxis dataKey="category" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 13 }} dy={10}/>
+                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} tickFormatter={(value) => `$${value}`} dx={-10}/>
+                            <Tooltip 
+                                cursor={{ fill: '#F3F4F6' }}
+                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                formatter={(value) => [`$${Number(value).toFixed(2)}`]}/>
+                            <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }}/>
+                            <Bar dataKey="expected" name="Budget Limit" fill="#93C5FD" radius={[4, 4, 0, 0]} barSize={40}/>
+                            <Bar dataKey="actual" name="Actual Spending" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={40}/>
                         </BarChart>
                     </ResponsiveContainer>
                 </div>

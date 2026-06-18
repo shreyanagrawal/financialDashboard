@@ -232,4 +232,26 @@ route.post("/update", async(req,res)=>{
     }
 })
 
+route.post("/update-password", async (req, res) => {
+    try {
+        const { userId, currentPassword, newPassword } = req.body;
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ msg: "Incorrect current password." });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        
+        await user.save();  
+        return res.status(200).json({ msg: "Password updated successfully." });
+
+    } catch (error) {
+        return res.status(500).json({ error: "Server error updating password." });
+    }
+});
+
 module.exports = route;
