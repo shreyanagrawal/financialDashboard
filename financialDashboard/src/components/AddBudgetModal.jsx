@@ -3,7 +3,7 @@ import { PlaidContext } from '../utils/PlaidContext';
 import { submitBuget } from '../utils/api';
 import { Link } from "react-router-dom"
 
-const AddBudgetModal = ({isOpen,setIsOpen,categories,userId,budgets}) => {
+const AddBudgetModal = ({isOpen,setIsOpen,categories,userId,budgets, setBudget}) => {
     const [formData, setFormData] = useState({
         category: '',
         amount: '',
@@ -19,6 +19,7 @@ const AddBudgetModal = ({isOpen,setIsOpen,categories,userId,budgets}) => {
         e.preventDefault();
         const handleBudget = await submitBuget(formData, userId);
         setIsOpen(false);
+        setBudget(handleBudget.budegts.budgets);
         setFormData({
             category: '',
             amount: '',
