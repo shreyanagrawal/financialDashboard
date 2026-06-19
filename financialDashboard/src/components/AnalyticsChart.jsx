@@ -31,11 +31,11 @@ const AnalyticsChart = ({ data }) => {
           height={120}
         />
 
-        <YAxis />
+        <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`}/>
 
         <Tooltip
           formatter={(value) =>
-            Number(value).toLocaleString()
+            `$${Number(value).toLocaleString()}`
           }
         />
 
