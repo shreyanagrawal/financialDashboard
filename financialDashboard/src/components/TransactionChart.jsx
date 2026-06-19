@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import {PieChart, Pie, Cell, ResponsiveContainer} from "recharts";
+import {PieChart, Pie, Cell, ResponsiveContainer, Tooltip} from "recharts";
 const TransactionChart = ({transactions}) => {
   const chartData = useMemo(()=>{
     const generateColor = () => {
@@ -34,32 +34,26 @@ const TransactionChart = ({transactions}) => {
             <PieChart>
               <Pie
                 data={chartData}
-                dataKey="value"
+                dataKey="value"x
                 innerRadius={70}
                 outerRadius={100}
                 paddingAngle={2}
                 isAnimationActive={false}
               >
                 {chartData.map((entry, index) => (
-                  <Cell
-                    key={index}
-                    fill={entry.color}
-                  />
+                  <Cell key={index} fill={entry.color}/>
                 ))}
               </Pie>
+              <Tooltip formatter={(value, name, props) => [`${props.payload.percentage}%`, props.payload.name,]}/>
+   
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex-1 w-full space-y-1 px-8">
+        <div className="flex w-full space-y-1 px-8 flex-row flex-wrap">
           {chartData.map((item, index) => (
-            <div key={index} className="flex">
-              <div style={{"width":"100%"}}>
-                <span className="text-gray-300 text-sm" style={{color: item.color}}>{item.name}</span>
-                <div className="flex-1 bg-gray-700 h-2 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full" style={{width: `${item.percentage}%`, backgroundColor: item.color}}/>
-                </div>
-              </div>
-              <span className="w-12 text-right text-gray-900 text-sm block" style={{"paddingTop": "15px"}}>{item.percentage}%</span>
+              <div key={index} style={{width: "auto"}}>
+                <span className="box" style={{"backgroundColor": item.color, "width": "10px", "height": "10px", display:"inline-block", "marginRight": "5px"}}></span>
+                <span className="text-gray-300 text-sm" style={{color: item.color, "paddingRight" :"5px"}}>{item.name}</span>
             </div>
           ))}
         </div>

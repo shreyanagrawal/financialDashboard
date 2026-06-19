@@ -18,7 +18,8 @@ app.use(cors({
         "GET",
         "POST",
         "PUT",
-        "DELETE"
+        "DELETE",
+        "PATCH"
     ],
     allowedHeaders:[
         "Content-Type",

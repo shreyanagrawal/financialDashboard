@@ -27,7 +27,7 @@ function App() {
             <Route path="/editbudget" element={<EditBudget />}/>
             <Route path="/budget" element={<Budget />}/>
             <Route path="/analytics" element={<Analytics userId={userData._id}/>}/>
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={<Profile userId={userData._id}/>} />
           </Route>
         </Routes>
       </BrowserRouter>

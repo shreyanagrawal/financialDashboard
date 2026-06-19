@@ -39,7 +39,14 @@ const AnalyticsChart = ({ data }) => {
           }
         />
 
-        <Legend />
+        <Legend
+          verticalAlign="top"
+          align="right"
+          wrapperStyle={{
+            top: 0,
+            right: 20,
+          }}
+        />
 
         <Line
           type="monotone"

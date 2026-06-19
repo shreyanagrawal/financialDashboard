@@ -12,6 +12,7 @@ const Budget = () => {
     const {transactions, setTransactions} = useContext(PlaidContext);
     const {userData, loading, setLoading} = useContext(AuthContext);
     const [budget, setBudget] = useState([]);
+    const [currBudget, setCurrBudget] = useState([])
     let categories = [];
     const [isOpen,setIsOpen] = useState(false);
     const time = ['All', ...new Set(transactions.map((tx) => {
@@ -52,9 +53,11 @@ const Budget = () => {
 
     categories = Object.keys(actualBudget);
     useEffect(()=>{
+        debugger;
         getBudgetData();
-    },[userData]);
+    },[userData],[]);
     const getBudgetData = async()=>{
+        debugger;
         if(userData){
             const budgetData = await getBudgets(userData._id);
             if(budgetData)
@@ -87,6 +90,8 @@ const Budget = () => {
             };
         });
     };
+    const data = getActualVsExpected(actualBudget, budget);
+
     return (
         <>
             {!loading && 
@@ -112,11 +117,11 @@ const Budget = () => {
                 </div>
                 <CategoryWiseData data={actualBudget} total={totalExpenses}/>
                 <div className="px-4 md:px-8 flex flex-row rows-2 md:flex-row rows-2 gap-4 md:gap-4 md:justify-between md:items-center">
-                    <h2 className="pt-0 text-2xl font-semibold" style={{paddingBottom: 0}}>Expected v/s Actual Budget Analysis</h2>
-                    <button className="text-end bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-2 rounded-xl font-semibold text-white cursor-pointer" onClick={()=>setIsOpen(true)}>Add Budget</button>
+                    {data.some(item => item.actual > 0) && <h2 className="pt-0 text-2xl font-semibold" style={{paddingBottom: 0}}>Expected v/s Actual Budget Analysis</h2>}
+                    <button className="text-end bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-2 rounded-xl font-semibold text-white cursor-pointer ml-auto" onClick={()=>setIsOpen(true)}>Modify Budget</button>
                 </div>
                 {isOpen && <AddBudgetModal isOpen={isOpen} setIsOpen={setIsOpen} categories={categories} userId={userData._id} budgets={budget} setBudget={setBudget}/>}
-                {budget && <BudgetChart chart={getActualVsExpected(actualBudget, budget)}/>}
+                {budget && <BudgetChart chart={data}/>}
             </>
             }
         </>
