@@ -1,23 +1,15 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../utils/AuthContext';
 import { PlaidContext } from '../utils/PlaidContext';
-import axios from 'axios';
+import ForgotPasswordModel from '../components/ForgotPassword';
 
 const Profile = () => {
   const { userData, setUserData } = useContext(AuthContext);
   const { accounts, transactions } = useContext(PlaidContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState("");
-  const [message, setMessage] = useState("");
-  const [isError, setIsError] = useState(false);
-  const API_URL = import.meta.env.VITE_API_URL;
-  useEffect(()=>{
-    if(message !== ''){
-      setTimeout(()=>{
-        setMessage("")
-      },1000);
-    }
-  },[message])
+  const [backupName, setBackupName] = useState(""); 
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   let displayName = userData?.name;
   if (!displayName && userData?.email) {
     let extracted = userData.email.split('@')[0];
@@ -34,6 +26,7 @@ const Profile = () => {
   }
   const startEditing = () => {
     setEditName(displayName);
+    setBackupName(displayName); 
     setIsEditing(true);
   };
   const handleTyping = (e) => {
@@ -42,29 +35,16 @@ const Profile = () => {
     setUserData({ ...userData, name: newValue });
   };
   const handleCancel = () => {
-    setUserData({ ...userData, name:  userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase())});
+    setUserData({ ...userData, name: backupName });
     setIsEditing(false);
   };
   const handleSave = async () => {
-    console.log(userData);
-    debugger;
     try {
       setIsEditing(false);
-      const updatedProfileData = await axios.post(`${API_URL}/api/update`,{userData});
-      debugger;
-      if(updatedProfileData.status){
-        setUserData(updatedProfileData.data.data);
-        setMessage(updatedProfileData.data.message);
-      }
-      else {
-        setIsError(true);
-        setMessage("Error updating profile");
-      }
+      // NOTE: Call your backend API here to save the new name permanently to your database
+      // await axios.put(`${API_URL}/api/user/update`, { name: editName, userId: userData._id });
     } catch (error) {
       console.log("Error updating profile", error);
-      setIsError(true);
-      setMessage("Error updating profile");
-
     }
   };
 
@@ -77,7 +57,7 @@ const Profile = () => {
     : "Recently joined";
 
   return (
-    <div className="flex-1 px-4 pt-4 md:px-8 md:pt-8 pb-0 space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-lg flex flex-col md:flex-row items-center gap-6">
         <div className="w-24 h-24 rounded-full bg-white text-blue-700 flex items-center justify-center text-4xl font-bold shadow-md">
           {displayName.charAt(0).toUpperCase()}
@@ -95,8 +75,6 @@ const Profile = () => {
         <div className="md:col-span-2 space-y-6">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Personal Information</h2>
-            {message && message !== '' && <div className={`p-4 mb-4 text-sm rounded-base ${isError ? "text-fg-danger-strong bg-danger-soft" : "text-fg-success-strong bg-success-soft"}`} role="alert"><p className="font-medium">{message}</p></div>}
-
             <div className="space-y-4">
               
               <div>
@@ -195,13 +173,22 @@ const Profile = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-bold text-gray-800 mb-2">Security</h2>
             <p className="text-sm text-gray-500 mb-4">Your connection to Plaid is secure. We do not store your banking credentials.</p>
-            <button className="w-full px-4 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl font-medium transition-colors">
+            <button 
+              onClick={() => setIsPasswordModalOpen(true)} 
+              className="w-full px-4 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl font-medium transition-colors"
+              >
               Change Password
             </button>
           </div>
         </div>
 
       </div>
+      <ForgotPasswordModel 
+        isOpen={isPasswordModalOpen} 
+        onClose={() => setIsPasswordModalOpen(false)}
+        isProfileMode={true} 
+        userId={userData?._id}
+      />
     </div>
   );
 };
