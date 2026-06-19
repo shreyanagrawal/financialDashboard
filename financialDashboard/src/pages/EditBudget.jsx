@@ -2,18 +2,30 @@ import React, {useState} from 'react'
 import { useLocation, useNavigate } from "react-router-dom";
 const EditBudget = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { userId, budgets } = location.state || {};
     const [budgetList, setBudgetList] = useState(budgets || []);
     const [editingIndex, setEditingIndex] = useState(null);
     const [tempAmount, setTempAmount] = useState("");
-    console.log(budgets);
-    const handleEditClick = (index, currentAmount) => {
+    const [tempDate, setTempDate] = useState("");
+    const handleEditClick = (index, budget) => {
         setEditingIndex(index);
-        setTempAmount(currentAmount);
+        setTempAmount(budget.limit);
+        if (budget.year && budget.month) {
+            const paddedMonth = budget.month.toString().padStart(2, '0');
+            setTempDate(`${budget.year}-${paddedMonth}`);
+        } else {
+            setTempDate("");
+        }
     };
     const handleSaveClick = async (index) => {
         const updatedBudgets = [...budgetList];
         updatedBudgets[index].limit = Number(tempAmount);
+        if (tempDate) {
+            const [year, month] = tempDate.split('-');
+            updatedBudgets[index].year = Number(year);
+            updatedBudgets[index].month = Number(month);
+        }
         setBudgetList(updatedBudgets);
         setEditingIndex(null);
         // TODO: Add your API call here to update the database
@@ -31,7 +43,7 @@ const EditBudget = () => {
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold">Edit Budget</h2>
                 <button 
-                    onClick={() => navigate(-1)} 
+                    onClick={() => navigate('/budget')} 
                     className="text-gray-500 hover:text-gray-800 font-medium transition-colors"
                 >
                     &larr; Back to Dashboard
@@ -54,7 +66,16 @@ const EditBudget = () => {
                                     {budget.category}
                                 </td>
                                 <td className="p-4 text-gray-500 font-medium">
-                                    {budget.month && budget.year ? `${budget.month}/${budget.year}` : "N/A"}
+                                    {editingIndex === index ? (
+                                        <input
+                                            type="month"
+                                            value={tempDate}
+                                            onChange={(e) => setTempDate(e.target.value)}
+                                            className="border-2 border-blue-400 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-300 w-full max-w-[140px]"
+                                        />
+                                    ) : (
+                                        budget.month && budget.year ? `${budget.month}/${budget.year}` : "N/A"
+                                    )}
                                 </td>
                                 <td className="p-4">
                                     {editingIndex === index ? (
@@ -82,13 +103,13 @@ const EditBudget = () => {
                                             <button onClick={() => handleSaveClick(index)} className="text-green-600 font-semibold hover:text-green-700 transition-colors">
                                                 Save
                                             </button>
-                                            <button onClick={() => setEditingIndex(null)} className="text-gray-400 font-semibold hover:text-gray-600 transition-colors">
+                                            <button onClick={() => setEditingIndex(null)} className="text-gray-400 font-semibold hover:text-red-600 transition-colors">
                                                 Cancel
                                             </button>
                                         </>
                                     ) : (
                                         <>
-                                            <button onClick={() => handleEditClick(index, budget.limit)} className="text-blue-600 font-semibold hover:text-blue-800 transition-colors">
+                                            <button onClick={() => handleEditClick(index, budget)} className="text-blue-600 font-semibold hover:text-blue-800 transition-colors">
                                                 Edit
                                             </button>
                                             <button onClick={() => handleDeleteClick(index)} className="text-red-500 font-semibold hover:text-red-700 transition-colors">

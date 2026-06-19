@@ -53,7 +53,7 @@ const AddBudgetModal = ({isOpen,setIsOpen,categories,userId,budgets}) => {
                         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm">Save Budget</button>
                     </div>
                 </form>
-                <Link to="/editbudget" state={{userId: userId,budgets: budgets}}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Edit Budget</span></Link>
+                <Link to="/editbudget" state={{userId: userId,budgets: budgets}} className="text-blue-600 font-medium hover:text-blue-700 hover:underline text-sm flex items-center gap-1"> Edit Budget</Link>
             </div>
         </div>
     );
