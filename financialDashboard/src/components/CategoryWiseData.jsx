@@ -1,7 +1,7 @@
 import React from 'react'
-const CategoryWiseData = ({data, total}) => {
+const CategoryWiseData = ({data, total, margin = "mb-10"}) => {
     return (
-       <div className="dashboard p-4 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+       <div className={`dashboard p-4 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 ${margin}`}>
             {Object.entries(data).map(([category,budget])=>(
                 <div key={crypto.randomUUID()} className="bg-white rounded-2xl shadow-md pb-5">
                     <div className="p-6 pb-0 flex flex-col md:flex-col gap-4 md:gap-4 md:justify-between md:items-center hover:border-blue-500 transition-all duration-200">

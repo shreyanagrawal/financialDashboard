@@ -172,3 +172,27 @@ export const getAmountbyCategory = (transaction, expense=true)=>{
     });
     return result;
 }
+export const editBudget = async(budgetData, userId) => {
+    if(!budgetData)
+        return null;
+    if(budgetData){
+        const updatedBudgetData = await axios.patch(`${API_URL}/api/editBudget`,{budgetData: budgetData, userId: userId});
+        if(updatedBudgetData)
+            return updatedBudgetData.data;
+    }
+}
+export const deleteBudget = async(budgetData, userId) => {
+    if(!budgetData)
+        return null;
+    if(budgetData){
+        const updatedBudgetData = await axios.delete(`${API_URL}/api/deleteBudget`,{
+            data:{
+                    budgetData, 
+                    userId
+                }
+            }
+        );
+        if(updatedBudgetData)
+            return updatedBudgetData.data;
+    }
+}

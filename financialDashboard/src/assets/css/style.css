@@ -12,3 +12,7 @@
 .dashboard h3, .dashboard p, .dashboard span{
     font-size: small;
 }
+.maxHeight{
+    max-height: 250px;
+    overflow-y: auto;
+}

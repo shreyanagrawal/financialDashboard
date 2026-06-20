@@ -537,4 +537,65 @@ router.post("/income-expense-chart", async(req,res)=>{
     return res.status(500).json({"success":false, "message":err.message})
   }
 });
+
+router.patch("/editBudget", async(req, res)=>{
+  const {category, limit, prevMonth, prevYear, month, year} = req.body.budgetData
+  const userId = req.body.userId;
+  try{
+    if(!userId || !category || !limit || !prevMonth || !prevYear || !month || !year)
+      return res.status(404).json({"success": false, "message": "Bad Network Call"})
+    const updatedBudgetData = await BudgetModel.findOneAndUpdate(
+      {
+        userId,
+        "budgets.category":category,
+        "budgets.month": prevMonth,
+        "budgets.year": prevYear
+      },
+      {
+        $set:{
+          "budgets.$.category": category,
+          "budgets.$.limit": limit,
+          "budgets.$.month": month,
+          "budgets.$.year": year
+        }
+      },
+      { new: true }
+    );
+    if(updatedBudgetData)
+      return res.status(200).json({"success": true, "message": "Budget data is updatedd", data: updatedBudgetData})
+  } catch (error){
+    return res.status(500).json({"success": false, "message": error.message || error.data.message})
+  }
+});
+router.delete("/deleteBudget", async(req, res)=>{
+  const {category,month,year} = req.body.budgetData;
+  const userId = req.body.userId;
+
+  if(!userId || !category || !month || !year)
+    return res.status(404).json({"success": false, "message": "Bad Network Call"});
+  try{
+    const deletedBudgetData = await BudgetModel.findOneAndUpdate(
+      {
+        userId,
+        "budgets.category":category,
+        "budgets.month": month,
+        "budgets.year": year
+      },
+      {
+        $pull:{
+          budgets: {
+            category,
+            month,
+            year
+          }
+        }
+      },
+      { new: true }
+    )
+    if(deletedBudgetData)
+      return res.status(200).json({"success": true, "message": "Record deleted successfully", data: deletedBudgetData})
+  } catch (error){
+    return res.status(500).json({"success": false, "message": error.message || error.data.message})
+  }
+});
 module.exports = router;

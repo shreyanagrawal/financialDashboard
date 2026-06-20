@@ -33,7 +33,7 @@ const TransactionsList = ({transactions}) => {
                     </select>
                 }
             </div>
-            <div className="px-8 pb-8">
+            <div className={`px-8 pb-8 ${path.pathname === "/transactions" ? "maxHeight": ""}`}>
                 {filteredTransactions.map((tx)=>(
                     <div className="flex justify-between px-2 pt-3 pb-1 border-b border-slate-200 last:border-b-0" key={tx.transactionId}>
                         <div className="transaction-category">

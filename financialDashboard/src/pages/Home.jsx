@@ -33,7 +33,7 @@ const Home = () => {
             <PlaidStats transactions={transactions}/>
             {transactions.length > 0 && 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 mt-10">
-                <TransactionsList transactions={transactions.slice(0,11)}/>
+                <TransactionsList transactions={transactions.slice(0,8)}/>
                 <TransactionChart transactions={transactions}/>
               </div>
             }

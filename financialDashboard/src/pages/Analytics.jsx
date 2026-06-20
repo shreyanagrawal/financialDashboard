@@ -135,9 +135,9 @@ const Analytics = (userId) => {
                         <PlaidStats transactions={currentMonthData}/>
                     </div>
                     {analyticaldata && <AnalyticsChart data={currentAnalayticalData}/>}
-                    <h3 className="pt-0 text-2xl font-semibold" style={{paddingBottom: 0}}>Category wise Expenses</h3>
-                    <CategoryWiseData data={expensesData} total={totalExpenses}/>
-                    <h3 className="pt-0 text-2xl font-semibold" style={{paddingBottom: 0}}>Category wise Income</h3>
+                    <h3 className="pt-0 text-2xl font-semibold px-4 md:px-8" style={{paddingBottom: 0}}>Category wise Expenses</h3>
+                    <CategoryWiseData data={expensesData} total={totalExpenses} margin={0}/>
+                    <h3 className="pt-0 text-2xl font-semibold px-4 md:px-8" style={{paddingBottom: 0}}>Category wise Income</h3>
                     <CategoryWiseData data={incomeData} total={totalIncome}/>
                 </>
                 
