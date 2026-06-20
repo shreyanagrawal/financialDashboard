@@ -8,7 +8,7 @@ import { AuthContext } from '../utils/AuthContext';
 
 const Transactions = () => {
     const {loading, setLoading} = useContext(AuthContext);
-    const {accounts, setAccouunts, transactions, setTransactions} = useContext(PlaidContext);
+    const {accounts, setAccounts, transactions, setTransactions} = useContext(PlaidContext);
     useEffect(() => {
         if (transactions) {
             setTimeout(()=>{setLoading(false)

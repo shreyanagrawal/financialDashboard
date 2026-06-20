@@ -1,15 +1,27 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../utils/AuthContext';
 import { PlaidContext } from '../utils/PlaidContext';
-import ForgotPasswordModel from '../components/ForgotPassword';
-
-const Profile = () => {
-  const { userData, setUserData } = useContext(AuthContext);
-  const { accounts, transactions } = useContext(PlaidContext);
+import ChangePasswordModal from '../components/ChangePassword';
+import axios from 'axios';
+import { getAccountsData, getTransactionsData } from '../utils/api';
+const Profile = (userId) => {
+  const { userData, setUserData, loading, setLoading } = useContext(AuthContext);
+  const { accounts, transactions, setAccounts, setTransactions } = useContext(PlaidContext);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState("");
-  const [backupName, setBackupName] = useState(""); 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+  useEffect(()=>{
+    if(message !== ''){
+      setTimeout(()=>{
+        setMessage("")
+      },1000);
+    }
+  },[message]);
+  useEffect(()=>{
+    setLoading(false);
+  },[])
   let displayName = userData?.name;
   if (!displayName && userData?.email) {
     let extracted = userData.email.split('@')[0];
@@ -26,7 +38,6 @@ const Profile = () => {
   }
   const startEditing = () => {
     setEditName(displayName);
-    setBackupName(displayName); 
     setIsEditing(true);
   };
   const handleTyping = (e) => {
@@ -35,18 +46,47 @@ const Profile = () => {
     setUserData({ ...userData, name: newValue });
   };
   const handleCancel = () => {
-    setUserData({ ...userData, name: backupName });
+    setUserData({ ...userData, name:  userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase())});
     setIsEditing(false);
   };
   const handleSave = async () => {
     try {
       setIsEditing(false);
-      // NOTE: Call your backend API here to save the new name permanently to your database
-      // await axios.put(`${API_URL}/api/user/update`, { name: editName, userId: userData._id });
+      const updatedProfileData = await axios.post(`${API_URL}/api/update`,{userData});
+      if(updatedProfileData.status){
+        setUserData(updatedProfileData.data.data);
+        setMessage(updatedProfileData.data.message);
+      }
+      else {
+        setIsError(true);
+        setMessage("Error updating profile");
+      }
     } catch (error) {
       console.log("Error updating profile", error);
+      setIsError(true);
+      setMessage("Error updating profile");
     }
   };
+
+  const loadAccounts = async(userId)=>{
+    const accounstData = await getAccountsData(userId);
+    setAccounts(accounstData);
+  }
+  const loadTransactions = async(userId)=>{
+    const transactionsData = await getTransactionsData(userId);
+    setTransactions(transactionsData)
+  }
+
+  useEffect(()=>{
+    if(accounts)
+      loadAccounts(userId);
+    if(transactions)
+      loadTransactions(userId);
+    setLoading(false);
+  },[]);
+  useEffect(()=>{
+    setLoading(false);
+  },[accounts, transactions])
 
   const totalConnectedBanks = accounts?.length || 0;
   const totalAccounts = accounts?.reduce((total, bank) => total + bank.accounts.length, 0) || 0;
@@ -57,7 +97,7 @@ const Profile = () => {
     : "Recently joined";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="flex-1 px-4 pt-4 md:px-8 md:pt-8 pb-0 space-y-6">
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-lg flex flex-col md:flex-row items-center gap-6">
         <div className="w-24 h-24 rounded-full bg-white text-blue-700 flex items-center justify-center text-4xl font-bold shadow-md">
           {displayName.charAt(0).toUpperCase()}
@@ -75,8 +115,8 @@ const Profile = () => {
         <div className="md:col-span-2 space-y-6">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Personal Information</h2>
+            {message && message !== '' && <div className={`p-4 mb-4 text-sm rounded-base ${isError ? "text-fg-danger-strong bg-danger-soft" : "text-fg-success-strong bg-success-soft"}`} role="alert"><p className="font-medium">{message}</p></div>}
             <div className="space-y-4">
-              
               <div>
                 <label className="block text-sm font-medium text-gray-500">Full Name</label>
                 {isEditing ? (
@@ -183,7 +223,7 @@ const Profile = () => {
         </div>
 
       </div>
-      <ForgotPasswordModel 
+      <ChangePasswordModal 
         isOpen={isPasswordModalOpen} 
         onClose={() => setIsPasswordModalOpen(false)}
         isProfileMode={true} 

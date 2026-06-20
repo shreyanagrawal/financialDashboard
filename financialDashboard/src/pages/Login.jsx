@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../utils/AuthContext";
-import ForgotPasswordModal from "../components/ForgotPassword"; 
+import ChangePasswordModal from "../components/ChangePassword"; 
 const API_URL = import.meta.env.VITE_API_URL;
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -214,7 +214,7 @@ const Login = () => {
       </div>
 
       {/* 4. MODAL ELEMENT MOUNTED HERE AT THE BASE LEVEL OF RETURN BLOCK */}
-      <ForgotPasswordModal 
+      <ChangePasswordModal 
         isOpen={isForgotPasswordOpen} 
         onClose={() => setIsForgotPasswordOpen(false)} 
       />

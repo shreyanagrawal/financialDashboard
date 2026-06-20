@@ -2,10 +2,10 @@ import { useForm } from "react-hook-form";
 import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { AuthContext } from "../utils/AuthContext";
-
+import { logoutUser } from "../utils/api";
 const API_URL = import.meta.env.VITE_API_URL;
 
-const ForgotPasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
+const ChangePasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -113,6 +113,9 @@ const ForgotPasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
       setTimeout(() => {
         handleModalClose();
       }, 2000);
+      setTimeout(()=>{
+        logoutUser();
+      },100)
     } catch (error) {
       setIsError(true);
       setMessage(error.response?.data?.msg || "Failed to reset password");
@@ -299,4 +302,4 @@ const ForgotPasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
   );
 };
 
-export default ForgotPasswordModal;
+export default ChangePasswordModal;

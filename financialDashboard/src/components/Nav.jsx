@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
@@ -15,18 +15,29 @@ const Nav = () => {
   const [linkToken, setLinkToken] = useState("");
   const [publicToken,setPublicToken] = useState("");
   const {accounts, setAccounts, transactions, setTransactions, isDataAvailable, setisDataAvailable} = useContext(PlaidContext);
-
+  const location = useLocation();
   const navigate = useNavigate();
   useEffect(() => {
     loadProfile();
     generateLinkToken();
   }, []);
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500); 
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
   useEffect(()=>{
     if(userData){
       loadAccounts();
       loadTransactions();
     }
   },[userData],[])
+  useEffect(()=>{
+    if(!isDataAvailable)
+      navigate("/home");
+  },[location.pathname])
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);

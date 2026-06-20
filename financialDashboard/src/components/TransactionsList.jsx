@@ -41,7 +41,7 @@ const TransactionsList = ({transactions}) => {
                             <p className="text-gray-500 text-xs">{tx?.name?.split(" *//")[0]}</p>
                         </div>
                         <div className="transaction-details">
-                            <p className={`text-sm ${Number(tx.amount) > 0 ? "text-red-500" : "text-green-500"} font-semibold`}>{Number(tx.amount) < 0 ? "" : "-"}$
+                            <p className={`text-sm ${Number(tx.amount) > 0 ? "text-red-500" : "text-green-500"} font-semibold`}>{Number(tx.amount) > 0 ? "" : "-"}$
                                 {Math.abs(Number(tx.amount)).toFixed(2)}</p>
                             <p className="text-gray-500 text-xs text-right">{new Date(tx.date).toLocaleDateString("en-US", {
                                 month: "short",
