@@ -15,32 +15,28 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static`}>
         <h2 className="text-2xl font-bold text-blue-700 mb-10">FinDash</h2>
         <div className="flex flex-col gap-4">
-          <Link to="/home" onClick={()=>setLoading(true)}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Dashboard</span></Link>
+          <Link to="/home"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Dashboard</span></Link>
           <Link to="/accounts" onClick={(e) => {
               if (!isDataAvailable)
                 e.preventDefault();
-              setLoading(true);
             }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Accounts</span>
           </Link>
           <Link to="/transactions" onClick={(e) => {
               if (!isDataAvailable)
                 e.preventDefault();
-              setLoading(true);
             }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Transactions</span>
           </Link>
           <Link to="/analytics" onClick={(e) => {
               if (!isDataAvailable)
                 e.preventDefault();
-              setLoading(true);
             }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Analytics</span>
           </Link>
           <Link to="/budget" onClick={(e) => {
               if (!isDataAvailable)
                 e.preventDefault();
-              setLoading(true);
             }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Budgets</span>
           </Link>
-          <Link to="/profile" onClick={() => {setLoading(true)}}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">My Profile</span></Link>
+          <Link to="/profile"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">My Profile</span></Link>
         </div>
       </div>
     </>
