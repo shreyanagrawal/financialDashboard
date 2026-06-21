@@ -62,7 +62,7 @@ router.post('/exchange_public_token', async (req,res,) => {
     );
     // res.clearCookie("plaidToken");
     const balancesData = await getBalances(req.body.user_id, itemID);
-    const transactionsData = await getTransactions(req.body.user_id, itemID);
+    const transactionsData = await getTransactions(req.body.user_id, itemID, institutionDetails);
     res.json({ success: true , message: "Bank Connected Succesfully", balances: balancesData, transactions: transactionsData });
 
   } catch (error) {
@@ -267,7 +267,7 @@ const institutionInfo = async (accessToken) => {
   return institutionResponse.data.institution.name;
 };
 
-const getTransactions = async(userId, itemID)=>{
+const getTransactions = async(userId, itemID, institutionName)=>{
   try{
     const accessToken = await plaidUtils.getAccessToken(userId, itemID);
      const response = await plaidUtils.client.transactionsGet({
@@ -278,14 +278,19 @@ const getTransactions = async(userId, itemID)=>{
     const itemResponse = await plaidUtils.client.itemGet({
       access_token: accessToken,
     });
+    const institutionId = itemResponse.data.item.institution_id;
     const transactions = response.data.transactions;
     await TransactionModel.updateOne(
       {
         userId,
-        plaidItemId: itemID,
       },
       {
-        $set: {
+        $push: {
+          items:{
+            plaidItemId: itemID,
+            institutionId: institutionId,
+            institutionName: institutionName
+          },
           transactions: transactions.map((tx) => ({
             accountId: tx.account_id,
             transactionId: tx.transaction_id,
@@ -453,6 +458,48 @@ router.post("/addBudget", async (req,res)=>{
   }
 });
 
+router.post("/addTransactions", async (req,res)=>{
+  const { type, category, merchant, amount, date } = req.body.formData;
+  const userId  = req.body.userId;
+  // let enteredMonth = '';
+  // let enteredYear = ''
+  try{
+    if(!userId)
+      return res.status(400).json({"success": false, "message": "Bad Network Request"})
+    // if(month){
+    //   enteredMonth = month.split("-")[1];
+    //   enteredYear = month.split("-")[0]
+    // }
+    if(!type || !category || !merchant || !amount || !date)
+      return res.status(400).json({"success": false, "message": "Bad Network Call"})
+    const AddedTransactions = await TransactionModel.findOneAndUpdate(
+      {
+        userId
+      },
+      {
+        userId,
+        $push:{
+          manualTransactions:{
+            type: type,
+            merchant: merchant.trim(),
+            amount: amount,
+            category: category,
+            date: new Date(date).toISOString(),
+          }
+        }
+      },
+      {
+        upsert: true,
+        returnDocument: "after",
+      }
+    )
+    return res.status(200).json({ success: true , message: "Transactions Data Added successfully", transactions: AddedTransactions});
+
+  } catch (error) {
+    return res.status(500).json({"succes": false, "message": error.response?.data || error.message})
+  }
+});
+
 router.post("/getBudget", async(req,res) => {
   const userId = req.body.userId;
   try{
@@ -594,6 +641,70 @@ router.delete("/deleteBudget", async(req, res)=>{
     )
     if(deletedBudgetData)
       return res.status(200).json({"success": true, "message": "Record deleted successfully", data: deletedBudgetData})
+  } catch (error){
+    return res.status(500).json({"success": false, "message": error.message || error.data.message})
+  }
+});
+router.patch("/editTransaction", async(req, res)=>{
+  const {prevType, type, category, amount, prevMerchant, merchant, prevDate, date} = req.body.transactionData
+  const userId = req.body.userId;
+  try{
+    if(!userId || !category || !prevType || !type || !amount || !prevMerchant || !merchant || !prevDate || !date)
+      return res.status(404).json({"success": false, "message": "Bad Network Call"})
+    const updatedTransactionsData = await TransactionModel.findOneAndUpdate(
+      {
+        userId,
+        "manualTransactions.category":category,
+        "manualTransactions.date": prevDate,
+        "manualTransactions.type": prevType,
+        "manualTransactions.merchant": prevMerchant
+      },
+      {
+        $set:{
+          "manualTransactions.$.type": type,
+          "manualTransactions.$.merchant": merchant,
+          "manualTransactions.$.amount": amount,
+          "manualTransactions.$.category": category,
+          "manualTransactions.$.date": date,
+        }
+      },
+      { new: true }
+    );
+    if(updatedTransactionsData)
+      return res.status(200).json({"success": true, "message": "Budget data is updatedd", data: updatedTransactionsData})
+  } catch (error){
+    return res.status(500).json({"success": false, "message": error.message || error.data.message})
+  }
+});
+router.delete("/deleteTransaction", async(req, res)=>{
+  const {category,date,type, merchant} = req.body.transactionData;
+  const userId = req.body.userId;
+
+  if(!userId || !category || !date || !type || !merchant)
+    return res.status(404).json({"success": false, "message": "Bad Network Call"});
+  try{
+    const deletedTransactionData = await TransactionModel.findOneAndUpdate(
+      {
+        userId,
+        "manualTransactions.category":category,
+        "manualTransactions.date": date,
+        "manualTransactions.type": type,
+        "manualTransactions.merchant": merchant
+      },
+      {
+        $pull:{
+          manualTransactions: {
+            category,
+            date,
+            type,
+            merchant
+          }
+        }
+      },
+      { new: true }
+    )
+    if(deletedTransactionData)
+      return res.status(200).json({"success": true, "message": "Record deleted successfully", data: deletedTransactionData})
   } catch (error){
     return res.status(500).json({"success": false, "message": error.message || error.data.message})
   }
