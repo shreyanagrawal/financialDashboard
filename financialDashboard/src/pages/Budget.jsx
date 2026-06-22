@@ -65,7 +65,7 @@ const Budget = () => {
     }
     useEffect(()=>{
         if(time.length >0 ) 
-            setTimeout(()=>{console.log("time in Budgets");debugger;setLoading(false)
+            setTimeout(()=>{setLoading(false)
             },1000);
     },[time]);
     const getActualVsExpected = (actualBudget, budgets) => {

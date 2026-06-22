@@ -12,14 +12,12 @@ const Home = () => {
   const {accounts,setAccounts, isDataAvailable, setisDataAvailable, transactions, setTransactions} = useContext(PlaidContext);
   const {userData,setUserData, loading, setLoading} = useContext(AuthContext);
   useEffect(()=>{
-    debugger;
-    console.log("Home");
     if (accounts === null || transactions === null) return;
     setisDataAvailable(accounts?.length > 0 && transactions?.length > 0);
-    setTimeout(()=>{debugger;setLoading(false)
+    setTimeout(()=>{setLoading(false)
     },1000);
   },[accounts,transactions])
-  if(!isDataAvailable) return (
+  if(!isDataAvailable && !loading) return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
       <NoPlaidData />
     </div>

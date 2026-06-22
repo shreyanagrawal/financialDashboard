@@ -17,26 +17,22 @@ const Nav = () => {
   const {accounts, setAccounts, transactions, setTransactions, isDataAvailable, setisDataAvailable} = useContext(PlaidContext);
   const location = useLocation();
   const navigate = useNavigate();
-  const prevPath = useRef(location.pathname);
+  const firstRender = useRef(true);
 
   useEffect(() => {
     loadProfile();
     generateLinkToken();
   }, []);
   useEffect(() => {
-    const from = prevPath.current;
-    const to = location.pathname;
-    setLoading(true);
-    if (from === "/" && to === "/home") {
-      prevPath.current = to;
+    if (firstRender.current) {
+      firstRender.current = false;
+      setLoading(false);
       return;
     }
+    setLoading(true);
     const timer = setTimeout(() => {
-      debugger;
-      console.log("Location");
       setLoading(false);
     }, 1000); 
-    prevPath.current = to;
 
     return () => clearTimeout(timer);
   }, [location.pathname]);
@@ -131,21 +127,17 @@ const Nav = () => {
       if(fetchedData.status){
         loadAccounts();
         loadTransactions();
+          setTimeout(()=>{setLoading(false)
+        },1000);
         console.log(fetchedData.data);
       }
     } catch (error){
       console.log(error)
-    }finally{
-      debugger;
-      console.log("Fetch Data");
-      setTimeout(()=>{setLoading(false)
-      },1000);
     }
   }
   useEffect(()=>{
-    debugger;
     if(Object.keys(userData).length > 0)
-      setTimeout(()=>{console.log("User Data");debugger;setLoading(false)
+      setTimeout(()=>{setLoading(false)
       },1000);
   },[userData])
   return (

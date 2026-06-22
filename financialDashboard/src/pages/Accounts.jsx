@@ -13,7 +13,7 @@ const Accounts = (userId) => {
   const {accounts, setAccounts, transactions, setTransactions} = useContext(PlaidContext);
   useEffect(() => {
     if (accounts) {
-      setTimeout(()=>{console.log("Accounts");debugger;setLoading(false)
+      setTimeout(()=>{setLoading(false)
       },1000);
     }
   }, [accounts]);
