@@ -14,10 +14,11 @@ const Home = () => {
   useEffect(()=>{
     debugger;
     console.log("Home");
+    if (accounts === null || transactions === null) return;
     setisDataAvailable(accounts?.length > 0 && transactions?.length > 0);
     setTimeout(()=>{debugger;setLoading(false)
     },1000);
-  },[accounts,transactions, isDataAvailable])
+  },[accounts,transactions])
   if(!isDataAvailable) return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
       <NoPlaidData />
