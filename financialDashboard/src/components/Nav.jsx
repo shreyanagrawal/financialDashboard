@@ -68,10 +68,19 @@ const Nav = () => {
         const flattenedTransactions = transactionsData.flatMap(item => {
           return item.transactions.map(tx => ({
             ...tx,
-            plaidItemId: item.plaidItemId
           }));
         });
-        setTransactions(flattenedTransactions);
+        const flattenedManualTransactions = transactionsData.flatMap(item => {
+          return item?.manualTransactions.map(tx => ({
+            ...tx
+          }))
+        });
+        var transactions = [...flattenedTransactions, ...flattenedManualTransactions];
+        console.log(transactions);
+        transactions.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        setTransactions(transactions);
       }
     }
   }
