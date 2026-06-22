@@ -6,7 +6,7 @@ const TransactionChart = ({transactions}) => {
       return `hsl(${Math.random() * 360}, 70%, 60%)`;
     };
     const categoryTotals = transactions.reduce((spend, tx) => {
-      const category = tx.name.split("*//")[0] || "Other";
+      const category = tx.accountId? tx.name.split("*//")[0] || "Other" : tx.merchant;
       const amount = Math.abs(Number(tx.amount));
       spend[category] = (spend[category] || 0) + amount;
       return spend;
