@@ -4,7 +4,8 @@ import { PlaidContext } from '../utils/PlaidContext';
 import ChangePasswordModal from '../components/ChangePassword';
 import axios from 'axios';
 import { getAccountsData, getTransactionsData } from '../utils/api';
-const Profile = (userId) => {
+const API_URL = import.meta.env.VITE_API_URL;
+const Profile = () => {
   const { userData, setUserData, loading, setLoading } = useContext(AuthContext);
   const { accounts, transactions, setAccounts, setTransactions } = useContext(PlaidContext);
   const [isEditing, setIsEditing] = useState(false);
@@ -68,9 +69,13 @@ const Profile = (userId) => {
     }
   };
 
-  const loadAccounts = async(userId)=>{
-    const accounstData = await getAccountsData(userId);
-    setAccounts(accounstData);
+  const loadAccounts = async(id)=>{
+    try{
+      const accounstData = await getAccountsData(id);
+      if(accounstData) setAccounts(accounstData);
+    }catch(error){
+    console.error("Failed to load accounts", error);
+    }
   }
   const loadTransactions = async(userId)=>{
     const transactionsData = await getTransactionsData(userId);
@@ -78,15 +83,15 @@ const Profile = (userId) => {
   }
 
   useEffect(()=>{
-    if(accounts)
-      loadAccounts(userId);
-    if(transactions)
-      loadTransactions(userId);
+    if(userData?._id)
+      if (!accounts || accounts.length === 0) {
+        loadAccounts(userData._id);
+      }
+    if(!transactions || transactions.length === 0){
+        loadTransactions(userData._id);
+      }
     setLoading(false);
-  },[]);
-  useEffect(()=>{
-    setLoading(false);
-  },[accounts, transactions])
+  },[userData?._id]);
 
   const totalConnectedBanks = accounts?.length || 0;
   const totalAccounts = accounts?.reduce((total, bank) => total + bank.accounts.length, 0) || 0;

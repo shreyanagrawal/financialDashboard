@@ -223,7 +223,6 @@ route.post("/registerWithOTP", async (req, res) => {
 });
 
 route.post("/update", async(req,res)=>{
-    console.log(req.body);
     const {name,_id, password} = req.body.userData; 
     try{
         const updatedData = await UserModel.findOneAndUpdate(
