@@ -17,6 +17,8 @@ const Nav = () => {
   const {accounts, setAccounts, transactions, setTransactions, isDataAvailable, setisDataAvailable} = useContext(PlaidContext);
   const location = useLocation();
   const navigate = useNavigate();
+  const prevPath = useRef(location.pathname);
+
   useEffect(() => {
     loadProfile();
     generateLinkToken();
