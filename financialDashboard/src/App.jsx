@@ -11,6 +11,7 @@ import Budget from './pages/Budget';
 import EditBudget from './pages/EditBudget';
 import Analytics from './pages/Analytics';
 import Profile from './pages/Profile';
+import EditTransactions from './pages/EditTransactions';
 function App() {
   const [accessToken, setAccessToken] = useState();
   const [userData, setUserData] = useState({});
@@ -23,6 +24,7 @@ function App() {
           <Route element={<PlaidRoute />}>
             <Route path="/home" element={<Home />} />
             <Route path="/accounts" element={<Accounts userId={userData._id}/>}/>
+            <Route path="/editTransaction" element={<EditTransactions />}/>
             <Route path="/transactions" element={<Transactions />}/>
             <Route path="/editbudget" element={<EditBudget />}/>
             <Route path="/budget" element={<Budget />}/>

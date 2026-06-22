@@ -196,3 +196,35 @@ export const deleteBudget = async(budgetData, userId) => {
             return updatedBudgetData.data;
     }
 }
+
+export const submitTransactions = async(formData, userId)=>{
+    if(formData !== '' && userId !== ''){
+        const handleTransactions = await axios.post(`${API_URL}/api/addTransactions`,{formData: formData, userId: userId});
+        if(handleTransactions.status === 200)
+            return handleTransactions.data;
+    }
+}
+export const editTransaction = async(transactionData, userId) => {
+    if(!transactionData)
+        return null;
+    if(transactionData){
+        const updatedTransactionData = await axios.patch(`${API_URL}/api/editTransaction`,{transactionData: transactionData, userId: userId});
+        if(updatedTransactionData)
+            return updatedTransactionData.data;
+    }
+}
+export const deleteTransaction = async(transactionData, userId) => {
+    if(!transactionData)
+        return null;
+    if(transactionData){
+        const updatedTransactionData = await axios.delete(`${API_URL}/api/deleteTransaction`,{
+            data:{
+                    transactionData, 
+                    userId
+                }
+            }
+        );
+        if(updatedTransactionData)
+            return updatedTransactionData.data;
+    }
+}

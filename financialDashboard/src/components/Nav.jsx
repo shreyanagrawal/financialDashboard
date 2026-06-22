@@ -34,10 +34,6 @@ const Nav = () => {
       loadTransactions();
     }
   },[userData],[])
-  useEffect(()=>{
-    if(!isDataAvailable)
-      navigate("/home");
-  },[location.pathname])
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
