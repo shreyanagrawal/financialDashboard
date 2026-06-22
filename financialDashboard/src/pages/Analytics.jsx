@@ -25,6 +25,7 @@ const Analytics = (userId) => {
         }
     },[transactions],[userId]);
     useEffect(()=>{
+        console.log("Aggregated Data");
         debugger;
         setLoading(false);
     },[aggregatedData])
@@ -43,7 +44,7 @@ const Analytics = (userId) => {
     const selectedYear = timeFilter?.split(" ")[1] ;
     useEffect(()=>{
         if(time.length >0 ) 
-            setTimeout(()=>{debugger;setLoading(false)
+            setTimeout(()=>{console.log("Time");debugger;setLoading(false)
             },1000);
     },[time]);
     const currentMonthData = useMemo(()=>{

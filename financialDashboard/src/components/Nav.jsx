@@ -22,10 +22,10 @@ const Nav = () => {
     generateLinkToken();
   }, []);
   useEffect(() => {
-    debugger;
     setLoading(true);
     const timer = setTimeout(() => {
       debugger;
+      console.log("Location");
       setLoading(false);
     }, 1000); 
     return () => clearTimeout(timer);
@@ -112,7 +112,6 @@ const Nav = () => {
     }
   };
   useEffect(()=>{
-    debugger;
     fetchData(publicToken, userData._id);
   },[publicToken])
   const fetchData = async(publicToken, userId)=>{
@@ -128,6 +127,7 @@ const Nav = () => {
       console.log(error)
     }finally{
       debugger;
+      console.log("Fetch Data");
       setTimeout(()=>{setLoading(false)
       },1000);
     }
@@ -135,7 +135,7 @@ const Nav = () => {
   useEffect(()=>{
     debugger;
     if(Object.keys(userData).length > 0)
-      setTimeout(()=>{debugger;setLoading(false)
+      setTimeout(()=>{console.log("User Data");debugger;setLoading(false)
       },1000);
   },[userData])
   return (

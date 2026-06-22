@@ -54,11 +54,9 @@ const Budget = () => {
 
     categories = Object.keys(actualBudget);
     useEffect(()=>{
-        debugger;
         getBudgetData();
     },[userData],[]);
     const getBudgetData = async()=>{
-        debugger;
         if(userData){
             const budgetData = await getBudgets(userData._id);
             if(budgetData)
@@ -67,7 +65,7 @@ const Budget = () => {
     }
     useEffect(()=>{
         if(time.length >0 ) 
-            setTimeout(()=>{debugger;setLoading(false)
+            setTimeout(()=>{console.log("time in Budgets");debugger;setLoading(false)
             },1000);
     },[time]);
     const getActualVsExpected = (actualBudget, budgets) => {

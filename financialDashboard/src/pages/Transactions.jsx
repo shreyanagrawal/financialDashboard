@@ -14,6 +14,7 @@ const Transactions = () => {
     
     useEffect(() => {
         if (transactions) {
+            console.log("Transactions")
             setTimeout(()=>{debugger; setLoading(false)
             },1000);        
         }

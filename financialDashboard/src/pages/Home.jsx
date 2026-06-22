@@ -13,6 +13,7 @@ const Home = () => {
   const {userData,setUserData, loading, setLoading} = useContext(AuthContext);
   useEffect(()=>{
     debugger;
+    console.log("Home");
     setisDataAvailable(accounts?.length > 0 && transactions?.length > 0);
     setTimeout(()=>{debugger;setLoading(false)
     },1000);
