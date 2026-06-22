@@ -22,10 +22,11 @@ const Nav = () => {
     generateLinkToken();
   }, []);
   useEffect(() => {
+    debugger;
     setLoading(true);
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 500); 
+    }, 1000); 
     return () => clearTimeout(timer);
   }, [location.pathname]);
   useEffect(()=>{
