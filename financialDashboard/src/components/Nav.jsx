@@ -52,7 +52,10 @@ const Nav = () => {
     if(accounstData){
       if(accounstData.length > 0){
         setisDataAvailable(true);
-        setAccounts(accounstData);
+        const accountsData = accounstData.flatMap(
+            doc => doc.items
+        );
+        setAccounts(accountsData);
       }
     }
   }

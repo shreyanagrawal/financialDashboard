@@ -119,15 +119,13 @@ router.post('/link-token/update', async (req, res) => {
       });
     }
 
-    const accessToken = await plaidUtils.getAccessToken(userId,plaidItemId);
-    console.log("accessToken:", accessToken);
+    const accessToken = await getAccessToken(userId,plaidItemId);
     const linkToken = await plaidUtils.createUpdateModeLinkToken(userId, accessToken);
     const institutionDetails = await institutionInfo(accessToken);
     res.status(200).json({link_token: linkToken,institutionName: institutionDetails});
 
   } catch (error) {
     console.log("PLAID ERROR:");
-    console.log("In update");
     console.log(error.message);
     res.status(500).json({
       error: true,
@@ -142,24 +140,13 @@ router.post('/sync-accounts', async (req, res) => {
     if (!userId || !plaidItemId) {
       return res.status(400).json({error: true,message: 'userId and plaidItemId are required'});
     }
-    const accessToken = await plaidUtils.getAccessToken(userId,plaidItemId);
-    const response = await plaidUtils.client.accountsBalanceGet({
-      access_token: accessToken,
-    });
-    const institutionDetails = await institutionInfo(accessToken);
-    const accounts = response.data.accounts;
-    const syncResult = await syncAccountsAfterUpdate(userId, plaidItemId, accounts, institutionDetails);
+    await syncAccounts(userId, plaidItemId);
 
     res.status(200).json({
       success: true,
-      newAccountsAdded: syncResult.newAccountsAdded,
-      existingAccountsPreserved: syncResult.existingAccountsPreserved,
-      newAccounts: syncResult.newAccounts,
-      existingAccounts: syncResult.existingAccounts,
-      syncedAt: new Date()
+      message: "Accounts synced",
     });
-
-  } catch (error) {
+  } catch (err) {
     console.log("Sync accounts")
     console.log("PLAID ERROR:");
     console.log(error.message);
@@ -167,86 +154,43 @@ router.post('/sync-accounts', async (req, res) => {
   }
 });
 
-const syncAccountsAfterUpdate = async (userId, plaidItemId, plaidAccounts, institutionName) => {
-  const accessToken = await plaidUtils.getAccessToken( userId, plaidItemId );
-  const itemResponse = await plaidUtils.client.itemGet({ access_token: accessToken, }); 
-  const institutionId = itemResponse.data.item .institution_id;
-  const storedAccount = await AccountModel.findOne({
+const syncAccounts = async (userId, plaidItemId) => {
+  const accessToken = await plaidUtils.getAccessToken(
     userId,
-    institutionId
-  }).select( "+items.encryptedAccessToken" );
-  if (!storedAccount) {
-    const newAccounts = plaidAccounts.map(account => ({
-      plaidItemId,
-      accountId: account.account_id,
-      name: account.name,
-      type: account.type,
-      subtype: account.subtype,
-      mask: account.mask,
-      balances: {
-        available: account.balances.available,
-        current: account.balances.current,
-        limit: account.balances.limit,
-        currency: account.balances.iso_currency_code,
-      },
-      persistentAccountId: account.persistent_account_id,
-    }));
-    await AccountModel.create({
-      userId,
-      plaidItemId,
-      institutionId,
-      officialName: institutionName,
-      items:[
-        {
-          plaidItemId,
-          encryptedAccessToken: plaidUtils.encrypt(accessToken)
-        }
-      ],
-      accounts: newAccounts
-    });
-    return {
-      newAccountsAdded: newAccounts.length,
-      existingAccountsPreserved: 0,
-      newAccounts,
-      existingAccounts: []
-    };
-  }
-
-  const itemExists = storedAccount.accounts.some((a)=>a.plaidItemId === plaidItemId);
-  if(!itemExists){
-    storedAccount.items.push({
-      plaidItemId,
-      encryptedAccessToken: plaidUtils.encrypt(accessToken)
-    })
-  }
-  const existingAccountIds = storedAccount.accounts.map((acc)=>acc.accountId)
-  const newAccountsData = plaidAccounts.filter(
-    account => !existingAccountIds.includes(account.account_id)
+    plaidItemId
   );
-  const formattedNewAccounts = newAccountsData.map((account)=>({
-    plaidItemId,
-    accountId: account.account_id,
-    name: account.name,
-    type: account.type, 
-    subtype: account.subtype, 
-    mask: account.mask, 
-    balances: { 
-      available: account.balances .available, 
-      current: account.balances .current, 
-      limit: account.balances .limit, 
-      currency: account.balances .iso_currency_code, 
-    }, 
-    persistentAccountId: account .persistent_account_id,
-  }))
-  storedAccount.accounts.push(...formattedNewAccounts);
-  storedAccount.updatedAt = new Date();
-  await storedAccount.save();
-  return {
-    newAccountsAdded: formattedNewAccounts.length,
-    existingAccountsPreserved: existingAccountIds.length,
-    newAccounts: formattedNewAccounts,
-    existingAccounts: storedAccount.accounts
-  };
+
+  const accountsResponse = await plaidUtils.client.accountsGet({
+    access_token: accessToken,
+  });
+
+  const accounts = accountsResponse.data.accounts.map(acc => ({
+    accountId: acc.account_id,
+    name: acc.name,
+    type: acc.type,
+    subtype: acc.subtype,
+    mask: acc.mask,
+    balances: {
+      available: acc.balances.available,
+      current: acc.balances.current,
+      limit: acc.balances.limit,
+      currency: acc.balances.iso_currency_code,
+    },
+    persistentAccountId: acc.persistent_account_id,
+    isActive: true,
+  }));
+
+  await AccountModel.updateOne(
+    {
+      userId,
+      "items.plaidItemId": plaidItemId,
+    },
+    {
+      $set: {
+        "items.$.accounts": accounts,
+      },
+    }
+  );
 };
 
 const institutionInfo = async (accessToken) => {
@@ -334,79 +278,44 @@ const getBalances = async(userId, plaidItemID)=>{
     });
     const institutionId = itemResponse.data.item.institution_id;
     const accounts = response.data.accounts;
-    // const existingAccountsData = await AccountModel.find({plaidItemId: itemID});
-    // if(!existingAccountsData){
-    //   await AccountModel.create({
-    //     userId,
-    //     plaidItemId: itemID,
-    //     officialName: institutionDetails,
-
-    //     accounts: accounts.map((account) => ({
-    //       accountId: account.account_id,
-    //       name: account.name,
-    //       type: account.type,
-    //       subtype: account.subtype,
-    //       mask: account.mask,
-    //       balances: {
-    //         available: account.balances.available,
-    //         current: account.balances.current,
-    //         limit: account.balances.limit,
-    //         currency: account.balances.iso_currency_code,
-    //       },
-    //       persistentAccountId: account.persistent_account_id,
-    //     })),
-    //   });
-    // }
-    // for (const account of accounts) {
-    //   const duplicate = await AccountModel.findOne({
-    //     userId,
-    //     officialName: institutionDetails,
-    //     accounts: {
-    //       $elemMatch: {
-    //         mask: account.mask,
-    //         subtype: account.subtype,
-    //         type: account.type,
-    //         name: account.name,
-    //         isActive: true
-    //       }
-    //     }
-    //   });
-
-    //   if (duplicate) {
-    //     return `${account.name} already connected`
-    //   }
-    // }
-    let existingBank = await AccountModel.findOne({userId,institutionId}).select("+items.encryptedAccessToken");
-    if (!existingBank) {
-      await AccountModel.create({
+    const updatedAccountsData = await AccountModel.findOneAndUpdate(
+      {
         userId,
-        plaidItemId: plaidItemID, 
-        institutionId, 
-        officialName:institutionDetails,
-        items: [ 
+      },
+      {
+        userId,
+        $push:{
+          items: [ 
           { 
             plaidItemId: plaidItemID, 
-            encryptedAccessToken: plaidUtils.encrypt( accessToken )
-          }
-        ],
-        accounts: 
-          accounts.map((account) => ({
-            plaidItemId: plaidItemID,
-            accountId: account.account_id,
-            name: account.name,
-            type: account.type,
-            subtype: account.subtype,
-            mask: account.mask,
-            balances: {
-              available: account.balances.available,
-              current: account.balances.current,
-              limit: account.balances.limit,
-              currency: account.balances.iso_currency_code,
-            },
-            persistentAccountId: account.persistent_account_id,
-          }))
-      });
-    }
+            encryptedAccessToken: plaidUtils.encrypt( accessToken ),
+            institutionId: institutionId, 
+            officialName:institutionDetails,
+            accounts: 
+              accounts.map((account) => ({
+                accountId: account.account_id,
+                name: account.name,
+                type: account.type,
+                subtype: account.subtype,
+                mask: account.mask,
+                balances: {
+                  available: account.balances.available,
+                  current: account.balances.current,
+                  limit: account.balances.limit,
+                  currency: account.balances.iso_currency_code,
+                },
+                persistentAccountId: account.persistent_account_id,
+              }))
+            }, 
+          ],
+        }
+      },
+      {
+        upsert: true,
+        returnDocument: "after",
+      }
+    );
+    
     return accounts;
     
   }catch(error){
@@ -461,15 +370,9 @@ router.post("/addBudget", async (req,res)=>{
 router.post("/addTransactions", async (req,res)=>{
   const { type, category, merchant, amount, date } = req.body.formData;
   const userId  = req.body.userId;
-  // let enteredMonth = '';
-  // let enteredYear = ''
   try{
     if(!userId)
       return res.status(400).json({"success": false, "message": "Bad Network Request"})
-    // if(month){
-    //   enteredMonth = month.split("-")[1];
-    //   enteredYear = month.split("-")[0]
-    // }
     if(!type || !category || !merchant || !amount || !date)
       return res.status(400).json({"success": false, "message": "Bad Network Call"})
     const AddedTransactions = await TransactionModel.findOneAndUpdate(
@@ -709,4 +612,28 @@ router.delete("/deleteTransaction", async(req, res)=>{
     return res.status(500).json({"success": false, "message": error.message || error.data.message})
   }
 });
+
+const getAccessToken = async(userId, plaidItemId)=>{
+  const accountDoc = await AccountModel.findOne({ userId })
+      .select('+items.encryptedAccessToken');
+
+    if (!accountDoc) {
+      return res.status(404).json({
+        error: true,
+        message: 'User accounts not found'
+      });
+    }
+
+    const item = accountDoc.items.find(
+      item => item.plaidItemId === plaidItemId
+    );
+
+    if (!item) {
+      return res.status(404).json({
+        error: true,
+        message: 'Plaid item not found'
+      });
+    } 
+    return plaidUtils.decrypt(item.encryptedAccessToken);
+}
 module.exports = router;

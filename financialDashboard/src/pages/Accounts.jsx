@@ -19,7 +19,10 @@ const Accounts = (userId) => {
   }, [accounts]);
   const loadAccounts = async(userId)=>{
     const accounstData = await getAccountsData(userId);
-    setAccounts(accounstData);
+    const accountsData = accounstData.flatMap(
+        doc => doc.items
+    );
+    setAccounts(accountsData);
   }
   const handleAddAccountSuccess = () => {
     loadAccounts(userId.userId);

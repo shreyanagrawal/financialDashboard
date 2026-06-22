@@ -62,12 +62,11 @@ function decrypt(encryptedText){
 }
 
 const getAccessToken = async(userId, plaidItemId) => {
-    const plaidItem = await PlaidItem.findOne({ userId, plaidItemId }).select("+encryptedAccessToken");
-    if(!plaidItem){
-          throw new Error("Plaid item not found");
+    const plaidDoc = await PlaidItem.findOne({ userId }).select("+encryptedAccessToken");
+    if(!plaidDoc){
+          throw new Error("Document not found");
     }
-    const decryptedToken = decrypt(plaidItem.encryptedAccessToken);
-    return decryptedToken;
+    return decrypt(plaidDoc.encryptedAccessToken);
 };
 const createUpdateModeLinkToken = async(userId, accessToken) => {
     try {

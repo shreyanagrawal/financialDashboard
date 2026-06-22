@@ -14,7 +14,7 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
         onSuccess: async (public_token, metadata) => {
             console.log("Update Mode Success:", metadata);
             try {
-                await syncAccountsAfterUpdate(userId.userId, selectedBank.items[0].plaidItemId);           
+                await syncAccountsAfterUpdate(userId.userId, selectedBank.plaidItemId);           
                 onSuccess();
                 onClose();
             } catch (error) {
@@ -36,7 +36,7 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
         setSelectedBank(bank);
        
         try {
-            const response = await createUpdateModeLinkToken(userId.userId,bank.items[0].plaidItemId);
+            const response = await createUpdateModeLinkToken(userId.userId,bank.plaidItemId);
             setUpdateLinkToken(response.link_token);
 
             setTimeout(() => {
