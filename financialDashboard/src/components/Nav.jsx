@@ -145,7 +145,7 @@ const Nav = () => {
       <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"}/>
       <div className="flex">
         <button
-          className={`lg:hidden absolute top-4 left-4 z-30 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
+          className={`lg:hidden fixed top-4 left-4 z-100 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
             sidebarOpen ? "hidden" : "block"
           }`} 
           onClick={() => setSidebarOpen(!sidebarOpen)}
