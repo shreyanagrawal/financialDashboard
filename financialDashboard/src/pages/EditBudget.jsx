@@ -8,10 +8,16 @@ const EditBudget = () => {
     const { userId } = location.state || {};
     const [editingIndex, setEditingIndex] = useState(null);
     const [budgetList, setBudgetList] = useState([]);
-    const [tempAmount, setTempAmount] = useState("");
-    const [tempDate, setTempDate] = useState("");
-    const [prevMonth, setPrevMonth] = useState("");
-    const [prevYear, setPrevYear] = useState();
+    const initialTempData = {
+        tempAmount: "",
+        tempDate: "",
+    };
+    const [tempData, setTempData] = useState(initialTempData);
+    const initialPrevData = {
+        prevMonth: "",
+        prevYear: ""
+    };
+    const [prevData, setPrevData] = useState(initialPrevData);
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
     useEffect(()=>{
@@ -31,24 +37,23 @@ const EditBudget = () => {
     }
     const handleEditClick = (index, budget) => {
         setEditingIndex(index);
-        setTempAmount(budget.limit);
-        setPrevMonth(budget.month);
-        setPrevYear(budget.year);
-        if (budget.year && budget.month) {
-            const paddedMonth = budget.month.toString().padStart(2, '0');
-            setTempDate(`${budget.year}-${paddedMonth}`);
-        } else {
-            setTempDate("");
-        }
+        setTempData({
+            tempAmount: budget.limit,
+            tempDate: budget.year && budget.month ? `${budget.year}-${budget.month.toString().padStart(2, '0')}` : (""),
+        });
+        setPrevData({
+            prevMonth: budget.month,
+            prevYear: budget.year
+        })
     };
     const handleSaveClick = async (index) => {
         const editData = {
             category: budgetList[index].category,
-            limit: Number(tempAmount),
-            prevMonth: prevMonth,
-            prevYear: prevYear,
-            month: Number(tempDate.split('-')[1]),
-            year: Number(tempDate.split('-')[0])
+            limit: Number(tempData.tempAmount),
+            prevMonth: prevData.prevMonth,
+            prevYear: prevData.prevYear,
+            month: Number(tempData.tempDate.split('-')[1]),
+            year: Number(tempData.tempDate.split('-')[0])
         }
         const updatedData = await editBudget(editData, userId);
         if(updatedData){
@@ -115,8 +120,8 @@ const EditBudget = () => {
                                     {editingIndex === index ? (
                                         <input
                                             type="month"
-                                            value={tempDate}
-                                            onChange={(e) => setTempDate(e.target.value)}
+                                            value={tempData.tempDate}
+                                            onChange={(e) => setTempData((prev)=>({...prev, tempDate: e.target.value}))}
                                             className="border-2 border-blue-400 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-300 w-full max-w-[140px]"
                                         />
                                     ) : (
@@ -132,8 +137,8 @@ const EditBudget = () => {
                                                 min="0"
                                                 step="0.01"
                                                 className="border-2 border-blue-400 rounded-lg px-2 py-1 w-24 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                                                value={tempAmount}
-                                                onChange={(e) => setTempAmount(e.target.value)}
+                                                value={tempData.tempAmount}
+                                                onChange={(e) => setTempData((prev)=>({...prev, tempAmount:e.target.value}))}
                                                 autoFocus
                                             />
                                         </div>

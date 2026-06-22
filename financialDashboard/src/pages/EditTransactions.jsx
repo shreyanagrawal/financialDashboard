@@ -8,13 +8,19 @@ const EditTransactions = () => {
     const { userId } = location.state || {};
     const [editingIndex, setEditingIndex] = useState(null);
     const [transactionList, setTransactionList] = useState([]);
-    const [tempAmount, setTempAmount] = useState("");
-    const [tempDate, setTempDate] = useState("");
-    const [tempMerchant, setTempMerchant] = useState("");
-    const [tempType, setTempType] = useState("");
-    const [prevDate, setPrevDate] = useState("");
-    const [prevType, setPrevType] = useState("");
-    const [prevMerchant, setPrevMerchant] = useState("");
+    const initialTempData = {
+        tempAmount: "",
+        tempDate:"",
+        tempMerchant:"",
+        tempType:""
+    }
+    const [tempData, setTempData] = useState(initialTempData);
+    const inititalPrevData ={
+        prevDate:"",
+        prevType:"",
+        prevMerchant:""
+    }
+    const [prevData, setPrevData] = useState(inititalPrevData);
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
     useEffect(()=>{
@@ -39,24 +45,28 @@ const EditTransactions = () => {
     }
     const handleEditClick = (index, transaction) => {
         setEditingIndex(index);
-        setTempAmount(transaction.amount);
-        setTempDate(new Date(transaction.date).toISOString().split("T")[0]);
-        setPrevType(transaction.type);
-        setPrevDate(transaction.date);
-        setTempMerchant(transaction.merchant);
-        setPrevMerchant(transaction.merchant);
-        setTempType(transaction.type);
+        setTempData({
+            tempAmount: transaction.amount,
+            tempDate: new Date(transaction.date).toISOString().split("T")[0],
+            tempMerchant: transaction.merchant,
+            tempType: transaction.type,
+        });
+        setPrevData({
+            prevDate: transaction.date,
+            prevType: transaction.type,
+            prevMerchant: transaction.merchant
+        });
     };
     const handleSaveClick = async (index) => {
         const editData = {
-            prevType: prevType,
-            type: tempType,
+            prevType: prevData.prevType,
+            type: tempData.tempType,
             category: transactionList[index].category,
-            amount: Number(tempAmount),
-            prevMerchant: prevMerchant,
-            merchant: tempMerchant,
-            prevDate: prevDate,
-            date: tempDate,
+            amount: Number(tempData.tempAmount),
+            prevMerchant: prevData.prevMerchant,
+            merchant: tempData.tempMerchant,
+            prevDate: prevData.prevDate,
+            date: tempData.tempDate,
         }
         const updatedData = await editTransaction(editData, userId);
         if(updatedData){
@@ -116,7 +126,7 @@ const EditTransactions = () => {
                             <tr key={transaction._id || index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                                 <td className="p-4 text-gray-500 font-medium max-w-[80px]">
                                     {editingIndex === index ? (
-                                        <select name="type" onChange={(e) => setTempType(e.target.value)} value={tempType} className="border-2 border-blue-400 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-300 w-full max-w-[80px]">
+                                        <select name="type" onChange={(e) => setTempData((prev)=>({...prev, tempType:e.target.value}))} value={tempData.tempType} className="border-2 border-blue-400 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-300 w-full max-w-[80px]">
                                             <option value="income">Income</option>
                                             <option value="expense">Expense</option>
                                         </select>
@@ -137,8 +147,8 @@ const EditTransactions = () => {
                                     {editingIndex === index ? (
                                         <input
                                             type="text"
-                                            value={tempMerchant}
-                                            onChange={(e) => setTempMerchant(e.target.value)}
+                                            value={tempData.tempMerchant}
+                                            onChange={(e) => setTempData((prev)=>({...prev, tempMerchant:e.target.value}))}
                                             className="border-2 border-blue-400 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-300 w-full max-w-[140px]"
                                         />
                                     ) : (
@@ -154,8 +164,8 @@ const EditTransactions = () => {
                                                 min="0"
                                                 step="0.01"
                                                 className="border-2 border-blue-400 rounded-lg px-2 py-1 w-24 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                                                value={tempAmount}
-                                                onChange={(e) => setTempAmount(e.target.value)}
+                                                value={tempData.tempAmount}
+                                                onChange={(e) => setTempData((prev)=>({...prev, tempAmount:e.target.value}))}
                                                 autoFocus
                                             />
                                         </div>
@@ -169,8 +179,8 @@ const EditTransactions = () => {
                                     {editingIndex === index ? (
                                         <input
                                             type="date"
-                                            value={tempDate}
-                                            onChange={(e) => setTempDate(e.target.value)}
+                                            value={tempData.tempDate}
+                                            onChange={(e) => setTempData((prev)=>({...prev, tempDate:e.target.value}))}
                                             className="border-2 border-blue-400 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-300 w-full max-w-[140px]"
                                         />
                                     ) : (

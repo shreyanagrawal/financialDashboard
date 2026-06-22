@@ -156,15 +156,16 @@ export const getAggregatedData = async(userId)=>{
 export const getAmountbyCategory = (transaction, expense=true)=>{
     let result = {};
     transaction.forEach(tx => {
-        const isExpense = tx.amount > 0;
-        const isIncome = tx.amount < 0;
+
+        const isExpense = tx.accountId ? tx.amount > 0 : tx.type === "expense";
+        const isIncome = tx.accountId ? tx.amount < 0: tx.type === "income";
         if (
             (expense && !isExpense) ||
             (!expense && !isIncome)
         ) {
             return;
         }
-        const category = tx.merchantName.split("*//")[0] || "Other";
+        const category = tx.accountId ? tx.merchantName.split("*//")[0] || "Other" : tx.merchant;
         if (!result[category]) {
             result[category] = 0;
         }

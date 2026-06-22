@@ -76,7 +76,6 @@ const Nav = () => {
           }))
         });
         var transactions = [...flattenedTransactions, ...flattenedManualTransactions];
-        console.log(transactions);
         transactions.sort(
           (a, b) => new Date(b.date) - new Date(a.date)
         );
