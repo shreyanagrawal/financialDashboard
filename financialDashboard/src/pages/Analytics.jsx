@@ -25,6 +25,7 @@ const Analytics = (userId) => {
         }
     },[transactions],[userId]);
     useEffect(()=>{
+        debugger;
         setLoading(false);
     },[aggregatedData])
     const loadaggregatedData = async(userId)=>{
@@ -42,7 +43,7 @@ const Analytics = (userId) => {
     const selectedYear = timeFilter?.split(" ")[1] ;
     useEffect(()=>{
         if(time.length >0 ) 
-            setTimeout(()=>{setLoading(false)
+            setTimeout(()=>{debugger;setLoading(false)
             },1000);
     },[time]);
     const currentMonthData = useMemo(()=>{

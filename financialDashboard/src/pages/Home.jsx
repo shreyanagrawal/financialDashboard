@@ -14,9 +14,9 @@ const Home = () => {
   useEffect(()=>{
     debugger;
     setisDataAvailable(accounts?.length > 0 && transactions?.length > 0);
-    setTimeout(()=>{setLoading(false)
+    setTimeout(()=>{debugger;setLoading(false)
     },1000);
-  },[accounts,transactions])
+  },[accounts,transactions, isDataAvailable])
   if(!isDataAvailable) return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
       <NoPlaidData />

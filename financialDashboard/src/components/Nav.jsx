@@ -25,6 +25,7 @@ const Nav = () => {
     debugger;
     setLoading(true);
     const timer = setTimeout(() => {
+      debugger;
       setLoading(false);
     }, 1000); 
     return () => clearTimeout(timer);
@@ -111,6 +112,7 @@ const Nav = () => {
     }
   };
   useEffect(()=>{
+    debugger;
     fetchData(publicToken, userData._id);
   },[publicToken])
   const fetchData = async(publicToken, userId)=>{
@@ -125,13 +127,15 @@ const Nav = () => {
     } catch (error){
       console.log(error)
     }finally{
+      debugger;
       setTimeout(()=>{setLoading(false)
       },1000);
     }
   }
   useEffect(()=>{
+    debugger;
     if(Object.keys(userData).length > 0)
-      setTimeout(()=>{setLoading(false)
+      setTimeout(()=>{debugger;setLoading(false)
       },1000);
   },[userData])
   return (
