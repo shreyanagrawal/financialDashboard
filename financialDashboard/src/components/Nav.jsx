@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import { AuthContext } from "../utils/AuthContext";
@@ -22,12 +22,20 @@ const Nav = () => {
     generateLinkToken();
   }, []);
   useEffect(() => {
+    const from = prevPath.current;
+    const to = location.pathname;
     setLoading(true);
+    if (from === "/" && to === "/home") {
+      prevPath.current = to;
+      return;
+    }
     const timer = setTimeout(() => {
       debugger;
       console.log("Location");
       setLoading(false);
     }, 1000); 
+    prevPath.current = to;
+
     return () => clearTimeout(timer);
   }, [location.pathname]);
   useEffect(()=>{
