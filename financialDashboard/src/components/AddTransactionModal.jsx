@@ -35,7 +35,7 @@ const AddTransactionModal = ({isOpen,setIsOpen,onClose,userId,transactions,setTr
             <div className="bg-white rounded-2xl p-6 w-[400px] shadow-xl">
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold">Add Transaction</h2>
-                    <button onClick={onClose} className="text-xl hover:text-red-500 transition cursor-pointer">×</button>
+                    <button type="button" onClick={() => setIsOpen(false)} className="text-xl hover:text-red-500 transition cursor-pointer">×</button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="flex flex-col gap-4">
@@ -68,7 +68,7 @@ const AddTransactionModal = ({isOpen,setIsOpen,onClose,userId,transactions,setTr
                         <label className="text-sm">Date</label>
                         <input type="date" name="date" value={formData.date} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3" />
                         <div className="flex justify-end gap-3 pt-4">
-                            <button onClick={onClose} className=" border text-gray-700 hover:bg-gray-50 font-medium transition-colors py-3 px-4 rounded-xl cursor-pointer">Cancel</button>
+                            <button type="button" onClick={()=>setIsOpen(false)} className=" border text-gray-700 hover:bg-gray-50 font-medium transition-colors py-3 px-4 rounded-xl cursor-pointer">Cancel</button>
                             <button className="bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 px-4 transition-colors cursor-pointer">Save</button>
                         </div>
                     </div>
