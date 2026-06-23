@@ -31,23 +31,16 @@ const BankSelectionModal = ({ isOpen, onClose, banks, userId, onSuccess }) => {
     useEffect(() => {
         if(updateLinkToken && updateLinkReady)
             openUpdateLink();
-    }, [updateLinkToken, updateLinkReady]);
+    }, [updateLinkToken, updateLinkReady, openUpdateLink]);
     const handleSelectBank = async (bank) => {
         setSelectedBank(bank);
        
         try {
             const response = await createUpdateModeLinkToken(userId.userId,bank.plaidItemId);
             setUpdateLinkToken(response.link_token);
-
-            setTimeout(() => {
-                if (updateLinkReady) {
-                    openUpdateLink();
-                }
-            }, 100);
         } catch (error) {
             console.error("Error creating update mode link token:", error);
             alert("Failed to initiate account addition. Please try again.");
-            
             setSelectedBank(null);
         }
     };

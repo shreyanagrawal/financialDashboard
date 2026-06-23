@@ -1,9 +1,15 @@
 import React, { useContext } from 'react'
 import { PlaidContext } from '../utils/PlaidContext'
 import { useLocation } from 'react-router-dom';
+import { AuthContext } from '../utils/AuthContext';
 
 const PlaidStats = ({transactions}) => {
     const {accounts, setAccounts} = useContext(PlaidContext);
+    const {loading, setLoading} = useContext(AuthContext);
+    if(!accounts || !transactions)
+        setLoading(true);
+    else
+        setLoading(false);
     const totalBalance = accounts?.reduce((sum, item) => {
         return (
         sum + item.accounts.reduce(

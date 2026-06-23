@@ -94,7 +94,7 @@ const Profile = () => {
   },[userData?._id]);
 
   const totalConnectedBanks = accounts?.length || 0;
-  const totalAccounts = accounts?.reduce((total, bank) => total + bank.accounts.length, 0) || 0;
+  const totalAccounts = accounts !== null ? accounts?.reduce((total, bank) => total + bank.accounts?.length, 0) || 0 : 0;
   const totalTransactions = transactions?.length || 0;
 
   const memberSince = userData?.createdAt 

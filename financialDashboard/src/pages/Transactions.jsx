@@ -13,7 +13,7 @@ const Transactions = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     
     useEffect(() => {
-        if (transactions) {
+        if (transactions !== null && transactions.length > 0) {
             setTimeout(()=>{setLoading(false)
             },1000);        
         }
@@ -21,22 +21,25 @@ const Transactions = () => {
 
     return (
         <>
-            <div className="p-5">
-                <PlaidStats transactions={transactions}/>
-                <div className="rounded-2xl">
-                    <div className="flex flex-col md:flex-row gap-3 md:gap-0 md:justify-between md:items-center mb-6">
-                        <h2 className="text-3xl font-bold ">Transactions History</h2>
-                        <button onClick={() => setIsModalOpen(true)} className="text-end bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-2 rounded-xl font-semibold text-white cursor-pointer ml-auto">Modify Transactions</button>
-                    </div>
-                    {transactions.length > 0 && 
-                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-10 mt-10">
-                            <TransactionsList transactions={transactions}/>
+            {!loading && 
+                <>
+                    <div className="p-5">
+                        <PlaidStats transactions={transactions}/>
+                        <div className="rounded-2xl">
+                            <div className="flex flex-col md:flex-row gap-3 md:gap-0 md:justify-between md:items-center mb-6">
+                                <h2 className="text-3xl font-bold ">Transactions History</h2>
+                                <button onClick={() => setIsModalOpen(true)} className="text-end bg-gradient-to-r from-blue-600 to-indigo-700 px-5 py-2 rounded-xl font-semibold text-white cursor-pointer ml-auto">Modify Transactions</button>
+                            </div>
+                            {transactions.length > 0 && 
+                                <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mb-10 mt-10">
+                                    <TransactionsList transactions={transactions}/>
+                                </div>
+                            }
                         </div>
-                    }
-                </div>
-            </div>
-            {isModalOpen && <AddTransactionModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} userId={userData._id} transactions={transactions} setTransactions={setTransactions}/>}
-
+                    </div>
+                    {isModalOpen && <AddTransactionModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} userId={userData._id} transactions={transactions} setTransactions={setTransactions}/>}
+                </>  
+            }
         </>
         
     )

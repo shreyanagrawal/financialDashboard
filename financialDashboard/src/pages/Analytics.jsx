@@ -12,6 +12,10 @@ const Analytics = (userId) => {
     const {transactions, setTransactions} = useContext(PlaidContext);
     const [aggregatedData, setAggregatedData] = useState([]);
     const [timeFilter,setTimeFilter] = useState();
+    if(!transactions)
+        setLoading(true);
+    else
+        setLoading(false);
     let month = '';
     useEffect(()=>{
         const fetchData = async () => {
@@ -31,21 +35,20 @@ const Analytics = (userId) => {
         const data = await getAggregatedData(userId);
         return data;
     }
-    const time = ['All', ...new Set(transactions.map((tx) => {
-        const txDate = new Date(tx.date);
-        return txDate.toLocaleString("en-US", {
-            month: "short",
-            year: "numeric"
-        });
-    }))];
+    const time = useMemo(()=>{
+        if(!transactions) return 'All'
+        return ['All', ...new Set(transactions.map((tx) => {
+            const txDate = new Date(tx.date);
+            return txDate.toLocaleString("en-US", {
+                month: "short",
+                year: "numeric"
+            });
+        }))]
+    },[transactions]);
     const selectedMonth = timeFilter ? timeFilter?.split(" ")[0]: "all"; 
     const selectedYear = timeFilter?.split(" ")[1] ;
-    useEffect(()=>{
-        if(time.length >0 ) 
-            setTimeout(()=>{setLoading(false)
-            },1000);
-    },[time]);
     const currentMonthData = useMemo(()=>{
+        if(!transactions) return null;
         return transactions.filter(tx => {const txDate = new Date(tx.date);
             month = txDate.toLocaleString("en-US", {
                 month: "short"
@@ -63,7 +66,7 @@ const Analytics = (userId) => {
                 );
             } 
         });
-    },[timeFilter,selectedMonth,selectedYear,[]])
+    },[timeFilter,selectedMonth,selectedYear,transactions])
 
     const currentAnalayticalData = useMemo(()=>{
         return aggregatedData.filter(ag => {const agDate = new Date(ag.month);
@@ -104,13 +107,16 @@ const Analytics = (userId) => {
         return acc;
     }, []);
     const expensesData = useMemo(()=>{
+        if(currentMonthData === null) return null;
         return getAmountbyCategory(currentMonthData,true)
     },[currentMonthData]);
     const incomeData = useMemo(()=>{
+        debugger;
+        if(currentMonthData === null) return null;
         return getAmountbyCategory(currentMonthData,false)
     },[currentMonthData]);
-    const totalExpenses = currentMonthData.filter(ag => ag.amount > 0 && !ag.pending).reduce((sum, ag) => sum + ag.amount, 0);
-    const totalIncome = currentMonthData.filter(ag => ag.amount < 0 && !ag.pending).reduce((sum, ag) => sum + ag.amount, 0);
+    const totalExpenses = currentMonthData ? currentMonthData.filter(ag => ag.amount > 0 && !ag.pending).reduce((sum, ag) => sum + ag.amount, 0) : 0;
+    const totalIncome = currentMonthData ? currentMonthData.filter(ag => ag.amount < 0 && !ag.pending).reduce((sum, ag) => sum + ag.amount, 0) : 0;
 
     return (
         <>
@@ -139,7 +145,6 @@ const Analytics = (userId) => {
                     <h3 className="pt-0 text-2xl font-semibold px-4 md:px-8" style={{paddingBottom: 0}}>Category wise Income</h3>
                     <CategoryWiseData data={incomeData} total={totalIncome}/>
                 </>
-                
             }
         </>
        

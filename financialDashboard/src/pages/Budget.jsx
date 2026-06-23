@@ -16,17 +16,21 @@ const Budget = () => {
     const [currBudget, setCurrBudget] = useState([])
     let categories = [];
     const [isOpen,setIsOpen] = useState(false);
-    const time = ['All', ...new Set(transactions.map((tx) => {
-        const txDate = new Date(tx.date);
-        return txDate.toLocaleString("en-US", {
-            month: "short",
-            year: "numeric"
-        });
-    }))];
+    const time = useMemo(()=>{
+        if(!transactions) return 'All';
+        return ['All', ...new Set(transactions.map((tx) => {
+            const txDate = new Date(tx.date);
+            return txDate.toLocaleString("en-US", {
+                month: "short",
+                year: "numeric"
+            });
+        }))]
+    },[transactions]);;
     const selectedMonth = timeFilter ? timeFilter?.split(" ")[0] : "all"; 
     const selectedYear = timeFilter?.split(" ")[1] ;
     let month = '';
     const currentMonthExpenses = useMemo(()=>{
+        if(!transactions) return null;
         return transactions.filter(tx => {const txDate = new Date(tx.date);
             month = txDate.toLocaleString("en-US", {
                 month: "short"
@@ -46,13 +50,14 @@ const Budget = () => {
                 );
             } 
         });
-    },[timeFilter,selectedMonth,selectedYear,[]])
-    const totalExpenses = currentMonthExpenses.filter(tx => tx.amount > 0 && !tx.pending).reduce((sum, tx) => sum + tx.amount, 0);
+    },[timeFilter,selectedMonth,selectedYear,transactions])
+    const totalExpenses = currentMonthExpenses ? currentMonthExpenses.filter(tx => tx.amount > 0 && !tx.pending).reduce((sum, tx) => sum + tx.amount, 0):0;
     const actualBudget = useMemo(() => {
+        if(currentMonthExpenses === null) return null; 
         return getAmountbyCategory(currentMonthExpenses, true);
     }, [currentMonthExpenses]);
 
-    categories = Object.keys(actualBudget);
+    categories = actualBudget ? Object.keys(actualBudget):null;
     useEffect(()=>{
         getBudgetData();
     },[userData],[]);
@@ -63,11 +68,6 @@ const Budget = () => {
                 setBudget(budgetData)
         }
     }
-    useEffect(()=>{
-        if(time.length >0 ) 
-            setTimeout(()=>{setLoading(false)
-            },1000);
-    },[time]);
     const getActualVsExpected = (actualBudget, budgets) => {
         return budgets.filter((budget) => {
             if (selectedMonth !== "all"){
@@ -79,13 +79,13 @@ const Budget = () => {
                 return new Date(budget.year,budget.month - 1) <= new Date()
             }
         }).map((budget) => {
-            const actual = Object.entries(actualBudget).filter(([name]) =>
+            const actual = actualBudget ? Object.entries(actualBudget).filter(([name]) =>
                 name.toLowerCase().includes(budget.category.toLowerCase())
-            ).reduce((sum, [, amount]) => sum + amount, 0);
+            ).reduce((sum, [, amount]) => sum + amount, 0) : null;
             return {
                 category: budget.category,
                 expected: budget.limit,
-                actual: Number(actual.toFixed(2)),
+                actual: actual ? Number(actual.toFixed(2)) : 0,
             };
         });
     };
