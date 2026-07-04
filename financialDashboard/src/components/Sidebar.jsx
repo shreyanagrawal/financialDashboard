@@ -18,8 +18,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/40 z-100 lg:hidden" onClick={() => setSidebarOpen(false)}></div>
       )}
-      <div className={`sidebar fixed top-0 left-0 h-full w-56 sm:w-64 bg-white shadow-lg p-6 z-101
-        transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static`}>
+      <div className={`sidebar sticky left-0 min-h-screen w-56 sm:w-64 bg-white shadow-lg p-6 z-98
+        transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static`} style={{top: "-100px", "paddingTop": "150px", position: "relative"}}>
         <h2 className="text-2xl font-bold text-blue-700 mb-10">FinDash</h2>
         <div className="flex flex-col gap-4">
           <Link to="/home"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Dashboard</span></Link>

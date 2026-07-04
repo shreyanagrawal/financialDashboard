@@ -142,7 +142,9 @@ const Nav = () => {
   },[userData])
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"}/>
+      {!loading &&
+        <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"}/>
+      }
       <div className="flex">
         <button
           className={`lg:hidden fixed top-4 left-4 z-100 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
