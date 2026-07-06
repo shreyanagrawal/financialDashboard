@@ -12,6 +12,7 @@ const Home = () => {
   const {accounts,setAccounts, isDataAvailable, setisDataAvailable, transactions, setTransactions} = useContext(PlaidContext);
   const {userData,setUserData, loading, setLoading} = useContext(AuthContext);
   useLayoutEffect(()=>{
+    debugger;
     if (accounts === null || transactions === null) return;
     setisDataAvailable(accounts?.length > 0 && transactions?.length > 0);
    const timer = setTimeout(() => {

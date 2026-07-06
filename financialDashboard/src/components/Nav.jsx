@@ -37,7 +37,9 @@ const Nav = () => {
     return () => clearTimeout(timer);
   }, [location.pathname]);
   useEffect(()=>{
+    debugger;
     if(userData){
+      debugger;
       loadAccounts();
       loadTransactions();
     }
@@ -55,6 +57,7 @@ const Nav = () => {
     }
   };
   const loadAccounts = async()=>{
+    debugger;
     if(!userData)
       return;
     const accounstData = await getAccountsData(userData._id);
@@ -137,8 +140,9 @@ const Nav = () => {
     }
   }
   useEffect(()=>{
+    let timer;
     if(Object.keys(userData).length > 0){
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setLoading(false);
       }, 1000); 
     }
@@ -146,8 +150,8 @@ const Nav = () => {
     return () => clearTimeout(timer);
   },[userData])
   return (
-    <div className="min-h-screen bg-gray-100 absolute top-0" style={{"width": "100vw"}}>
-      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"}/>  
+    <div className="min-h-screen bg-gray-100 absolute top-0" style={{"width": "100%"}}>
+      {!loading && <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"}/>}  
       <div className="flex">
         <button
           className={`lg:hidden fixed top-4 left-4 z-100 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${

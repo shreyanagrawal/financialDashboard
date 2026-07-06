@@ -5,6 +5,6 @@ export const PlaidContext = createContext({
     setAccounts:()=>{},
     transactions:[],
     setTransactions:()=>{},
-    isDataAvailable:false,
+    isDataAvailable:true,
     setisDataAvailable:()=>{}
 })
