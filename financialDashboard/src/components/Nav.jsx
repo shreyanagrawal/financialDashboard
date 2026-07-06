@@ -136,10 +136,12 @@ const Nav = () => {
     }
   }
   useEffect(()=>{
-    if(Object.keys(userData).length > 0)
+    if(Object.keys(userData).length > 0){
       const timer = setTimeout(() => {
         setLoading(false);
       }, 1000); 
+    }
+      
     return () => clearTimeout(timer);
   },[userData])
   return (
