@@ -4,6 +4,8 @@ const api = axios.create({
     baseURL: API_URL,
 });
 export const fetchWithAuth = async(accessToken,setAccessToken,navigate)=>{
+    console.log("In fetch with auth")
+    debugger;
     try{
         const res = await axios.get(`${API_URL}/api/profile`,
             {
