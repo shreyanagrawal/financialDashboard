@@ -111,7 +111,6 @@ const Analytics = (userId) => {
         return getAmountbyCategory(currentMonthData,true)
     },[currentMonthData]);
     const incomeData = useMemo(()=>{
-        debugger;
         if(currentMonthData === null) return null;
         return getAmountbyCategory(currentMonthData,false)
     },[currentMonthData]);

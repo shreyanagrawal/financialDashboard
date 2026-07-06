@@ -37,9 +37,7 @@ const Nav = () => {
     return () => clearTimeout(timer);
   }, [location.pathname]);
   useEffect(()=>{
-    debugger;
     if(userData){
-      debugger;
       loadAccounts();
       loadTransactions();
     }
@@ -57,7 +55,6 @@ const Nav = () => {
     }
   };
   const loadAccounts = async()=>{
-    debugger;
     if(!userData)
       return;
     const accounstData = await getAccountsData(userData._id);
