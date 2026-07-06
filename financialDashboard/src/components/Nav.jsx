@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, useLayoutEffect } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import { AuthContext } from "../utils/AuthContext";
@@ -19,7 +19,7 @@ const Nav = () => {
   const navigate = useNavigate();
   const firstRender = useRef(true);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     loadProfile();
     generateLinkToken();
   }, []);
@@ -137,14 +137,14 @@ const Nav = () => {
   }
   useEffect(()=>{
     if(Object.keys(userData).length > 0)
-      setTimeout(()=>{setLoading(false)
-      },1000);
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1000); 
+    return () => clearTimeout(timer);
   },[userData])
   return (
-    <div className="min-h-screen bg-gray-100">
-      {!loading &&
-        <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"}/>
-      }
+    <div className="min-h-screen bg-gray-100 absolute top-0" style={{"width": "100vw"}}>
+      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"}/>  
       <div className="flex">
         <button
           className={`lg:hidden fixed top-4 left-4 z-100 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${

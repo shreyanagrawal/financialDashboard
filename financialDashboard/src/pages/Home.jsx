@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import AccountCard from "../components/AccountCard";
 import { PlaidContext } from "../utils/PlaidContext";
 import { AuthContext } from "../utils/AuthContext";
@@ -11,11 +11,13 @@ import TransactionChart from "../components/TransactionChart";
 const Home = () => {
   const {accounts,setAccounts, isDataAvailable, setisDataAvailable, transactions, setTransactions} = useContext(PlaidContext);
   const {userData,setUserData, loading, setLoading} = useContext(AuthContext);
-  useEffect(()=>{
+  useLayoutEffect(()=>{
     if (accounts === null || transactions === null) return;
     setisDataAvailable(accounts?.length > 0 && transactions?.length > 0);
-    setTimeout(()=>{setLoading(false)
-    },1000);
+   const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000); 
+    return () => clearTimeout(timer);
   },[accounts,transactions])
   if(!isDataAvailable && !loading) return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">

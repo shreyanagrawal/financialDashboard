@@ -14,9 +14,11 @@ const Transactions = () => {
     
     useEffect(() => {
         if (transactions !== null && transactions.length > 0) {
-            setTimeout(()=>{setLoading(false)
-            },1000);        
+           const timer = setTimeout(() => {
+            setLoading(false);
+            }, 1000); 
         }
+        return () => clearTimeout(timer);
     }, [transactions]);
 
     return (

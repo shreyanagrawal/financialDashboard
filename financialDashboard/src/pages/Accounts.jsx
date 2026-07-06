@@ -13,9 +13,11 @@ const Accounts = (userId) => {
   const {accounts, setAccounts, transactions, setTransactions} = useContext(PlaidContext);
   useEffect(() => {
     if (accounts) {
-      setTimeout(()=>{setLoading(false)
-      },1000);
+     const timer = setTimeout(() => {
+        setLoading(false);
+      }, 1000); 
     }
+    return () => clearTimeout(timer);
   }, [accounts]);
   const loadAccounts = async(userId)=>{
     const accounstData = await getAccountsData(userId);
