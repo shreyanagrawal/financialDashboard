@@ -44,6 +44,7 @@ const Nav = () => {
   },[userData],[])
   const loadProfile = async () => {
     try {
+      debugger;
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
       if (data.user._id !== null) 
         setUserData(data.user);
