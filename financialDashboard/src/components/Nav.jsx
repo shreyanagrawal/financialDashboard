@@ -20,6 +20,8 @@ const Nav = () => {
   const firstRender = useRef(true);
 
   useLayoutEffect(() => {
+    debugger;
+    console.log("Nav on load")
     loadProfile();
     generateLinkToken();
   }, []);
@@ -45,6 +47,8 @@ const Nav = () => {
   const loadProfile = async () => {
     try {
       debugger;
+
+      console.log("In load Profile");
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
       if (data.user._id !== null) 
         setUserData(data.user);
