@@ -6,7 +6,6 @@ import { PlaidContext } from "../utils/PlaidContext";
 import PlaidStats from "../components/PlaidStats";
 import BankSelectionModal from "../components/BankSelectionModal";
 import { AuthContext } from "../utils/AuthContext";
-const API_URL = import.meta.env.VITE_API_URL;
 const Accounts = (userId) => {
   const {loading, setLoading} = useContext(AuthContext);
   const [modalOpen, setModalOpen] = useState(false);
