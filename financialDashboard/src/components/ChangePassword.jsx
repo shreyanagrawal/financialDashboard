@@ -3,7 +3,6 @@ import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { AuthContext } from "../utils/AuthContext";
 import { logoutUser } from "../utils/api";
-// const API_URL = import.meta.env.VITE_API_URL;
 
 const ChangePasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
   const [step, setStep] = useState(1);

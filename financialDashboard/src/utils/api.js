@@ -1,11 +1,6 @@
 import axios from "axios"
-// const API_URL = import.meta.env.VITE_API_URL;
-// const api = axios.create({
-//     baseURL: API_URL,
-// });
+
 export const fetchWithAuth = async(accessToken,setAccessToken,navigate)=>{
-    console.log("In fetch with auth")
-    debugger;
     try{
         const res = await axios.get(`/api/profile`,
             {
