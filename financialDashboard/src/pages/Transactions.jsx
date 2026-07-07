@@ -13,8 +13,9 @@ const Transactions = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     
     useEffect(() => {
+        let timer;
         if (transactions !== null && transactions.length > 0) {
-           const timer = setTimeout(() => {
+            timer = setTimeout(() => {
             setLoading(false);
             }, 1000); 
         }

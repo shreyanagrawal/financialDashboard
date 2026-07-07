@@ -12,8 +12,9 @@ const Accounts = (userId) => {
   const [modalOpen, setModalOpen] = useState(false);
   const {accounts, setAccounts, transactions, setTransactions} = useContext(PlaidContext);
   useEffect(() => {
+    let timer;
     if (accounts) {
-     const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setLoading(false);
       }, 1000); 
     }
