@@ -35,7 +35,7 @@ const TransactionsList = ({transactions}) => {
                     <Link to="/transactions"><h2 className="text-white text-sm text-right flex items-center justify-end gap-1 cursor-pointer">View All <ArrowRight className="w-4 h-4"/></h2></Link>
                 }
                 {path.pathname === "/transactions" && (
-                    <div className="relative w-full sm:w-auto min-w-[200px] justify-self-end">
+                    <div className="relative w-full md:w-auto md:min-w-[200px] md:justify-self-end mt-3 md:mt-0">
                     <select className="w-full appearance-none bg-white border border-gray-300 text-gray-700 font-medium py-2 px-4 pr-10 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition-colors text-sm" onChange={(e)=>setFilter(e.target.value.split(" *//")[0])} value={filter}>
                         {filters.map((filter, index)=>(
                             <option key={index} value={filter?.split("*//")[0].toLowerCase()}>{filter}</option>

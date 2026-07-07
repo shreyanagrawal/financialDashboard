@@ -73,10 +73,16 @@ route.post("/sendOTP", async(req,res)=>{
         await user.save();
 
         const mailoption = {
-            from:process.env.EMAIL,
-            to:email,
-            subject:"OTP for password reset.",
-            text:`Your OTP for password reset is: ${otp}`
+           from: `"Financial Dashboard Platform" <${process.env.EMAIL}>`,
+             to: email,
+             subject: "Verify your email for registration",
+             html: `
+                <h2>Welcome to Personal Financial Dashboard Platform </h2>
+                <p>Your verification code is:</p>
+                <h1>${otp}</h1>
+                <p>This code will expire in 10 minutes.</p>
+                <p>If you did not request this code, please ignore this email.</p>
+                `
         }
 
         await transporter.sendMail(mailoption);
@@ -173,10 +179,16 @@ route.post("/sendRegistrationOTP", async (req, res) => {
         global.registrationOTPs[email] = { otp, expiry: otpExpiry };
 
         const mailoption = {
-            from: process.env.EMAIL,
-            to: email,
-            subject: "Verify your email for registration",
-            text: `Your OTP for verification is: ${otp}`
+           from: `"Financial Dashboard Platform" <${process.env.EMAIL}>`,
+             to: email,
+             subject: "Verify your email for registration",
+             html: `
+                <h2>Welcome to Personal Financial Dashboard Platform </h2>
+                <p>Your verification code is:</p>
+                <h1>${otp}</h1>
+                <p>This code will expire in 10 minutes.</p>
+                <p>If you did not request this code, please ignore this email.</p>
+                `
         };
 
         await transporter.sendMail(mailoption);
