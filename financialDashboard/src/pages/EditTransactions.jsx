@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import { useLocation, useNavigate } from "react-router-dom";
 import { getTransactionsData, editTransaction, deleteTransaction } from '../utils/api';
-const API_URL = import.meta.env.VITE_API_URL;
 const EditTransactions = () => {
     const location = useLocation();
     const navigate = useNavigate();

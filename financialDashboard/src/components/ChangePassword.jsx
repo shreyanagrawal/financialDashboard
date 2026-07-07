@@ -3,7 +3,6 @@ import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { AuthContext } from "../utils/AuthContext";
 import { logoutUser } from "../utils/api";
-const API_URL = import.meta.env.VITE_API_URL;
 
 const ChangePasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
   const [step, setStep] = useState(1);
@@ -49,7 +48,7 @@ const ChangePasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
   const handleSendOTP = async (data) => {
     setIsSubmitting(true);
     try {
-      await axios.post(`${API_URL}/api/sendOTP`, { email: data.email });
+      await axios.post(`/api/sendOTP`, { email: data.email });
       setEmail(data.email);
       setIsError(false);
       setMessage("OTP has been sent to your email");
@@ -74,7 +73,7 @@ const ChangePasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
 
     setIsSubmitting(true);
     try {
-      await axios.post(`${API_URL}/api/verifyotp`, { email, otp });
+      await axios.post(`/api/verifyotp`, { email, otp });
       setIsError(false);
       setOtpVerified(true);
       setMessage("OTP verified successfully");
@@ -107,7 +106,7 @@ const ChangePasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
             otp: otp,                              // From the Login page
             newPassword: data.newPassword,
           };
-      await axios.post(`${API_URL}/api/changepassword`, payload);
+      await axios.post(`/api/changepassword`, payload);
       setIsError(false);
       setMessage(isProfileMode ? "Password updated successfully!" : "Password reset successfully!");
       setTimeout(() => {
