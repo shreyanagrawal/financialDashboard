@@ -3,6 +3,7 @@ import { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { AuthContext } from "../utils/AuthContext";
 import { logoutUser } from "../utils/api";
+import { useNavigate } from "react-router-dom";
 
 const ChangePasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
   const [step, setStep] = useState(1);
@@ -12,7 +13,7 @@ const ChangePasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const navigate=useNavigate();
   const {
     register,
     handleSubmit,
@@ -112,9 +113,16 @@ const ChangePasswordModal = ({ isOpen, onClose, isProfileMode, userId }) => {
       setTimeout(() => {
         handleModalClose();
       }, 2000);
-      setTimeout(()=>{
-        logoutUser();
-      },100)
+      
+        try {
+          const deleted = await logoutUser();
+            if (deleted.status === 200) {
+              setTimeout(()=>{navigate("/")},100);
+            }
+          } catch (error) {
+            console.log(error);
+          }        
+      
     } catch (error) {
       setIsError(true);
       setMessage(error.response?.data?.msg || "Failed to reset password");
