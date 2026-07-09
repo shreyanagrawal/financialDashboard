@@ -1,13 +1,8 @@
 import axios from "axios"
-const API_URL = import.meta.env.VITE_API_URL;
-const api = axios.create({
-    baseURL: API_URL,
-});
+
 export const fetchWithAuth = async(accessToken,setAccessToken,navigate)=>{
-    console.log("In fetch with auth")
-    debugger;
     try{
-        const res = await axios.get(`${API_URL}/api/profile`,
+        const res = await axios.get(`/api/profile`,
             {
                 headers:{
                 Authorization:
@@ -18,14 +13,14 @@ export const fetchWithAuth = async(accessToken,setAccessToken,navigate)=>{
         );
         if(!res.data.authenticated){
             try{
-                const refreshRes = await axios.post(`${API_URL}/api/refresh`,{},
+                const refreshRes = await axios.post(`/api/refresh`,{},
                     {
                         withCredentials:true
                     }
                 );
                 const newAccessToken = refreshRes.data.accessToken;
                 setAccessToken(newAccessToken);
-                const retryRes = await axios.get(`${API_URL}/api/profile`,
+                const retryRes = await axios.get(`/api/profile`,
                     {
                         headers:{
                             Authorization:
@@ -49,7 +44,7 @@ export const fetchWithAuth = async(accessToken,setAccessToken,navigate)=>{
 };
 export const getAccountsData = async(userId)=>{
     try {
-        const accountsData = await axios.post(`${API_URL}/api/getAccounts`,{ userid: userId});
+        const accountsData = await axios.post(`/api/getAccounts`,{ userid: userId});
         if (accountsData.status === 200) {
             return accountsData.data.accounts;
         }
@@ -59,7 +54,7 @@ export const getAccountsData = async(userId)=>{
 }
 export const getTransactionsData = async(userId)=>{
     try {
-        const transactionsData = await axios.post(`${API_URL}/api/getTransactions`,{ userid: userId});
+        const transactionsData = await axios.post(`/api/getTransactions`,{ userid: userId});
         
         if (transactionsData.status === 200) {
             return transactionsData.data.transactions;
@@ -69,7 +64,7 @@ export const getTransactionsData = async(userId)=>{
     }
 }
 export const createLinkToken = async()=>{
-    const response = await axios.post(`${API_URL}/api/create-link-token`,{},
+    const response = await axios.post(`/api/create-link-token`,{},
         {
           withCredentials: true
         }
@@ -78,7 +73,7 @@ export const createLinkToken = async()=>{
 }
 export const createUpdateModeLinkToken = async(userId, plaidItemId) => {
     try {
-        const response = await axios.post(`${API_URL}/api/link-token/update`,
+        const response = await axios.post(`/api/link-token/update`,
             {
                 userId,
                 plaidItemId
@@ -95,7 +90,7 @@ export const createUpdateModeLinkToken = async(userId, plaidItemId) => {
 }
 export const syncAccountsAfterUpdate = async(userId, plaidItemId) => {
     try {
-        const response = await axios.post(`${API_URL}/api/sync-accounts`,
+        const response = await axios.post(`/api/sync-accounts`,
             {
                 userId,
                 plaidItemId
@@ -111,7 +106,7 @@ export const syncAccountsAfterUpdate = async(userId, plaidItemId) => {
     }
 }
 export const logoutUser = async()=>{
-    const deleted = await axios.delete(`${API_URL}/api/refresh`,
+    const deleted = await axios.delete(`/api/refresh`,
         {
             withCredentials: true
         }
@@ -120,7 +115,7 @@ export const logoutUser = async()=>{
 }
 export const fetchPlaidData = async(publicToken, userId)=>{
     if(publicToken !== ''){
-        const resData = await axios.post(`${API_URL}/api/exchange_public_token`,{public_token:publicToken, user_id : userId},{
+        const resData = await axios.post(`/api/exchange_public_token`,{public_token:publicToken, user_id : userId},{
             withCredentials:true
         });
         return resData
@@ -128,14 +123,14 @@ export const fetchPlaidData = async(publicToken, userId)=>{
 }
 export const updateLinking = async(accountId, userId, isLinked)=>{
     if(accountId !== '' && userId !== ''){
-        const AccountData = await axios.post(`${API_URL}/api/updateAccountsLink`,{accountId:accountId, userId:userId, isLinked: isLinked});
+        const AccountData = await axios.post(`/api/updateAccountsLink`,{accountId:accountId, userId:userId, isLinked: isLinked});
         if(AccountData.status === 200)
             return AccountData.status
     }
 }
 export const submitBuget = async(formData, userId)=>{
     if(formData !== '' && userId !== ''){
-        const handleBudget = await axios.post(`${API_URL}/api/addBudget`,{formData: formData, userId: userId});
+        const handleBudget = await axios.post(`/api/addBudget`,{formData: formData, userId: userId});
         if(handleBudget.status === 200)
             return handleBudget.data;
     }
@@ -143,14 +138,14 @@ export const submitBuget = async(formData, userId)=>{
 
 export const getBudgets = async(userId)=>{
     if(userId){
-        const budgets = await axios.post(`${API_URL}/api/getBudget`, {userId: userId});
+        const budgets = await axios.post(`/api/getBudget`, {userId: userId});
         if(budgets.status === 200)
             return budgets.data.data.flatMap(item => item.budgets);
     } 
 }
 export const getAggregatedData = async(userId)=>{
     if(userId){
-        const analytics = await axios.post(`${API_URL}/api/income-expense-chart`,{userId: userId.userId});
+        const analytics = await axios.post(`/api/income-expense-chart`,{userId: userId.userId});
         if(analytics.status === 200)
             return analytics.data;
     }     
@@ -179,7 +174,7 @@ export const editBudget = async(budgetData, userId) => {
     if(!budgetData)
         return null;
     if(budgetData){
-        const updatedBudgetData = await axios.patch(`${API_URL}/api/editBudget`,{budgetData: budgetData, userId: userId});
+        const updatedBudgetData = await axios.patch(`/api/editBudget`,{budgetData: budgetData, userId: userId});
         if(updatedBudgetData)
             return updatedBudgetData.data;
     }
@@ -188,7 +183,7 @@ export const deleteBudget = async(budgetData, userId) => {
     if(!budgetData)
         return null;
     if(budgetData){
-        const updatedBudgetData = await axios.delete(`${API_URL}/api/deleteBudget`,{
+        const updatedBudgetData = await axios.delete(`/api/deleteBudget`,{
             data:{
                     budgetData, 
                     userId
@@ -202,7 +197,7 @@ export const deleteBudget = async(budgetData, userId) => {
 
 export const submitTransactions = async(formData, userId)=>{
     if(formData !== '' && userId !== ''){
-        const handleTransactions = await axios.post(`${API_URL}/api/addTransactions`,{formData: formData, userId: userId});
+        const handleTransactions = await axios.post(`/api/addTransactions`,{formData: formData, userId: userId});
         if(handleTransactions.status === 200)
             return handleTransactions.data;
     }
@@ -211,7 +206,7 @@ export const editTransaction = async(transactionData, userId) => {
     if(!transactionData)
         return null;
     if(transactionData){
-        const updatedTransactionData = await axios.patch(`${API_URL}/api/editTransaction`,{transactionData: transactionData, userId: userId});
+        const updatedTransactionData = await axios.patch(`/api/editTransaction`,{transactionData: transactionData, userId: userId});
         if(updatedTransactionData)
             return updatedTransactionData.data;
     }
@@ -220,7 +215,7 @@ export const deleteTransaction = async(transactionData, userId) => {
     if(!transactionData)
         return null;
     if(transactionData){
-        const updatedTransactionData = await axios.delete(`${API_URL}/api/deleteTransaction`,{
+        const updatedTransactionData = await axios.delete(`/api/deleteTransaction`,{
             data:{
                     transactionData, 
                     userId

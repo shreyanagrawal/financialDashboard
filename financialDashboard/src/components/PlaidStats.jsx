@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { PlaidContext } from '../utils/PlaidContext'
 import { useLocation } from 'react-router-dom';
 import { AuthContext } from '../utils/AuthContext';
@@ -6,10 +6,9 @@ import { AuthContext } from '../utils/AuthContext';
 const PlaidStats = ({transactions}) => {
     const {accounts, setAccounts} = useContext(PlaidContext);
     const {loading, setLoading} = useContext(AuthContext);
-    if(!accounts || !transactions)
-        setLoading(true);
-    else
-        setLoading(false);
+    useEffect(() => {
+        setLoading(!accounts || !transactions);
+    }, [accounts, transactions, setLoading]);
     const totalBalance = accounts?.reduce((sum, item) => {
         return (
         sum + item.accounts.reduce(

@@ -4,7 +4,6 @@ import { PlaidContext } from '../utils/PlaidContext';
 import ChangePasswordModal from '../components/ChangePassword';
 import axios from 'axios';
 import { getAccountsData, getTransactionsData } from '../utils/api';
-const API_URL = import.meta.env.VITE_API_URL;
 const Profile = () => {
   const { userData, setUserData, loading, setLoading } = useContext(AuthContext);
   const { accounts, transactions, setAccounts, setTransactions } = useContext(PlaidContext);
@@ -53,7 +52,7 @@ const Profile = () => {
   const handleSave = async () => {
     try {
       setIsEditing(false);
-      const updatedProfileData = await axios.post(`${API_URL}/api/update`,{userData});
+      const updatedProfileData = await axios.post(`/api/update`,{userData});
       if(updatedProfileData.status){
         setUserData(updatedProfileData.data.data);
         setMessage(updatedProfileData.data.message);

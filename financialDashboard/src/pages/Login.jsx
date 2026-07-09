@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../utils/AuthContext";
 import ChangePasswordModal from "../components/ChangePassword"; 
-const API_URL = import.meta.env.VITE_API_URL;
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [message, setMessage] = useState('');
@@ -41,13 +40,13 @@ const Login = () => {
     setIsSubmitting(true);
     if (isLogin) {
       try{
-        const result = await axios.post(`${API_URL}/api/login`,data,{
+        const result = await axios.post(`/api/login`,data,{
         withCredentials:true })
         setIsError(false);
         const token = result.data.accessToken;
         setAccessToken(token);
         setMessage("User logged in successfully");
-        const profileData = await axios.get(`${API_URL}/api/profile`,{
+        const profileData = await axios.get(`/api/profile`,{
             headers:{
                 Authorization:
                   `Bearer ${token}`
@@ -64,7 +63,7 @@ const Login = () => {
       }else{
         if (regStep === 1) {
           try{
-            await axios.post(`${API_URL}/api/sendRegistrationOTP`, { email: data.email });
+            await axios.post(`/api/sendRegistrationOTP`, { email: data.email });
             setIsError(false);
             setMessage("OTP sent to your email. Please verify.");
             setRegStep(2); 
@@ -84,7 +83,7 @@ const Login = () => {
         }
         try {
           const payload = { ...data, otp: otp };
-          await axios.post(`${API_URL}/api/registerWithOTP`, payload);
+          await axios.post(`/api/registerWithOTP`, payload);
           setIsError(false);
           setMessage("Registration Successful!");
           setTimeout(() => {
