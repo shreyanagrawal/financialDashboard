@@ -49,18 +49,16 @@ const generateOTP = () => {
 }
 
 let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        family: 4, // Force IPv4
-            auth:{
-                user:process.env.EMAIL,
-                pass:process.env.EMAIL_PASSWORD
-            },
-            tls: {
-        // Do not fail on invalid/unverified certificates (highly recommended for cloud environments)
-        ciphers: 'SSLv3',
-        rejectUnauthorized: false 
+        host: "74.125.142.108", 
+    port: 465,             // Switching to secure SSL port 465 works better with raw IPs
+    secure: true,          // true for 465
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD
+    },
+    tls: {
+        // Tells Nodemailer to accept Gmail's certificate even though we used an IP address
+        rejectUnauthorized: false
     }
         })
 
