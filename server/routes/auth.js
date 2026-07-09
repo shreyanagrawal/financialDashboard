@@ -50,11 +50,19 @@ const generateOTP = () => {
 }
 
 let transporter = nodemailer.createTransport({
-            service:"gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        family: 4, // Force IPv4
             auth:{
                 user:process.env.EMAIL,
                 pass:process.env.EMAIL_PASSWORD
-            }
+            },
+            tls: {
+        // Do not fail on invalid/unverified certificates (highly recommended for cloud environments)
+        ciphers: 'SSLv3',
+        rejectUnauthorized: false 
+    }
         })
 
 route.post("/sendOTP", async(req,res)=>{
