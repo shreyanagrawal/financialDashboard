@@ -163,20 +163,25 @@ route.post("/changepassword", async(req,res)=>{
 // 1. Modified sendOTP to allow sending OTP to NEW emails for registration
 route.post("/sendRegistrationOTP", async (req, res) => {
     try {
+         console.log("1. Request received");
         const { email } = req.body;
+         console.log("2. Before Mongo");
         
         // Check if user already exists
         const existingUser = await UserModel.findOne({ email });
+         console.log("3. Mongo completed");
         if (existingUser) {
             return res.status(400).json({ message: "Email is already registered" });
         }
 
         let otp = generateOTP();
+        console.log("4. OTP generated");
         const otpExpiry = Date.now() + 5 * 60 * 1000; // 5 mins
 
         // For simplicity, we send the OTP. (In production, cache this OTP mapping safely)
         global.registrationOTPs = global.registrationOTPs || {};
         global.registrationOTPs[email] = { otp, expiry: otpExpiry };
+        console.log("5. Before sendMail");
 
         const mailoption = {
            from: `"Financial Dashboard Platform" <${process.env.EMAIL}>`,
@@ -192,8 +197,11 @@ route.post("/sendRegistrationOTP", async (req, res) => {
         };
 
         await transporter.sendMail(mailoption);
-        res.status(200).json({ message: "Verification OTP has been sent to your email." });
-
+        
+        console.log("6. Email sent");
+        res.status(200).json({
+            message: "OTP sent"
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
