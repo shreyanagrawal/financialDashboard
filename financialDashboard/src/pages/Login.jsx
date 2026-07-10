@@ -5,12 +5,17 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../utils/AuthContext";
+import ChangePasswordModal from "../components/ChangePassword"; 
 const API_URL = import.meta.env.VITE_API_URL;
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const {accessToken,setAccessToken} = useContext(AuthContext);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  const [regStep, setRegStep] = useState(1); 
+  const [otp, setOtp] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
@@ -27,20 +32,20 @@ const Login = () => {
     if(message !== '' && isError){
       const interval = setInterval(()=>{
         setMessage("");
-      },1000)
+      },3000)
       return clearInterval(setInterval);
     }
   },[isError,message])
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
     if (isLogin) {
-      axios.post(`${API_URL}/api/login`,data,{
-        withCredentials:true
-      })
-      .then(async(result)=>{
+      try{
+        const result = await axios.post(`${API_URL}/api/login`,data,{
+        withCredentials:true })
         setIsError(false);
         const token = result.data.accessToken;
-        setAccessToken(result.data.accessToken);
+        setAccessToken(token);
         setMessage("User logged in successfully");
         const profileData = await axios.get(`${API_URL}/api/profile`,{
             headers:{
@@ -51,29 +56,59 @@ const Login = () => {
           })
           if(profileData.status === 200)
             setTimeout(()=>{navigate("/home")},2000);
-        
-      })
-      .catch((error)=>{
+      }catch(error){
         setIsError(true);
-        setMessage(error.response.data.message);
-      })
-    } else {
-      axios.post(`${API_URL}/api/register`,data)
-      .then((result)=>{
-        setIsError(false);
-        setMessage("Registration Successful");
-        setInterval(()=>{setIsLogin(true)},2000)}
-      )
-      .catch((error) => {
-        setIsLogin(false);
-        setMessage(error.response.data.message);
-        setIsError(true);
-        reset();
-      });  
+        setMessage(error.response?.data?.message || "Login Failed");
+        setIsSubmitting(false);
+      }
+      }else{
+        if (regStep === 1) {
+          try{
+            await axios.post(`${API_URL}/api/sendRegistrationOTP`, { email: data.email });
+            setIsError(false);
+            setMessage("OTP sent to your email. Please verify.");
+            setRegStep(2); 
+          }catch(error){
+            setIsError(true);
+            setMessage(error.response?.data?.message || "Failed to send OTP");
+          }finally{
+            setIsSubmitting(false);
+        }
+      } 
+      else if (regStep === 2) {
+        if (!otp || otp.length !== 6) {
+          setIsError(true);
+          setMessage("Please enter a valid 6-digit OTP");
+          setIsSubmitting(false);
+          return;
+        }
+        try {
+          const payload = { ...data, otp: otp };
+          await axios.post(`${API_URL}/api/registerWithOTP`, payload);
+          setIsError(false);
+          setMessage("Registration Successful!");
+          setTimeout(() => {
+            setIsLogin(true);
+            setRegStep(1); // Reset step back to 1
+            setOtp("");
+            reset();
+          }, 2000);
+        } catch (error) {
+          setIsError(true);
+          setMessage(error.response?.data?.message || "Registration failed. Invalid OTP.");
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
     }
+  }
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setRegStep(1);
+    setOtp("");
+    setMessage("");
     reset();
   };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 md:flex-row">
       {/* LEFT SIDE */}
@@ -114,16 +149,18 @@ const Login = () => {
           {/* Heading */}
           <div className="mb-8 text-center">
             <h2 className="text-3xl font-bold text-gray-800">
-              {isLogin ? "Welcome" : "Create Account"}
+              {isLogin ? "Welcome" : (regStep === 1 ? "Create Account" : "Verify Email")}
             </h2>
             <p className="text-gray-500 mt-2">
               {isLogin
                 ? "Login to continue managing your finances"
-                : "Start managing your finances today"}
+                : (regStep === 1 ? "Start managing your finances today" : "Enter the 6-digit OTP sent to your email")}
             </p>
           </div>
           {message && message !== '' && <div className={`p-4 mb-4 text-sm rounded-base ${isError ? "text-fg-danger-strong bg-danger-soft" : "text-fg-success-strong bg-success-soft"}`} role="alert"><p className="font-medium">{message}</p></div>}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {(isLogin || regStep === 1) && (
+            <>
             <div>
               <label className="block mb-2 text-gray-700 font-medium">Email </label>
               <input
@@ -159,8 +196,21 @@ const Login = () => {
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
               )}
+
+              {/* 3. ADDED THE "FORGOT PASSWORD" TRIGGER UNDER THE PASSWORD FIELD */}
+              {isLogin && (
+                <div className="flex justify-end mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPasswordOpen(true)}
+                    className="text-sm text-blue-600 hover:underline font-medium"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+              )}
             </div>
-            {!isLogin && (
+            {!isLogin && regStep === 1 &&(
               <div>
                 <label className="block mb-2 text-gray-700 font-medium">Confirm Password</label>
                 <input
@@ -178,18 +228,44 @@ const Login = () => {
                 )}
               </div>
             )}
+            </>
+            )}
+            {!isLogin && regStep === 2 && (
+  <div className="animate-in fade-in duration-300">
+    <label className="block mb-2 text-gray-700 font-medium">Verification Code (OTP)</label>
+    <input
+      type="text"
+      placeholder="Enter 6-digit OTP"
+      maxLength="6"
+      value={otp}
+      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-center tracking-widest text-lg"
+      autoFocus
+    />
+    <button 
+      type="button" 
+      onClick={() => setRegStep(1)} 
+      className="text-sm text-blue-600 hover:underline mt-3 block w-full text-center"
+    >
+      Entered wrong email? Go back
+    </button>
+  </div>
+)}
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition duration-200"
             >
-              {isLogin ? "Login" : "Register"}
+              {isSubmitting
+                ? "Processing..."
+                : (isLogin ? "Login" : (regStep === 1 ? "Send OTP" : "Verify & Register"))}
             </button>
           </form>
           <p className="text-center text-gray-500 mt-6 text-sm">
             {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
             <button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={toggleMode}
               className="text-blue-600 hover:underline font-medium"
             >
               {isLogin ? "Register" : "Login"}
@@ -197,6 +273,12 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      {/* 4. MODAL ELEMENT MOUNTED HERE AT THE BASE LEVEL OF RETURN BLOCK */}
+      <ChangePasswordModal 
+        isOpen={isForgotPasswordOpen} 
+        onClose={() => setIsForgotPasswordOpen(false)} 
+      />
     </div>
   );
 };

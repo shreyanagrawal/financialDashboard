@@ -6,13 +6,12 @@ import { Outlet } from 'react-router-dom';
 
 const PlaidRoute = () => {
     const [isDataAvailable, setisDataAvailable] = useState(false);
-    const [accounts,setAccounts] = useState([]);
-    const [transactions,setTransactions] = useState([]);
+    const [accounts,setAccounts] = useState(null);
+    const [transactions,setTransactions] = useState(null);
   return (
     <PlaidContext.Provider value={{isDataAvailable, setisDataAvailable, accounts, setAccounts, transactions, setTransactions}}>
         <Nav />
     </PlaidContext.Provider>
   )
 }
-
 export default PlaidRoute

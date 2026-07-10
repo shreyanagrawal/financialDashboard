@@ -55,13 +55,23 @@ route.post("/updateAccountsLink", async(req,res)=>{
             const resData = await AccountModel.updateOne(
                 {
                     userId:userId,
-                    "accounts.accountId": accountId 
+                    "items.accounts.accountId": accountId 
                 }, 
                 {
                      $set: {
-                        "accounts.$.isActive": linked ? false: true,
-                        "accounts.$.disconnectedAt": linked ? new Date : null,
+                        "items.$[item].accounts.$[account].isActive": linked ? false: true,
+                        "items.$[item].accounts.$[account].disconnectedAt": linked ? new Date : null,
                     }
+                },
+                {
+                    arrayFilters: [
+                    {
+                        "item.accounts.accountId": accountId
+                    },
+                    {
+                        "account.accountId": accountId
+                    }
+                    ]
                 }
             );
             if(resData){                    

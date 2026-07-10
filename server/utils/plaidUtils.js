@@ -61,20 +61,31 @@ function decrypt(encryptedText){
     return decrypted;
 }
 
-const getAccessToken = async(userId) => {
-
-    const plaidItem = await PlaidItem
-        .findOne({ userId })
-        .select("+encryptedAccessToken");
-
-    if(!plaidItem){
-          throw new Error("Plaid item not found");
+const getAccessToken = async(userId, plaidItemId) => {
+    const plaidDoc = await PlaidItem.findOne({ userId }).select("+encryptedAccessToken");
+    if(!plaidDoc){
+          throw new Error("Document not found");
     }
-
-    const decryptedToken = decrypt(
-        plaidItem.encryptedAccessToken
-    );
-
-    return decryptedToken;
+    return decrypt(plaidDoc.encryptedAccessToken);
 };
-module.exports = {client,encrypt,decrypt,getAccessToken}
+const createUpdateModeLinkToken = async(userId, accessToken) => {
+    try {
+        const response = await client.linkTokenCreate({
+            user: {
+                client_user_id: userId.toString()
+            },
+            client_name: "PFM Dashboard",
+            products: ["transactions"],
+            country_codes: ["US"],
+            language: "en",
+            access_token: accessToken,
+            update: {
+                account_selection_enabled: true
+            }
+        });
+        return response.data.link_token;
+    } catch (error) {
+        throw new Error(`Failed to create update mode link token: ${error.message}`);
+    }
+};
+module.exports = {client,encrypt,decrypt,getAccessToken,createUpdateModeLinkToken}

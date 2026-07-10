@@ -1,9 +1,15 @@
 import React, { useContext } from 'react'
 import { PlaidContext } from '../utils/PlaidContext'
 import { useLocation } from 'react-router-dom';
+import { AuthContext } from '../utils/AuthContext';
 
 const PlaidStats = ({transactions}) => {
     const {accounts, setAccounts} = useContext(PlaidContext);
+    const {loading, setLoading} = useContext(AuthContext);
+    if(!accounts || !transactions)
+        setLoading(true);
+    else
+        setLoading(false);
     const totalBalance = accounts?.reduce((sum, item) => {
         return (
         sum + item.accounts.reduce(
@@ -18,12 +24,12 @@ const PlaidStats = ({transactions}) => {
     const expenseCount = transactions.filter(t => t.amount > 0).length;
     const incomeCount = transactions.filter(t => t.amount < 0).length;
     const path = useLocation();
-   
+    const savings = totalIncome - totalExpenses;
     return (
         <div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <div className="bg-white rounded-2xl shadow-md p-6">
-                    {path.pathname !== "/transactions" && 
+                    {path.pathname !== "/transactions" && path.pathname !== "/analytics" && 
                         <>
                             <h2 className="text-gray-500 text-sm mb-2">Total Balance</h2>
                             <p className="text-2xl md:text-3xl font-bold text-green-600">${Number(totalBalance).toLocaleString("en-US", {
@@ -37,6 +43,16 @@ const PlaidStats = ({transactions}) => {
                         <>
                             <h2 className="text-gray-500 text-sm mb-2">Total Transactions</h2>
                             <p className="text-2xl md:text-3xl font-bold text-blue-600">{transactions.length}</p>
+                        </>
+                    }
+                    {path.pathname ==="/analytics" && 
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">Total Income</h2>
+                            <p className="text-2xl md:text-3xl font-bold text-green-600">${Number(totalIncome).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                            })}</p>
+                            <p className="text-green-400 mt-2"> {incomeCount} transactions </p>
                         </>
                     }
                 </div>
@@ -66,6 +82,16 @@ const PlaidStats = ({transactions}) => {
                             <p className="text-green-400 mt-2"> {incomeCount} transactions </p>
                         </>
                     }
+                    {path.pathname ==="/analytics" && 
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">Total Expenses</h2>
+                            <p className="text-2xl md:text-3xl font-bold text-red-600">${Number(totalExpenses).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                            })}</p>
+                            <p className="text-red-400 mt-2"> {expenseCount} transactions </p>
+                        </>
+                    }
                 </div>                 
                 <div className="bg-white rounded-2xl shadow-md p-6">
                     {path.pathname === "/accounts" && 
@@ -91,26 +117,19 @@ const PlaidStats = ({transactions}) => {
 
                         </>
                     }
+                    {path.pathname === "/analytics" && 
+                        <>
+                            <h2 className="text-gray-500 text-sm mb-2">Savings</h2>
+                            <p className="text-2xl md:text-3xl font-bold text-blue-600">{Number(savings) < 0 ? "-" : ""}${Math.abs(Number(savings)).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                            })}</p>
+                            
+
+                        </>
+                    }
                 </div> 
             </div>
-            {/* <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-xl p-5">
-                <p className="text-slate-400">Total Balance</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">${Number(totalBalance).toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                })}</h2>
-                <p className="text-green-400 mt-2"> Across {accounts.length} accounts      </p>
-            </div> */}
-            {/* <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-xl p-5">
-                <p className="text-slate-400">Connected Banks</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mt-2">{accounts.length}</h2>
-                <p className="text-slate-400 mt-2">via Plaid</p>
-            </div> */}
-            {/* <div className="bg-[#1b2942] border border-[#2d3d5b] rounded-xl p-5">
-                <p className="text-slate-400">Credit Used</p>
-                <h2 className="text-3xl md:text-4xl font-bold text-yellow-400 mt-2">$0</h2>
-                <p className="text-slate-400 mt-2">No credit accounts</p>
-            </div> */}
         </div>
     )
 }
