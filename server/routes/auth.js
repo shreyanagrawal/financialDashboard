@@ -75,20 +75,6 @@ const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-let transporter = nodemailer.createTransport({
-        host: "74.125.142.108", 
-    port: 465,             // Switching to secure SSL port 465 works better with raw IPs
-    secure: true,          // true for 465
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASSWORD
-    },
-    tls: {
-        // Tells Nodemailer to accept Gmail's certificate even though we used an IP address
-        rejectUnauthorized: false
-    }
-        })
-
 route.post("/sendOTP", async(req,res)=>{
     try{
         const {email} = req.body;
