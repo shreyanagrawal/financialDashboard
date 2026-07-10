@@ -5,8 +5,35 @@ const UserModel = require("../models/User");
 const jwt = require("jsonwebtoken");
 const jwutils = require("../utils/jwebtokensUtils");
 const {refreshCookieConfig} = require("../utils/cookieConfig")
-const nodemailer = require('nodemailer');
+const { BrevoClient } = require('@getbrevo/brevo');
+console.log(process.env.BREVO_API_KEY);
+const brevo = new BrevoClient({ apiKey: process.env.BREVO_API_KEY });
+const brevoSender = {
+    name: process.env.BREVO_SENDER_NAME || 'Financial Dashboard',
+    email: process.env.BREVO_SENDER_EMAIL || 'no-reply@yourdomain.com'
+};
 
+if (!process.env.BREVO_API_KEY) {
+    console.warn('BREVO_API_KEY is not set. Brevo email delivery will fail.');
+}
+if (!process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SENDER_EMAIL === 'no-reply@yourdomain.com') {
+    console.warn('BREVO_SENDER_EMAIL is not set or is using a placeholder. Please use a verified Brevo sender email.');
+}
+
+const sendBrevoOTPEmail = async (toEmail, subject, otp) => {
+    return await brevo.transactionalEmails.sendTransacEmail({
+        sender: brevoSender,
+        to: [{ email: toEmail }],
+        subject,
+        htmlContent: `
+            <h2>Welcome to Personal Financial Dashboard Platform</h2>
+            <p>Your verification code is:</p>
+            <h1>${otp}</h1>
+            <p>This code will expire in 5 minutes.</p>
+            <p>If you did not request this code, please ignore this email.</p>
+        `
+    });
+};
 
 route.post("/register", async (req, res) => {
     try {
@@ -78,20 +105,8 @@ route.post("/sendOTP", async(req,res)=>{
 
         await user.save();
 
-        const mailoption = {
-           from: `"Financial Dashboard Platform" <${process.env.EMAIL}>`,
-             to: email,
-             subject: "Verify your email for registration",
-             html: `
-                <h2>Welcome to Personal Financial Dashboard Platform </h2>
-                <p>Your verification code is:</p>
-                <h1>${otp}</h1>
-                <p>This code will expire in 10 minutes.</p>
-                <p>If you did not request this code, please ignore this email.</p>
-                `
-        }
-
-        await transporter.sendMail(mailoption);
+        const response = await sendBrevoOTPEmail(email, "Verify your email for password reset", otp);
+        console.log("Brevo sendOTP response:", response);
 
         res.status(200).json({
             message:"OTP has been sent to your email."
@@ -128,31 +143,31 @@ route.post("/changepassword", async(req,res)=>{
     let user;
 
     if (currentPassword && userId) {
-            user = await UserModel.findById(userId);
-            if (!user) return res.status(404).json({ msg: "User not found" });
+        user = await UserModel.findById(userId);
+        if (!user) return res.status(404).json({ msg: "User not found" });
 
-            // Verify they know their current password
-            const isMatch = await bcrypt.compare(currentPassword, user.password);
-            if (!isMatch) return res.status(400).json({ msg: "Incorrect current password." });
-        }
+        // Verify they know their current password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) return res.status(400).json({ msg: "Incorrect current password." });
+    }
     else if (otp && email) {
-            user = await UserModel.findOne({ email });
-            
-            if (!user || user.resetOtp !== otp) {
-                return res.status(400).json({ msg: "Invalid OTP" });
-            }
-            if (user.otpExpiry < Date.now()) {
-                return res.status(400).json({ msg: "OTP Expired" });
-            }
-            
-            // Clear OTP fields so they can't be reused
-            user.resetOtp = null;
-            user.otpExpiry = null;
+        user = await UserModel.findOne({ email });
+        
+        if (!user || user.resetOtp !== otp) {
+            return res.status(400).json({ msg: "Invalid OTP" });
         }
+        if (user.otpExpiry < Date.now()) {
+            return res.status(400).json({ msg: "OTP Expired" });
+        }
+        
+        // Clear OTP fields so they can't be reused
+        user.resetOtp = null;
+        user.otpExpiry = null;
+    }
 
     else {
-            return res.status(400).json({ msg: "Invalid request. Missing required fields." });
-        }
+        return res.status(400).json({ msg: "Invalid request. Missing required fields." });
+    }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
@@ -188,26 +203,11 @@ route.post("/sendRegistrationOTP", async (req, res) => {
         global.registrationOTPs = global.registrationOTPs || {};
         global.registrationOTPs[email] = { otp, expiry: otpExpiry };
         console.log("5. Before sendMail");
-
-        const mailoption = {
-           from: `"Financial Dashboard Platform" <${process.env.EMAIL}>`,
-             to: email,
-             subject: "Verify your email for registration",
-             html: `
-                <h2>Welcome to Personal Financial Dashboard Platform </h2>
-                <p>Your verification code is:</p>
-                <h1>${otp}</h1>
-                <p>This code will expire in 10 minutes.</p>
-                <p>If you did not request this code, please ignore this email.</p>
-                `
-        };
-
-        await transporter.sendMail(mailoption);
-        
+        const response = await sendBrevoOTPEmail(email, "Verify your email for registration", otp);
+        console.log("Brevo sendRegistrationOTP response:", response);
         console.log("6. Email sent");
-        res.status(200).json({
-            message: "OTP sent"
-        });
+        if(response.messageId)
+            res.status(200).json({ message: "Verification OTP has been sent to your email." });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
