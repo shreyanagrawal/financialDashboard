@@ -37,7 +37,7 @@ const AddBudgetModal = ({isOpen,setIsOpen,categories,userId,budgets, setBudget})
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Select Transaction Category</label>
                         <select className="w-full border border-gray-300 rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-700 cursor-pointer shadow-sm transition-all" onChange={handleChange} value={formData.category} name="category">
-                            <option key="all" value="" selected disabled>Select Option</option>
+                            <option value="" disabled>Select Option</option>
                             {categories.map((filter)=>{
                                 return <option key={crypto.randomUUID()} value={filter.split("*//")[0].toLowerCase()}>{filter}</option>
                             })}

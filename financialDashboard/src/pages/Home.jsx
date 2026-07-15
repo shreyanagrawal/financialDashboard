@@ -20,7 +20,7 @@ const Home = () => {
     return () => clearTimeout(timer);
   },[accounts,transactions])
   if(!isDataAvailable && !loading) return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
+    <div className="min-h-[calc(100vh-90px)] flex justify-center bg-gray-100 px-4 pt-0 pb-6 md:px-8">
       <NoPlaidData />
     </div>
   )
@@ -29,7 +29,7 @@ const Home = () => {
       {!loading && 
         <div className="min-h-screen bg-gray-100">
           <div className="flex-1 px-4 pt-4 md:px-8 md:pt-8 pb-0">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-4 md:p-8 text-white shadow-lg mb-8">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-5 sm:p-6 lg:p-8 text-white shadow-lg mb-8">
               <h1 className="text-2xl md:text-4xl font-bold mb-3">Personal Finance Dashboard</h1>
               <p className="text-blue-100 text-sm md:text-lg">Track your spending, manage budgets, and monitor your financial health.</p>
             </div>
@@ -42,7 +42,13 @@ const Home = () => {
             }
           </div>
           <h2 className="px-4 pb-4 md:px-8 md:pb-8 pt-0 text-2xl font-semibold" style={{paddingBottom: 0}}>Connected Banks</h2>
-          <div className="dashboard p-4 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="dashboard
+          grid
+          grid-cols-1
+          lg:grid-cols-3
+          gap-6
+          mt-6
+          ">
             {accounts?.map(account =>
               <BankCard key = {account._id}
                 bank = {account} />

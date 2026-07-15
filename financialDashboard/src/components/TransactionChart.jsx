@@ -34,7 +34,7 @@ const TransactionChart = ({transactions}) => {
             <PieChart>
               <Pie
                 data={chartData}
-                dataKey="value"x
+                dataKey="value"
                 innerRadius={70}
                 outerRadius={100}
                 paddingAngle={2}
