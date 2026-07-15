@@ -53,7 +53,7 @@ const AddTransactionModal = ({isOpen,setIsOpen,onClose,userId,transactions,setTr
                             </div>
                             <div>
                                 <select onChange={handleChange} value={formData.category} name="category" className=" w-full border border-gray-300 rounded-xl px-4 py-3">
-                                    <option key="all" value="" selected disabled>Select Category</option>
+                                    <option value="" disabled>Select Category</option>
                                     <option key={crypto.randomUUID()} value="food&dining">Food & Dining</option>
                                     <option key={crypto.randomUUID()} value="transport">Transport</option>
                                     <option key={crypto.randomUUID()} value="shopping">Shopping</option>

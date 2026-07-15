@@ -7,23 +7,23 @@ import {
 
 const NoPlaidData = ({ open, ready }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-md p-8 md:p-10">
+    <div className="w-full max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-4 sm:p-6 lg:p-10">
       <div className="flex justify-center mb-4">
         <Landmark className="w-14 h-14 text-blue-600" />
       </div>
 
-      <h2 className="text-2xl teext-centre font-bold mb-3">
+      <h2 className="text-2xl text-center font-bold mb-3">
         No Bank Account Connected
       </h2>
 
-      <p className="text-gray-500 text-centre max-w-2xl mx-auto mb-8">
+      <p className="text-gray-500 text-center max-w-2xl mx-auto mb-8">
         Connect a bank account through Plaid to view balances,
         transactions, analytics and financial insights.
       </p>
       <h3 className="text-lg font-semibold text-center mb-6">
          Why Connect Your Bank Account?
      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
        <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
            <Wallet className="w-8 h-8 text-blue-600 mb-2" />
            <h3 className="font-semibold text-blue-700">
@@ -65,7 +65,7 @@ const NoPlaidData = ({ open, ready }) => {
        <h3 className="text-xl font-bold text-center mb-6">
          How It Works
        </h3>
-       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
          <div>
            <div className="w-10 h-10 mx-auto rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
               1
@@ -112,7 +112,7 @@ const NoPlaidData = ({ open, ready }) => {
       <h3 className="text-xl font-bold text-center mb-6">
          Trusted & Secure
       </h3>
-       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gray-50 rounded-xl p-4 text-center border">
              <div className="text-2xl mb-2">🛡️</div>
              <h4 className="font-semibold text-gray-800">

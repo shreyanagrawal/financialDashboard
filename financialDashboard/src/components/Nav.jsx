@@ -40,7 +40,7 @@ const Nav = () => {
       loadAccounts();
       loadTransactions();
     }
-  },[userData],[])
+  },[userData])
   const loadProfile = async () => {
     try {
       const data = await fetchWithAuth(accessToken, setAccessToken, navigate);
@@ -55,6 +55,8 @@ const Nav = () => {
   const loadAccounts = async()=>{
     if(!userData)
       return;
+    setAccounts([]);
+    setisDataAvailable(false);
     const accounstData = await getAccountsData(userData._id);
     if(accounstData){
       if(accounstData.length > 0){
@@ -64,11 +66,16 @@ const Nav = () => {
         );
         setAccounts(accountsData);
       }
+      else {
+           setAccounts([]);
+           setisDataAvailable(false);
+      }
     }
   }
   const loadTransactions = async()=>{
     if(!userData)
       return;
+    setTransactions([]);
     const transactionsData = await getTransactionsData(userData._id);
     if(transactionsData){
       if(transactionsData.length > 0){
@@ -87,6 +94,9 @@ const Nav = () => {
           (a, b) => new Date(b.date) - new Date(a.date)
         );
         setTransactions(transactions);
+      }
+      else {
+           setTransactions([]);
       }
     }
   }
@@ -146,18 +156,11 @@ const Nav = () => {
   },[userData])
   return (
     <div className="min-h-screen bg-gray-100 absolute top-0" style={{"width": "100%"}}>
-      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"} loading={loading}/>
+      <Navbar open={open} ready={ready} handleLogout={handleLogout} username={userData?.name || userData?.email?.split("@")[0].replace(/\b\w/g, char => char.toUpperCase()) || "User"} loading={loading} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}/>
       <div className="flex">
-        <button
-          className={`lg:hidden fixed top-4 left-4 z-100 bg-blue-600 text-white p-3 rounded-xl shadow-lg ${
-            sidebarOpen ? "hidden" : "block"
-          }`} 
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-        >
-          ☰
-        </button>
+         
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <div className="flex-1 p-8 relative">
+        <div className="flex-1 w-full pt-8 md:pt-10 lg:pt-8 px-4 md:px-6 lg:px-8">
             <Outlet context={{ open, ready }} />
             {loading && (
               <LoadingScreen text="Loading Data..." />

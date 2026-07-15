@@ -12,22 +12,22 @@ const Analytics = (userId) => {
     const {transactions, setTransactions} = useContext(PlaidContext);
     const [aggregatedData, setAggregatedData] = useState([]);
     const [timeFilter,setTimeFilter] = useState();
-    if(!transactions)
-        setLoading(true);
-    else
-        setLoading(false);
     let month = '';
+    useEffect(() => {
+         setLoading(!transactions);
+    }, [transactions]);
     useEffect(()=>{
         const fetchData = async () => {
             const data = await loadaggregatedData(userId);
             if(data?.success){
                 setAggregatedData(data.data);
             }
+            
         };
         if(transactions?.length){
             fetchData();
         }
-    },[transactions],[userId]);
+    },[transactions, userId]);
     useEffect(()=>{
         setLoading(false);
     },[aggregatedData])

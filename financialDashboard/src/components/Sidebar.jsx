@@ -16,34 +16,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   return (
     <>
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/40 z-100 lg:hidden" onClick={() => setSidebarOpen(false)}></div>
+        <div className="fixed inset-0 bg-black/40 z-[110] lg:hidden" onClick={() => setSidebarOpen(false)}></div>
       )}
-      <div className={`sidebar sticky top-0 left-0 h-full w-56 sm:w-64 bg-white shadow-lg p-6 z-98
-        transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static`}>
+      <div className={`fixed lg:sticky top-0 left-0 h-screen w-56 sm:w-64 bg-white shadow-lg p-6 z-[120]
+        transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
         <h2 className="text-2xl font-bold text-blue-700 mb-10">FinDash</h2>
         <div className="flex flex-col gap-4">
-          <Link to="/home"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Dashboard</span></Link>
-          <Link to="/accounts" onClick={(e) => {
-              if (!isDataAvailable)
-                e.preventDefault();
-            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Accounts</span>
+          <Link to="/home" onClick={(e) => handleLinkClick(e, false)}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Dashboard</span></Link>
+          <Link to="/accounts" onClick={(e) => handleLinkClick(e, true)}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Accounts</span>
           </Link>
-          <Link to="/transactions" onClick={(e) => {
-              if (!isDataAvailable)
-                e.preventDefault();
-            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Transactions</span>
+          <Link to="/transactions" onClick={(e) => handleLinkClick(e, true)}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Transactions</span>
           </Link>
-          <Link to="/analytics" onClick={(e) => {
-              if (!isDataAvailable)
-                e.preventDefault();
-            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Analytics</span>
+          <Link to="/analytics" onClick={(e) => handleLinkClick(e, true)}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Analytics</span>
           </Link>
-          <Link to="/budget" onClick={(e) => {
-              if (!isDataAvailable)
-                e.preventDefault();
-            }}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Budgets</span>
+          <Link to="/budget" onClick={(e) => handleLinkClick(e, true)}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">Budgets</span>
           </Link>
-          <Link to="/profile"><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">My Profile</span></Link>
+          <Link to="/profile" onClick={(e) => handleLinkClick(e, false)}><span className="text-left px-4 py-3 rounded-xl font-medium hover:underline">My Profile</span></Link>
         </div>
       </div>
     </>
